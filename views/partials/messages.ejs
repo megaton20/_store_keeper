@@ -1,0 +1,37 @@
+<% if(locals.errors){ %> <% errors.forEach(function(error) { %>
+  <div class="alert-danger" role="alert">
+    <%= error.msg %>  
+  </div>
+
+<% }); %> <% } %> <% if(success_msg != ''){ %>
+<div class=" alert-success" role="alert">
+  <i class="icon-smile" ></i> <%= success_msg %> 
+</div>
+
+
+<% } %> <% if(error_msg != ''){ %>
+<div class="alert-danger" style="padding: 4px;" role="alert">
+  <i class="icon-wondering2" ></i> <%= error_msg %>
+
+</div>
+
+<% } %> <% if(error != ''){ %>
+<div class="alert-danger" style="border: 1px solid #1aff00;" role="alert">
+  <%= error %> 
+
+</div>
+
+<% } %>  <% if(warning_msg != ''){ %>
+<div class="alert alert-warning" style="border: 1px solid red;" role="alert">
+  <i class="icon-bulb" style="font-size: 16px;"></i> <%= warning_msg %> 
+</div>
+<% } %>
+
+
+
+
+  <script>
+    setTimeout(() => document.querySelector('.alert').classList.add('hide'), 5000);
+  </script>
+
+

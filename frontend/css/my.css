@@ -1,0 +1,130 @@
+body{
+
+    background-image: linear-gradient(40deg, #7ba5d4, #ba9b3f) !important;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif !important;
+}
+
+
+.wrapper {
+    
+    display: flex;
+    justify-content: center;
+    margin-top: 200px;
+    padding: 10px;
+    
+}
+
+
+.myform {
+    width: 300px;
+}
+.wrapper input {
+    background-color: #2e663f;
+    color: #ffff;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    border: none;
+    width: 280px;
+}
+
+ input::placeholder{
+    color: #ffff;
+}
+input:active{
+    border: none;
+}
+
+.wrapper button {
+    background-color: #50a169;
+    color: #ffff;
+    padding: 10px;
+    margin-top: 30px;
+    border-radius: 5px;
+    border: none;
+    width: 100%;
+    
+}
+
+
+.top-nav {
+    background-color: #76ecbd;
+    position: fixed;
+    top: 0;
+    left: 0;
+    text-align: center;
+    width: 100%;
+    height: 40px;
+    z-index: 10000;
+}
+
+.top-nav,.footer-nav{
+    padding-bottom: 8px;
+    color: #ffff;
+}
+
+.footer-nav {
+    background-color: #76ecbd;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    text-align: center;
+    width: 100%;
+    height: 40px;
+}
+
+a {
+    text-decoration: none;
+}
+
+
+.tile  {
+  text-transform: capitalize;
+
+}
+
+.tile:active {
+    transform: scale(.98);
+    transition: .09s ease-in;
+}
+
+.tile-pink{
+    background-color: #ef84a0 !important;
+}
+
+.tile-blue{
+    background-color: #00a6ff !important;
+}
+.tile-orange{
+    background-color: #ff9d00 !important;
+}
+.tile-yellow{
+    background-color: #eccc16 !important;
+}
+.tile-dlbue{
+    background-color: #0066ff !important;
+}
+.tile-purple{
+    background-color: #7b00ff !important;
+}
+.tile-green{
+    background-color: #00ff9d !important;
+}
+.tile-red{
+    background-color: #ff0022 !important;
+}
+.tile-lightpurp{
+    background-color: #c03bed !important;
+}
+.tile-gold{
+    background-color: #ffee00 !important;
+}
+
+.tile .card-text{
+    font-size: 13px;
+    padding: 0px;
+    margin: 0px;
+}
