@@ -64,6 +64,7 @@ router.get("/edit-supplier/:id", ensureAuthenticated, adminController.editSuppli
 router.get("/edit-category/:id", ensureAuthenticated, adminController.editCategory)
 router.get("/edit-Inventory/:id", ensureAuthenticated, adminController.editInventory)
 router.get("/edit-position/:id", ensureAuthenticated, adminController.editPosition);
+// router.get("/edit-customer/:id", ensureAuthenticated, adminController.editNewCustomer);
 
 
 router.put("/edit-store/:id", ensureAuthenticated, adminController.editNewStore);
@@ -86,4 +87,5 @@ router.delete("/delete-supplier/:id", ensureAuthenticated, adminController.delet
 router.delete("/delete-category/:id", ensureAuthenticated, adminController.deleteCategory);
 router.delete("/delete-inventory/:id", ensureAuthenticated, adminController.deleteInventory);
 router.delete("/delete-position/:id", ensureAuthenticated, adminController.deletePosition);
+// router.put("/edit-customer/:id", ensureAuthenticated, adminController.editNewCustomer);
 module.exports = router;

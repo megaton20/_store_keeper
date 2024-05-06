@@ -51,7 +51,6 @@ router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
           }else{
 
             if (results.length  <= 0) {
-              console.log("list is empty");
               return res.json('')
              }
 
