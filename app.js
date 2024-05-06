@@ -43,7 +43,7 @@ app.use(methodOverride((req, res)=>{
 
 app.use(flash());
 
-//------------ Global variables  flash msg
+// ------------ Global variables  flash msg
 app.use(function(req, res, next) {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.warning_msg = req.flash('warning_msg');
