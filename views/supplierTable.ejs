@@ -75,7 +75,13 @@
                                                         <td><%= data['email'] %></td>
                                                         <td><%= data['Address'] %></td>
                                                         <td><%= data['created_date'] %></td>
-                                                        <td><a class="btn btn-secondary" href="/admin/edit-supplier/<%= data['id'] %>"> edit</a>
+                                                        <td>
+                                                            <a class="btn btn-secondary" href="/admin/edit-supplier/<%= data['id'] %>"> edit</a>
+                                                            <form action="/admin/delete-supplier/<%= data['id'] %>" method="POST" style="display: inline;">
+                                                                <input type="hidden" name="_method" value="DELETE" />
+                                                                <button  class="btn btn-danger">Delete</button>
+                                                            </form>
+                                                        </td>
                                                   
                                                    </tr> 
                                                    

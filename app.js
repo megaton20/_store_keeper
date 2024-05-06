@@ -23,6 +23,7 @@ app.use(ejsLayouts)
 app.use(express.static(path.join(__dirname, './', 'public')))
 
 
+
 app.use(session({
     secret: 'cat is alive',
     cookie: { maxAge: 24 * 60 * 60 * 1000 }, 
@@ -42,7 +43,7 @@ app.use(methodOverride((req, res)=>{
 
 app.use(flash());
 
-//------------ Global variables 
+//------------ Global variables  flash msg
 app.use(function(req, res, next) {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.warning_msg = req.flash('warning_msg');
@@ -57,5 +58,10 @@ app.use('/auth', authRouter)
 app.use('/admin', adminRouter)
 app.use('/user', userRouter)
 
+// 404 route
+app.use(function(req, res, next) {
+  res.status(404)
+  res.render('404')
+})
 
 app.listen(PORT, console.log(`app running on port ${PORT}`))

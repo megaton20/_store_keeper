@@ -71,8 +71,13 @@
                                                         <td><%= data['Start_date'] %></td>
                                                         <td><%= data['End_date'] %></td>
                                                         <td><%= data['Discount_provider'] %></td>
-                                                        <td><a class="btn btn-secondary" href="/admin/edit-discount/<%= data['id'] %>"> edit</a>
-                                                  
+                                                        <td>
+                                                            <a class="btn btn-secondary" href="/admin/edit-discount/<%= data['id'] %>"> edit</a>
+                                                            <form action="/admin/delete-discount/<%= data['id'] %>" method="POST" style="display: inline;">
+                                                                <input type="hidden" name="_method" value="DELETE" />
+                                                                <button  class="btn btn-danger">Delete</button>
+                                                            </form>
+                                                        </td>
                                                    </tr> 
                                                    
                                                        <% }) %>

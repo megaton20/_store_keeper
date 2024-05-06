@@ -68,11 +68,15 @@
                                                             <td><%= data['Category_name'] %></td>
                                                             <td><%= data['details'] %> </td>
                                                             <td>
-                                                                <a class="btn btn-secondary" href="/admin/edit-category/<%= data['CategoryID'] %>"> edit</a>
-                                                                <a class="btn btn-danger" href="/admin/delete-category/<%= data['CategoryID'] %>"> delete</a>
+                                                                <a class="btn btn-primary" href="/admin/edit-category/<%= data['CategoryID'] %>"> edit</a>
+
+                                                            <form action="/admin/delete-category/<%= data['CategoryID'] %>" method="POST" style="display: inline;">
+                                                                <input type="hidden" name="_method" value="DELETE" />
+                                                                <button  class="btn btn-danger">Delete</button>
+                                                            </form>
                                                             </td>
 
-                                                      
+                                                            
                                                        </tr> 
                                                        
                                                            <% }) %>
@@ -112,5 +116,7 @@
 
     <!-- Logout Modal-->
     <%- include ('./partials/logout') %>
+
+
 
    

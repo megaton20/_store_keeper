@@ -115,7 +115,14 @@
                                                   <!-- check if button needed -->
                                                         <% if(  data['activate']  == "yes" ){ %>
 
-                                                                <td><a class="btn btn-secondary" href="/admin/edit-Inventory/<%= data['id'] %>"> edit</a>
+                                                                <td>
+                                                                    <a class="btn btn-secondary" href="/admin/edit-Inventory/<%= data['id'] %>"> edit</a>
+                                                                    <form action="/admin/delete-category/<%= data['id'] %>" method="POST" style="display: inline;">
+                                                                        <input type="hidden" name="_method" value="DELETE" />
+                                                                        <button  class="btn btn-danger">Delete</button>
+                                                                    </form>
+                                                                </td>
+
 
                                                             <% } else{ %> 
 

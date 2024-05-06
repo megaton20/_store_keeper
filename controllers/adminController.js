@@ -2205,42 +2205,142 @@ exports.editNewInventory = (req, res) => {
   exports.deleteStore = (req, res) => {
   
     let editID = req.params.id
+    const sessionEmail = req.session.employees.email; //  to get more info if needed
+    const sessionRole = req.session.employees.userRole;
+
+    if (sessionRole == "super") {
+      db.query(`DELETE FROM Stores WHERE id = "${editID}"`, (err, results) => {
+        if (err) {
+          console.log(err);
+          req.flash('error_msg', `could not delete: ${err.sqlMessage}`)
+          return res.redirect('/')
+        }
+        req.flash('success_msg', `${editID} has been removed`)
+        return res.redirect('/admin/all-stores')
+      })
+
+      return
+    }else{
+      req.flash('error_msg', `could not delete`)
+      return res.redirect('/')
+    }
     // req body
-    console.log("deleting...");
+
+
   };
 
   exports.deleteDiscount = (req, res) => {
   
     let editID = req.params.id
-    // req body
-    console.log("deleting...");
+    const sessionEmail = req.session.employees.email; //  to get more info if needed
+    const sessionRole = req.session.employees.userRole;
+
+    if (sessionRole !== "super") {
+      req.flash('error_msg', `could not delete:`)
+      return res.redirect('/')
+    }
+
+    db.query(`DELETE FROM Discount WHERE id = "${editID}"`, (err, results) => {
+      if (err) {
+        console.log(err);
+        req.flash('error_msg', `could not delete: ${err.sqlMessage}`)
+        return res.redirect('/')
+      }
+      req.flash('success_msg', `${editID} has been removed`)
+      return res.redirect('/admin/all-discounts')
+    })
+    return
   };
 
 
   exports.deleteEmployee = (req, res) => {
   
     let editID = req.params.id
-    // req body
-    console.log("deleting...");
+    const sessionEmail = req.session.employees.email; //  to get more info if needed
+    const sessionRole = req.session.employees.userRole;
+
+    if (sessionRole !== "super") {
+      req.flash('error_msg', `could not delete`)
+      return res.redirect('/')
+    }
+    db.query(`DELETE FROM Employees WHERE id = "${editID}"`, (err, results) => {
+      if (err) {
+        console.log(err);
+        req.flash('error_msg', `could not delete: ${err.sqlMessage}`)
+        return res.redirect('/')
+      }
+      req.flash('success_msg', `${editID} has been removed`)
+      return res.redirect('/admin/all-employees')
+    })
   };
 
   exports.deleteSupplier = (req, res) => {
   
     let editID = req.params.id
-    // req body
-    console.log("deleting...");
+
+    const sessionEmail = req.session.employees.email; //  to get more info if needed
+    const sessionRole = req.session.employees.userRole;
+
+    if (sessionRole !== "super") {
+      req.flash('error_msg', `could not delete:`)
+      return res.redirect('/')
+    }
+
+    db.query(`DELETE FROM Suppliers WHERE id = "${editID}"`, (err, results) => {
+      if (err) {
+        console.log(err);
+        req.flash('error_msg', `could not delete: ${err.sqlMessage}`)
+        return res.redirect('/')
+      }
+      req.flash('success_msg', `${editID} has been removed`)
+      return res.redirect('/admin/all-supplier')
+    })
   };
 
   exports.deleteCategory = (req, res) => {
   
     let editID = req.params.id
+
+    const sessionEmail = req.session.employees.email; //  to get more info if needed
+    const sessionRole = req.session.employees.userRole;
+
+    if (sessionRole !== "super") {
+      req.flash('error_msg', `could not delete:`)
+      return res.redirect('/')
+    }
+    
     // req body
-    console.log("deleting...");
+    db.query(`DELETE FROM Category WHERE CategoryID = "${editID}"`, (err, results) => {
+      if (err) {
+        console.log(err);
+        req.flash('error_msg', `could not delete: ${err.sqlMessage}`)
+        return res.redirect('/')
+      }
+      req.flash('success_msg', `${editID} has been removed`)
+      return res.redirect('/admin/all-categories')
+    })
   };
 
   exports.deleteInventory = (req, res) => {
   
     let editID = req.params.id
+
+    const sessionEmail = req.session.employees.email; //  to get more info if needed
+    const sessionRole = req.session.employees.userRole;
+
+    if (sessionRole !== "super") {
+      req.flash('error_msg', `could not delete:`)
+      return res.redirect('/')
+    }
+    
     // req body
-    console.log("deleting...");
+    db.query(`DELETE FROM inventory WHERE id = "${editID}"`, (err, results) => {
+      if (err) {
+        console.log(err);
+        req.flash('error_msg', `could not delete: ${err.sqlMessage}`)
+        return res.redirect('/')
+      }
+      req.flash('success_msg', `${editID} has been removed`)
+      return res.redirect('/admin/all-inventory')
+    })
   };

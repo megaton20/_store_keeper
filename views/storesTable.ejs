@@ -69,12 +69,14 @@
                                                         <td><%= data['store_address'] %></td>
                                                         <td><%= data['state'] %></td>
                                                         <td><%= data['lga'] %></td>
-                                                        <td><a class="btn btn-secondary" href="/admin/edit-stores/<%= data['id'] %>"> edit</a>
-
-                                                            <form action="/admin/edit-stores/<%= data['id'] %>" method="POST">
-                                                                <input type="hidden" name="_method" value="PUT" />
-                                                                <!-- <button  class="btn btn-primary">Delete</button> -->
+                                                        <td>
+                                                            <a class="btn btn-secondary" href="/admin/edit-stores/<%= data['id'] %>"> edit</a>
+                                                            <form action="/admin/delete-store/<%= data['id'] %>" method="POST" style="display: inline;">
+                                                                <input type="hidden" name="_method" value="DELETE" />
+                                                                <button  class="btn btn-danger">Delete</button>
                                                             </form>
+                                                        </td>
+id
 
                                                         </td>
                                                   
