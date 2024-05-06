@@ -20,20 +20,12 @@ router.get("/all-discounts", ensureAuthenticated, adminController.getAllDiscount
 router.get("/all-products", ensureAuthenticated, adminController.getAllProducts);
 router.get("/all-transactions", ensureAuthenticated, adminController.getAllTransactions);
 router.get("/all-inventory", ensureAuthenticated, adminController.getAllInventory);
+router.get("/all-positions", ensureAuthenticated, adminController.getAllPositions);
 
 // form fotrr prices tag
 router.get("/create-product/:id", ensureAuthenticated, adminController.newProduct);
 // counter for attendants
 router.get("/create-sales", ensureAuthenticated, adminController.counterForm);
-
-
-// edit Page
-
-// router.get("/edit-position/:id", ensureAuthenticated, (req, res) =>
-// res.render("customerEditForm", {
-//   pageTitle: "Welcome",
-// })
-// );
 
 
 // form section
@@ -71,6 +63,7 @@ router.get("/edit-employee/:id", ensureAuthenticated, adminController.editEmploy
 router.get("/edit-supplier/:id", ensureAuthenticated, adminController.editSupplier)
 router.get("/edit-category/:id", ensureAuthenticated, adminController.editCategory)
 router.get("/edit-Inventory/:id", ensureAuthenticated, adminController.editInventory)
+router.get("/edit-position/:id", ensureAuthenticated, adminController.editPosition);
 
 
 router.put("/edit-store/:id", ensureAuthenticated, adminController.editNewStore);
@@ -79,8 +72,8 @@ router.put("/edit-employee/:id", ensureAuthenticated, adminController.editNewEmp
 router.put("/edit-supplier/:id", ensureAuthenticated, adminController.editNewSupplier);
 router.put("/edit-category/:id", ensureAuthenticated, adminController.editNewCategory);
 router.put("/edit-inventory/:id", ensureAuthenticated, adminController.editNewInventory);
+router.put("/edit-position/:id", ensureAuthenticated, adminController.editNewPosition);
 // router.put("/edit-customer/:id", ensureAuthenticated, adminController.editNewCustomer);
-// router.put("/edit-position/:id", ensureAuthenticated, adminController.editNewPosition);
 
 
 
@@ -92,4 +85,5 @@ router.delete("/delete-employee/:id", ensureAuthenticated, adminController.delet
 router.delete("/delete-supplier/:id", ensureAuthenticated, adminController.deleteSupplier);
 router.delete("/delete-category/:id", ensureAuthenticated, adminController.deleteCategory);
 router.delete("/delete-inventory/:id", ensureAuthenticated, adminController.deleteInventory);
+router.delete("/delete-position/:id", ensureAuthenticated, adminController.deletePosition);
 module.exports = router;

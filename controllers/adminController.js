@@ -585,6 +585,54 @@ exports.getAllInventory = (req, res) => {
   }
 };
 
+// all Positions
+exports.getAllPositions = (req, res) => {
+  const sessionEmail = req.session.employees.email;
+  const sessionRole = req.session.employees.userRole;
+
+  if (!sessionEmail) {
+    req.flash("error_msg", "No session, you are required to log in");
+    res.redirect("/");
+    return;
+  }
+  if (sessionRole == "super") {
+    // to get invent table
+    db.query(`SELECT * FROM Positions `, (err, results) => {
+      if (err) {
+        req.flash("error_msg", ` ${err.sqlMessage}`);
+        return res.redirect("/admin");
+      } else {
+        let data = JSON.stringify(results);
+        let allPosition = JSON.parse(data);
+
+        return res.render("positionTable", {
+          pageTitle: "All Inventory",
+          name: sessionEmail,
+          month: monthName,
+          day: dayName,
+          date: presentDay,
+          year: presentYear,
+          allPosition,
+        });
+      }
+    });
+  } else if (loggedRole == "admin") {
+    return console.log(`${sessionRole} privilages under construction...`);
+  } else {
+    return console.log(`${sessionRole} privilages under construction...`);
+    req.flash(
+      "success_msg",
+      `log in as ${sessionEmail + " Ready to make sales"}`
+    );
+    res.redirect("/user");
+    return;
+  }
+};
+
+
+
+
+
 // form pages
 
 // customers
@@ -1816,6 +1864,46 @@ exports.editCategory = (req, res) => {
     }
   };
 
+  exports.editPosition = (req, res) => {
+    let editID = req.params.id;
+    const sessionEmail = req.session.employees.email;
+    const sessionRole = req.session.employees.userRole;
+  
+    if (!sessionEmail) {
+      req.flash("error_msg", "No session, you are required to log in");
+      res.redirect("/");
+      return;
+    }
+  
+    if (sessionRole == "super") {
+      db.query(`SELECT * FROM Positions WHERE id = ${editID}`, (err, results) => {
+        if (err) {
+          req.flash("error_msg", `${err.sqlMessage}`);
+          res.redirect("/admin");
+        } else {
+          if (results.length <= 0) {
+            req.flash("error_msg", `no item  found`);
+            return res.redirect("/admin");
+          }
+  
+          let data = JSON.stringify(results);
+          let positionData = JSON.parse(data);
+  
+          return res.render("positionEditForm", {
+            pageTitle: "Edit Roles",
+            name: sessionEmail,
+            month: monthName,
+            day: dayName,
+            date: presentDay,
+            year: presentYear,
+            positionData,
+          });
+        }
+      });
+    } else {
+      console.log("can not access this feature");
+    }
+  };
 
 
 // put section
@@ -2197,7 +2285,49 @@ exports.editNewInventory = (req, res) => {
       }
     );
   };
+  exports.editNewPosition = (req, res) => {
+    let editID = req.params.id;
+    const sessionEmail = req.session.employees.email;
+    const sessionRole = req.session.employees.userRole;
+  
+    if (!sessionEmail) {
+      req.flash("error_msg", "No session, you are required to log in");
+      res.redirect("/");
+      return;
+    }
+  
+    if (sessionRole == "super") {
+      const { Position_name, Salary,Job_description } =
+      req.body;
+  
+    if (!(Position_name && Salary && Job_description )) {
+      req.flash("error_msg", `Enter all field before submiting`);
+      return res.redirect(`/admin/edit-position/${editID}`);
+    }
 
+    // update
+
+    let updateData = {
+      Position_name:Position_name,
+      Salary:Salary,
+      Job_description:Job_description
+    }
+
+    db.query(
+      `UPDATE Positions SET ? WHERE id ="${editID}"`,
+      updateData,
+      (err, results) => {
+        if (err) {
+          req.flash("error_msg", `"${err.sqlMessage}" `);
+          return res.redirect("/admin/all-positions");
+        }
+        req.flash("success_msg", ` updated successfully! ${results}`);
+        return res.redirect("/admin/all-positions");
+      }
+    );} else {
+      console.log("can not access this feature");
+    }
+  };
 
 
   // delete req
@@ -2344,3 +2474,29 @@ exports.editNewInventory = (req, res) => {
       return res.redirect('/admin/all-inventory')
     })
   };
+
+
+  exports.deletePosition = (req, res) => {
+  
+    let editID = req.params.id
+
+    const sessionEmail = req.session.employees.email; //  to get more info if needed
+    const sessionRole = req.session.employees.userRole;
+
+    if (sessionRole !== "super") {
+      req.flash('error_msg', `could not delete:`)
+      return res.redirect('/')
+    }
+    
+    // req body
+    db.query(`DELETE FROM Positions WHERE id = "${editID}"`, (err, results) => {
+      if (err) {
+        console.log(err);
+        req.flash('error_msg', `could not delete: ${err.sqlMessage}`)
+        return res.redirect('/')
+      }
+      req.flash('success_msg', `${editID} has been removed`)
+      return res.redirect('/admin/all-positions')
+    })
+  };
+  
