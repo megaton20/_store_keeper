@@ -26,6 +26,7 @@
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
+                        <%- include ('./partials/messages') %>
 
                         <% if(allStores.length <= 0){ %>
                             <div class="card-body">
@@ -43,6 +44,7 @@
                                                   <th>Address</th>
                                                   <th>State</th>
                                                   <th>lga</th>
+                                                  <th>Actions</th>
         
                                                 </tr>
                                             </thead>
@@ -53,6 +55,7 @@
                                                     <th>Address</th>
                                                     <th>State</th>
                                                   <th>lga</th>
+                                                  <th>Actions</th>
         
                                                   </tr>
                                             </tfoot>
@@ -66,6 +69,14 @@
                                                         <td><%= data['store_address'] %></td>
                                                         <td><%= data['state'] %></td>
                                                         <td><%= data['lga'] %></td>
+                                                        <td><a class="btn btn-secondary" href="/admin/edit-stores/<%= data['id'] %>"> edit</a>
+
+                                                            <form action="/admin/edit-stores/<%= data['id'] %>" method="POST">
+                                                                <input type="hidden" name="_method" value="PUT" />
+                                                                <!-- <button  class="btn btn-primary">Delete</button> -->
+                                                            </form>
+
+                                                        </td>
                                                   
                                                    </tr> 
                                                    

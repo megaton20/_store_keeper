@@ -26,6 +26,7 @@
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
+                        <%- include ('./partials/messages') %>
 
                         <% if(allSales.length <= 0){ %>
                             <div class="card-body">
@@ -38,7 +39,7 @@
                                         <thead>
                                             <tr>
                                               <th>Id</th>
-                                              <th>Product id</th>
+                                              <th>Store Name</th>
                                               <th>Store id</th>
                                               <th>Sale UUID</th>
                                               <th>Total Amount</th>

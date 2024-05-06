@@ -12,4 +12,13 @@ const userController  = require('../controllers/userController');
 
 router.post("/cart", ensureAuthenticated, userController.cartForm);
 
+
+
+
+/**
+ * users to make order
+ * edit themselevs
+ * 
+ */
+
 module.exports = router;

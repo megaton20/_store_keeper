@@ -15,8 +15,6 @@ const adminRouter = require('./router/admin')
 const userRouter =  require('./router/userRouter.js')
 
 
-
-
 app.use(bodyParser.urlencoded({extended : false}));
 app.use(bodyParser.json())
 

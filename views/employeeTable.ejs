@@ -28,6 +28,7 @@
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
+                        <%- include ('./partials/messages') %>
                         <% if(allEmployees.length <= 0){ %>
                             <div class="card-body">
                                 
@@ -50,6 +51,7 @@
                                                 <th>role</th>
                                                 <th>Date added</th>
                                                 <th>password</th>
+                                                <th>actions</th>
     
                                             </tr>
                                         </thead>
@@ -66,6 +68,7 @@
                                                 <th>role</th>
                                                 <th>Date added</th>
                                                 <th>password</th>
+                                                <th>actions</th>
                                             </tr>
                                         </tfoot>
                                         <tbody>
@@ -83,6 +86,8 @@
                                                  <td><%= data['userRole'] %></td>
                                                  <td><%= data['created_date'] %></td>
                                                  <td><%= data['password'] %></td>
+
+                                                 <td><a class="btn btn-secondary" href="/admin/edit-employee/<%= data['id'] %>"> edit</a>
                                            
                                             </tr> 
                                             

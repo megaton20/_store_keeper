@@ -26,6 +26,7 @@
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
+                        <%- include ('./partials/messages') %>
                         <% if(allInventory.length <= 0){ %>
                             <div class="card-body">
                                 <h1>No Products Record Found !</h1>  
@@ -113,9 +114,9 @@
 
                                                   <!-- check if button needed -->
                                                         <% if(  data['activate']  == "yes" ){ %>
-                                                            <td>
-                                                                <button disabled value="" class="btn btn-primary "> no action</button>
-                                                            </td>
+
+                                                                <td><a class="btn btn-secondary" href="/admin/edit-Inventory/<%= data['id'] %>"> edit</a>
+
                                                             <% } else{ %> 
 
                                                                    <!-- check if price is null -->

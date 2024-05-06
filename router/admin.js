@@ -21,13 +21,19 @@ router.get("/all-products", ensureAuthenticated, adminController.getAllProducts)
 router.get("/all-transactions", ensureAuthenticated, adminController.getAllTransactions);
 router.get("/all-inventory", ensureAuthenticated, adminController.getAllInventory);
 
+// form fotrr prices tag
+router.get("/create-product/:id", ensureAuthenticated, adminController.newProduct);
+// counter for attendants
+router.get("/create-sales", ensureAuthenticated, adminController.counterForm);
+
 
 // edit Page
-router.get("/edit-customers", ensureAuthenticated, (req, res) =>
-res.render("customerEditForm", {
-  pageTitle: "Welcome",
-})
-);
+
+// router.get("/edit-position/:id", ensureAuthenticated, (req, res) =>
+// res.render("customerEditForm", {
+//   pageTitle: "Welcome",
+// })
+// );
 
 
 // form section
@@ -42,14 +48,6 @@ router.get("/create-store", ensureAuthenticated, adminController.newStore);
 router.get("/create-inventory", ensureAuthenticated, adminController.newInventory);
 
 
-// form fotrr prices tag
-router.get("/create-product/:id", ensureAuthenticated, adminController.newProduct);
-
-router.get("/create-sales", ensureAuthenticated, adminController.counterForm);
-
-
-
-
 router.post("/create-store", ensureAuthenticated, adminController.createNewStore);
 router.post("/create-discount", ensureAuthenticated, adminController.createNewDiscount);
 router.post("/create-inventory", ensureAuthenticated, adminController.createNewInventory);
@@ -61,20 +59,37 @@ router.post("/create-position", ensureAuthenticated, adminController.createNewPo
 
 //add price to null value
 
-
-
-
-
-
-
-
-
-
 // // add to store
 router.put('/product-status/unverified/:id',ensureAuthenticated,adminController.remove)
-
-// add price for new store item
+// add price for new store item to add to market
 router.put("/create-sales/:id", ensureAuthenticated, adminController.createNewSales);
-// router.put('/product-status/unverified/:id',adminController.addBig)
 
+
+router.get("/edit-stores/:id", ensureAuthenticated, adminController.storeEdit);
+router.get("/edit-discount/:id", ensureAuthenticated,adminController.editDiscount);
+router.get("/edit-employee/:id", ensureAuthenticated, adminController.editEmployee);
+router.get("/edit-supplier/:id", ensureAuthenticated, adminController.editSupplier)
+router.get("/edit-category/:id", ensureAuthenticated, adminController.editCategory)
+router.get("/edit-Inventory/:id", ensureAuthenticated, adminController.editInventory)
+
+
+router.put("/edit-store/:id", ensureAuthenticated, adminController.editNewStore);
+router.put("/edit-discount/:id", ensureAuthenticated, adminController.editNewDiscount);
+router.put("/edit-employee/:id", ensureAuthenticated, adminController.editNewEmployee);
+router.put("/edit-supplier/:id", ensureAuthenticated, adminController.editNewSupplier);
+router.put("/edit-category/:id", ensureAuthenticated, adminController.editNewCategory);
+router.put("/edit-inventory/:id", ensureAuthenticated, adminController.editNewInventory);
+// router.put("/edit-customer/:id", ensureAuthenticated, adminController.editNewCustomer);
+// router.put("/edit-position/:id", ensureAuthenticated, adminController.editNewPosition);
+
+
+
+// delete
+
+router.delete("/delete-store/:id", ensureAuthenticated, adminController.deleteStore);
+router.delete("/delete-discount/:id", ensureAuthenticated, adminController.deleteDiscount);
+router.delete("/delete-employee/:id", ensureAuthenticated, adminController.deleteEmployee);
+router.delete("/delete-supplier/:id", ensureAuthenticated, adminController.deleteSupplier);
+router.delete("/delete-category/:id", ensureAuthenticated, adminController.deleteCategory);
+router.delete("/delete-inventory/:id", ensureAuthenticated, adminController.deleteInventory);
 module.exports = router;

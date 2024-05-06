@@ -26,6 +26,7 @@
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
+                        <%- include ('./partials/messages') %>
                         <% if(allDiscounts.length <= 0){ %>
                             <div class="card-body">
                                 
@@ -43,6 +44,7 @@
                                                   <th>Start Date</th>
                                                   <th>End Date</th>
                                                   <th>Provider</th>
+                                                  <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tfoot>
@@ -53,6 +55,7 @@
                                                     <th>Start Date</th>
                                                     <th>End Date</th>
                                                     <th>Provider</th>
+                                                    <th>Actions</th>
                                                   </tr>
                                             </tfoot>
                                             <tbody>
@@ -68,7 +71,7 @@
                                                         <td><%= data['Start_date'] %></td>
                                                         <td><%= data['End_date'] %></td>
                                                         <td><%= data['Discount_provider'] %></td>
-
+                                                        <td><a class="btn btn-secondary" href="/admin/edit-discount/<%= data['id'] %>"> edit</a>
                                                   
                                                    </tr> 
                                                    
