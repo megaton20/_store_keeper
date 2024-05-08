@@ -731,7 +731,8 @@ exports.newPosition = (req, res) => {
 exports.newInventory = (req, res) => {
   const sessionEmail = req.session.employees.email;
   const sessionRole = req.session.employees.userRole;
-
+  
+  console.log(sessionRole);
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
     res.redirect("/");
@@ -756,7 +757,7 @@ exports.newInventory = (req, res) => {
       
       // to get list of all employees
       db.query(
-        `SELECT * FROM Employees WHERE Position = "manager" `,
+        `SELECT * FROM Employees WHERE userRole = "admin" `,
         (err, results) => {
           if (err) {
             console.log(err.sqlMessage);
@@ -769,7 +770,7 @@ exports.newInventory = (req, res) => {
             console.log("employee is empty");
             req.flash(
               "error_msg",
-              `Cannot create inventory when employee is empty`
+              `Cannot create inventory when Admin list is empty`
             );
             res.redirect(`/admin/create-employee`);
             return;
@@ -1160,10 +1161,10 @@ exports.createNewCategory = (req, res) => {
         });
 
         req.flash("success_msg", `"${Category_name}" added successfully!`);
-        return res.redirect("/admin/create-category");
+        return res.redirect("/admin/all-categories");
       }
       req.flash("error_msg", `"${Category_name}" alrready exist!`);
-      return res.redirect("/admin/create-category");
+      return res.redirect("/admin/all-categories");
     }
   );
 };
@@ -1294,10 +1295,10 @@ exports.createNewDiscount = (req, res) => {
         });
 
         req.flash("success_msg", `"${Discount_name}" added successfully!`);
-        return res.redirect("/admin/create-discount");
+        return res.redirect("/admin/all-discounts");
       }
       req.flash("error_msg", `"${Discount_name}" alrready exist!`);
-      return res.redirect("/admin/create-discount");
+      return res.redirect("/admin/all-discounts");
     }
   );
 };
@@ -2463,10 +2464,8 @@ exports.editNewInventory = (req, res) => {
       return res.redirect('/')
     }
     
-    // req body
     db.query(`DELETE FROM inventory WHERE id = "${editID}"`, (err, results) => {
       if (err) {
-        console.log(err);
         req.flash('error_msg', `could not delete: ${err.sqlMessage}`)
         return res.redirect('/')
       }
