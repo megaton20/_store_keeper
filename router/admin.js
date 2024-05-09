@@ -22,6 +22,11 @@ router.get("/all-transactions", ensureAuthenticated, adminController.getAllTrans
 router.get("/all-inventory", ensureAuthenticated, adminController.getAllInventory);
 router.get("/all-positions", ensureAuthenticated, adminController.getAllPositions);
 
+
+// get single
+router.get("/inventory/:id", ensureAuthenticated, adminController.getInventoryById);
+
+
 // form fotrr prices tag
 router.get("/create-product/:id", ensureAuthenticated, adminController.newProduct);
 // counter for attendants
@@ -29,17 +34,9 @@ router.get("/create-sales", ensureAuthenticated, adminController.counterForm);
 
 
 // form section
-
 router.get("/create-customer", ensureAuthenticated, adminController.newCustomer);
-router.get("/create-supplier", ensureAuthenticated, adminController.newSupplier);
-router.get("/create-category", ensureAuthenticated, adminController.newCategory);
-router.get("/create-position", ensureAuthenticated, adminController.newPosition);
-router.get("/create-employee", ensureAuthenticated, adminController.newEmployee);
-router.get("/create-discount", ensureAuthenticated, adminController.newDiscount);
-router.get("/create-store", ensureAuthenticated, adminController.newStore);
-router.get("/create-inventory", ensureAuthenticated, adminController.newInventory);
 
-
+// post request
 router.post("/create-store", ensureAuthenticated, adminController.createNewStore);
 router.post("/create-discount", ensureAuthenticated, adminController.createNewDiscount);
 router.post("/create-inventory", ensureAuthenticated, adminController.createNewInventory);
@@ -49,7 +46,6 @@ router.post("/create-supplier", ensureAuthenticated, adminController.createNewSu
 router.post("/create-customer", ensureAuthenticated, adminController.createNewCustomer);
 router.post("/create-position", ensureAuthenticated, adminController.createNewPosition);
 
-//add price to null value
 
 // // add to store
 router.put('/product-status/unverified/:id',ensureAuthenticated,adminController.remove)

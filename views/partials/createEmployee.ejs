@@ -1,0 +1,133 @@
+<div class="modal fade " id="createEmployee" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Create new Employee</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="card shadow mb-4">
+                <%- include ('../partials/messages') %>
+                <div class="card-body">
+                    <div class="form mt-4 mb-4">
+                        <form action="/admin/create-employee" method="post" class="form">
+                           <div class="row">
+                         
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">First Name</label>
+                                    <input type="text" name="First_name" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Last Name</label>
+                                    <input type="text" name="Last_name" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Contact Email </label>
+                                    <input type="email" name="email" class="form-control" >
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Contact Phone</label>
+                                    <input type="number" name="Contact_phone" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Password</label>
+                                    <input type="text" name="Password" class="form-control" >
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for=""> Role Clearance</label>
+                                    <select name="role" id="" class="form-control">
+                                        <option value=""></option>
+                                        <option value="user"> user</option>
+                                        <option value="admin"> admin</option>
+                                        <option value="super"> super</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Gender</label>
+                                    <select name="Gender" id="" class="form-control">
+                                        <option value=""></option>
+                                        <option value="Male"> Male</option>
+                                        <option value="Female"> Female</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">State</label>
+                                    <select name="State"  class="form-control" id="state" onchange="populateLGAs()">
+                                        <% stateData.forEach(state => { %>
+                                        <option value="<%= state.state %>"><%= state.state %></option>
+                                        <% }); %>
+                                        
+                                    </select>
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Local Government</label>
+                                    <select name="lga" id="lga" class="form-control">
+                                        <option value="" selected disabled></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Select Position</label>
+                                    <select name="Position" id="" class="form-control">
+                                        <option value=""> </option>
+                                        <% allPositions.forEach(data => { %>
+                                            <option value="<%= data.Position_name %>"><%= data.Position_name %></option>
+                                            <% }); %>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Select Store</label>
+                                    <select name="Store" id="" class="form-control">
+                                        <option value=""> </option>
+                                        <% allStores.forEach(data => { %>
+                                            <option value="<%= data.store_name %>"><%= data.store_name %></option>
+                                            <% }); %>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="mt-4">
+                            <input type="submit" class="btn btn-success" style="width: 100%;" value="Submit">
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>

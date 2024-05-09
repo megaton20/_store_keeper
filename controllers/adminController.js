@@ -38,27 +38,132 @@ exports.getAdminWelcomePage = (req, res) => {
     return;
   }
   if (sessionRole == "super") {
-    // total reg customers
-    db.query(
-      `SELECT * FROM Customers WHERE status = 'verified'`,
-      (err, results) => {
-        if (err) {
-          req.flash("error_msg", ` ${err.sqlMessage}`);
-          return res.redirect("/");
-        } else {
-          let totalVerifiedCustomers = results.length;
-          res.render("adminSuper", {
-            pageTitle: "Welcome",
-            name: sessionEmail,
-            month: monthName,
-            day: dayName,
-            date: presentDay,
-            year: presentYear,
-            totalVerifiedCustomers,
-          });
-        }
+
+    db.query(`SELECT * FROM Suppliers `, (err, results) => {
+      if (err) {
+        console.log(err.sqlMessage);
+        req.flash("error_msg", `${err.sqlMessage}`);
+        res.redirect("/admin");
       }
-    );
+
+      // check if item exist
+
+      let data = JSON.stringify(results);
+      let supplierData = JSON.parse(data);
+
+      // render form
+
+      db.query(`SELECT * FROM Positions `, (err, results) => {
+        if (err) {
+          req.flash("error_msg", `${err.sqlMessage}`);
+          res.redirect("/admin");
+        } else {
+          let data = JSON.stringify(results);
+          let allPositions = JSON.parse(data); 
+
+          db.query(`SELECT * FROM Stores `, (err, results) => {
+            if (err) {
+              req.flash("error_msg", `${err.sqlMessage}`);
+              res.redirect("/admin");
+            } else {
+              let data = JSON.stringify(results);
+              let allStores = JSON.parse(data);
+
+  // to get list of all employees
+  db.query(
+    `SELECT * FROM Employees WHERE userRole = "admin" `,
+    (err, results) => {
+      if (err) {
+        console.log(err.sqlMessage);
+        req.flash("error_msg", `${err.sqlMessage}`);
+        res.redirect("/admin");
+      }
+
+      // check if item exist
+      if (results.length <= 0) {
+        console.log("employee is empty");
+        req.flash(
+          "error_msg",
+          `Cannot create inventory when Admin list is empty`
+        );
+        res.redirect(`/admin/create-employee`);
+        return;
+      }
+
+      let data = JSON.stringify(results);
+      let employeeData = JSON.parse(data);
+
+      // get list of all categories
+      db.query(`SELECT * FROM Category `, (err, results) => {
+        if (err) {
+          console.log(err);
+          req.flash("error_msg", `${err.sqlMessage}`);
+          res.redirect("/admin");
+          return;
+        }
+        // check if item exist
+        if (results.length <= 0) {
+          console.log("category is empty");
+          req.flash(
+            "error_msg",
+            `Cannot create inventory when category is empty`
+          );
+          res.redirect(`/admin/create-category`);
+          return;
+        }
+
+        // get the items to send to front end
+
+        let data = JSON.stringify(results);
+        let categoryData = JSON.parse(data);
+
+        // hence add to form
+   // total reg customers
+          db.query(
+            `SELECT * FROM Customers WHERE status = 'verified'`,
+            (err, results) => {
+              if (err) {
+                req.flash("error_msg", ` ${err.sqlMessage}`);
+                return res.redirect("/");
+              } else {
+                let totalVerifiedCustomers = results.length;
+                res.render("adminSuper", {
+                  pageTitle: "Welcome",
+                  name: sessionEmail,
+                  month: monthName,
+                  day: dayName,
+                  date: presentDay,
+                  year: presentYear,
+                  totalVerifiedCustomers,
+                  stateData,
+                  categoryData,
+                  employeeData,
+                  supplierData,
+                  allPositions,
+                  allStores,
+
+                });
+              }
+            }
+          );
+
+        return;
+      });
+    }
+  );
+
+            }
+          })
+        }
+
+
+      })
+      
+    
+    });
+
+
+  
   } else if (loggedRole == "admin") {
     return console.log(`${sessionRole} privilages under construction...`);
   } else {
@@ -631,9 +736,60 @@ exports.getAllPositions = (req, res) => {
 
 
 
+// single item
+exports.getInventoryById = (req, res) => {
 
+  let singleId = req.params.id
+  
+  const sessionEmail = req.session.employees.email;
+  const sessionRole = req.session.employees.userRole;
 
-// form pages
+  if (!sessionEmail) {
+    req.flash("error_msg", "No session, you are required to log in");
+    res.redirect("/");
+    return;
+  }
+  if (sessionRole == "super") {
+    // to get invent table
+    db.query(`SELECT * FROM inventory WHERE id = "${singleId}" `, (err, results) => {
+      if (err) {
+        req.flash("error_msg", ` ${err.sqlMessage}`);
+        return res.redirect("/admin");
+      } else {
+        let data = JSON.stringify(results);
+        let allInventory = JSON.parse(data);
+
+        // to reformat the date
+        allInventory.forEach((inventory) => {
+          inventory.created_date = formatDate(inventory.created_date); // Assuming 'date' is the date field in your supplier table
+          inventory.Manufacture_date = formatDate(inventory.Manufacture_date); // Assuming 'date' is the date field in your supplier table
+          inventory.Expire_date = formatDate(inventory.Expire_date); // Assuming 'date' is the date field in your supplier table
+        });
+
+        return res.render("inventorySingle", {
+          pageTitle: `${allInventory[0].Product_name} | ${allInventory[0].Brand_name}`,
+          name: sessionEmail,
+          month: monthName,
+          day: dayName,
+          date: presentDay,
+          year: presentYear,
+          allInventory,
+        });
+      }
+    });
+  } else if (loggedRole == "admin") {
+    return console.log(`${sessionRole} privilages under construction...`);
+  } else {
+    return console.log(`${sessionRole} privilages under construction...`);
+    req.flash(
+      "success_msg",
+      `log in as ${sessionEmail + " Ready to make sales"}`
+    );
+    res.redirect("/user");
+    return;
+  }
+};
+
 
 // customers
 exports.newCustomer = (req, res) => {
@@ -658,270 +814,11 @@ exports.newCustomer = (req, res) => {
   } else {
   }
 };
-// supplier
-exports.newSupplier = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
 
-  if (!sessionEmail) {
-    req.flash("error_msg", "No session, you are required to log in");
-    res.redirect("/");
-    return;
-  }
 
-  if (sessionRole == "super") {
-    res.render("supplierForm", {
-      pageTitle: "Create new Supplier",
-      name: sessionEmail,
-      month: monthName,
-      day: dayName,
-      date: presentDay,
-      year: presentYear,
-    });
-  } else {
-  }
-};
-// category
-exports.newCategory = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
 
-  if (!sessionEmail) {
-    req.flash("error_msg", "No session, you are required to log in");
-    res.redirect("/");
-    return;
-  }
 
-  if (sessionRole == "super") {
-    res.render("categoryForm", {
-      pageTitle: "Create new Supplier",
-      name: sessionEmail,
-      month: monthName,
-      day: dayName,
-      date: presentDay,
-      year: presentYear,
-    });
-  } else {
-  }
-};
-//  positions
-exports.newPosition = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
 
-  if (!sessionEmail) {
-    req.flash("error_msg", "No session, you are required to log in");
-    res.redirect("/");
-    return;
-  }
-
-  if (sessionRole == "super") {
-    res.render("positionForm", {
-      pageTitle: "Create new Supplier",
-      name: sessionEmail,
-      month: monthName,
-      day: dayName,
-      date: presentDay,
-      year: presentYear,
-    });
-  } else {
-  }
-};
-//  inventory
-exports.newInventory = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
-  
-  console.log(sessionRole);
-  if (!sessionEmail) {
-    req.flash("error_msg", "No session, you are required to log in");
-    res.redirect("/");
-    return;
-  }
-
-  if (sessionRole == "super") {
-    // to get list of all employees
-    db.query(`SELECT * FROM Suppliers `, (err, results) => {
-      if (err) {
-        console.log(err.sqlMessage);
-        req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
-      }
-
-      // check if item exist
-
-      let data = JSON.stringify(results);
-      let supplierData = JSON.parse(data);
-
-      // render form
-      
-      // to get list of all employees
-      db.query(
-        `SELECT * FROM Employees WHERE userRole = "admin" `,
-        (err, results) => {
-          if (err) {
-            console.log(err.sqlMessage);
-            req.flash("error_msg", `${err.sqlMessage}`);
-            res.redirect("/admin");
-          }
-
-          // check if item exist
-          if (results.length <= 0) {
-            console.log("employee is empty");
-            req.flash(
-              "error_msg",
-              `Cannot create inventory when Admin list is empty`
-            );
-            res.redirect(`/admin/create-employee`);
-            return;
-          }
-
-          let data = JSON.stringify(results);
-          let employeeData = JSON.parse(data);
-
-          // get list of all categories
-          db.query(`SELECT * FROM Category `, (err, results) => {
-            if (err) {
-              console.log(err);
-              req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
-              return;
-            }
-            // check if item exist
-            if (results.length <= 0) {
-              console.log("category is empty");
-              req.flash(
-                "error_msg",
-                `Cannot create inventory when category is empty`
-              );
-              res.redirect(`/admin/create-category`);
-              return;
-            }
-
-            // get the items to send to front end
-
-            let data = JSON.stringify(results);
-            let categoryData = JSON.parse(data);
-
-            // hence add to form
-            res.render("inventoryForm", {
-              pageTitle: "Create new Supplier",
-              name: sessionEmail,
-              month: monthName,
-              day: dayName,
-              date: presentDay,
-              year: presentYear,
-              categoryData,
-              employeeData,
-              supplierData,
-            });
-
-            return;
-          });
-        }
-      );
-    });
-  } else {
-    console.log("unknown user trying to add category");
-  }
-};
-
-//  employee
-exports.newEmployee = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
-
-  if (!sessionEmail) {
-    req.flash("error_msg", "No session, you are required to log in");
-    res.redirect("/");
-    return;
-  }
-  db.query(`SELECT * FROM Stores `, (err, results) => {
-    if (err) {
-      req.flash("error_msg", `${err.sqlMessage}`);
-      res.redirect("/admin");
-    } else {
-      let data = JSON.stringify(results);
-      let allStores = JSON.parse(data);
-
-      db.query(`SELECT * FROM Positions `, (err, results) => {
-        if (err) {
-          req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
-        } else {
-          let data = JSON.stringify(results);
-          let allPositions = JSON.parse(data);
-
-          if (sessionRole == "super") {
-            res.render("employeeForm", {
-              pageTitle: "Create new Employee",
-              name: sessionEmail,
-              month: monthName,
-              day: dayName,
-              date: presentDay,
-              year: presentYear,
-              stateData,
-              allPositions,
-              allStores,
-            });
-          } else {
-            req.flash("error_msg", `you don't have access to this!`);
-            res.redirect("/admin");
-          }
-        }
-      });
-    }
-  });
-};
-
-//  discount
-exports.newDiscount = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
-
-  if (!sessionEmail) {
-    req.flash("error_msg", "No session, you are required to log in");
-    res.redirect("/");
-    return;
-  }
-
-  if (sessionRole == "super") {
-    res.render("discountForm", {
-      pageTitle: "Create new Discount",
-      name: sessionEmail,
-      month: monthName,
-      day: dayName,
-      date: presentDay,
-      year: presentYear,
-    });
-  } else {
-  }
-};
-
-//  stores outlet
-exports.newStore = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
-
-  if (!sessionEmail) {
-    req.flash("error_msg", "No session, you are required to log in");
-    res.redirect("/");
-    return;
-  }
-
-  if (sessionRole == "super") {
-    res.render("storesForm", {
-      pageTitle: "Create new Discount",
-      name: sessionEmail,
-      month: monthName,
-      day: dayName,
-      date: presentDay,
-      year: presentYear,
-      stateData,
-    });
-  } else {
-  }
-};
 
 //  product to e sold
 exports.newProduct = (req, res) => {
@@ -1134,13 +1031,14 @@ exports.createNewEmployee = (req, res) => {
 };
 
 exports.createNewCategory = (req, res) => {
+
   const { Category_name, Desc } = req.body;
-
+  
   if (!(Category_name && Desc)) {
-    req.flash("error_msg", `Enter all field before submiting`);
-    return res.redirect("/admin/create-category");
+    req.flash("error_msg", `Enter all field before submiting new category`);
+    return res.redirect("/admin/");
   }
-
+  
   db.query(
     "SELECT * FROM Category WHERE Category_name = ?",
     [Category_name],
@@ -1161,10 +1059,10 @@ exports.createNewCategory = (req, res) => {
         });
 
         req.flash("success_msg", `"${Category_name}" added successfully!`);
-        return res.redirect("/admin/all-categories");
+        return res.redirect("/admin");
       }
       req.flash("error_msg", `"${Category_name}" alrready exist!`);
-      return res.redirect("/admin/all-categories");
+      return res.redirect("/admin");
     }
   );
 };
@@ -1213,15 +1111,16 @@ exports.createNewSupplier = (req, res) => {
 };
 
 exports.createNewStore = (req, res) => {
+
   const { Branch_Name, Branch_state, Branch_lga, Branch_address } = req.body;
 
   if (!(Branch_Name && Branch_state && Branch_lga && Branch_address)) {
-    req.flash("error_msg", `Enter all field before submiting`);
-    return res.redirect("/admin/create-store");
+    req.flash("error_msg", `Enter all field before submiting Store`);
+    return res.redirect("/admin/");
   }
 
   db.query(
-    "SELECT * FROM Stores WHERE Category_name = ?",
+    "SELECT * FROM Stores WHERE store_name = ?",
     [Branch_Name],
     (error, results) => {
       if (error) {
@@ -1232,6 +1131,7 @@ exports.createNewStore = (req, res) => {
         return res.redirect("/admin");
       }
 
+      // none found with the name??
       if (results.length <= 0) {
         // do this
         db.query("INSERT INTO Stores SET ?", {
@@ -1242,10 +1142,10 @@ exports.createNewStore = (req, res) => {
         });
 
         req.flash("success_msg", `"${Branch_Name}" added successfully!`);
-        return res.redirect("/admin/create-store");
+        return res.redirect("/admin/");
       }
       req.flash("error_msg", `"${Branch_Name}" alrready exist!`);
-      return res.redirect("/admin/create-store");
+      return res.redirect("/admin/");
     }
   );
 };

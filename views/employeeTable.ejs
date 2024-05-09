@@ -47,10 +47,10 @@
                                                 <th>State</th>
                                                 <th>l.g.a </th>
                                                 <th>Position</th>
+                                                <th>Store</th>
                                                 <th>Gender</th>
                                                 <th>role</th>
                                                 <th>Date added</th>
-                                                <th>password</th>
                                                 <th>actions</th>
     
                                             </tr>
@@ -64,10 +64,10 @@
                                                 <th>State</th>
                                                 <th>l.g.a </th>
                                                 <th>Position</th>
+                                                <th>Store</th>
                                                 <th>Gender</th>
                                                 <th>role</th>
                                                 <th>Date added</th>
-                                                <th>password</th>
                                                 <th>actions</th>
                                             </tr>
                                         </tfoot>
@@ -82,12 +82,13 @@
                                                  <td><%= data['State'] %></td>
                                                  <td><%= data['lga'] %></td>
                                                  <td><%= data['Position'] %></td>
+                                                 <td><%= data['Store'] %></td>
                                                  <td><%= data['Gender'] %></td>
                                                  <td><%= data['userRole'] %></td>
                                                  <td><%= data['created_date'] %></td>
-                                                 <td><%= data['password'] %></td>
 
-                                                 <td>
+
+                                                 <td style="display: flex; justify-content: space-between;">
                                                     <a class="btn btn-secondary" href="/admin/edit-employee/<%= data['id'] %>"> edit</a>
                                                     <form action="/admin/delete-employee/<%= data['id'] %>" method="POST" style="display: inline;">
                                                         <input type="hidden" name="_method" value="DELETE" />
@@ -131,5 +132,12 @@
 
     <!-- Logout Modal-->
     <%- include ('./partials/logout') %>
-
-    
+    <%- include ('./partials/createStore') %>
+    <%- include ('./partials/createWholsaler') %>
+    <%- include ('./partials/createInventory') %>
+    <%- include ('./partials/createCategory') %>
+    <%- include ('./partials/createEmployee') %>
+    <%- include ('./partials/createDiscount') %>
+    <%- include ('./partials/createCustomer') %>
+    <%- include ('./partials/createPosition') %>
+    <%- include ('./partials/createReturn') %>

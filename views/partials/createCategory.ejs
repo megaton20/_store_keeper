@@ -1,0 +1,56 @@
+<div class="modal fade " id="createCategory" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Create new Category</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+
+        <div class="modal-body">
+          
+            <div class="container-fluid">
+
+                <!-- Page Heading -->
+                <p class="mb-4">This can only edited later by authorised personel. </p>
+                <%- include ('../partials/messages') %>
+
+                <!-- DataTales Example -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="form mt-4 mb-4">
+                            <form action="/admin/create-category" method="post" class="form  container">
+                               <div class="row ">
+
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="">Enter Category Name</label>
+                                        <input type="text" name="Category_name" class="form-control" >
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for=""> Desc</label>
+                                        <textarea name="Desc" class="form-control" id="" cols="30" rows="10"></textarea>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="mt-4">
+                                <input type="submit" class="btn btn-success" style="width: 100%;" value="Submit">
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        
+      </div>
+    </div>
+  </div>

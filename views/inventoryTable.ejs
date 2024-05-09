@@ -41,20 +41,11 @@
                                                     <th>ID</th>
                                                     <th>Product Name</th>
                                                     <th>Brand Name</th>
-                                                    <th>Category Name</th>
                                                     <th>Purchse Price</th>
-                                                    <th>QTY Recieved</th>
-                                                    <th>Date</th>
-                                                    <th>Total in Pack</th>
                                                     <th>Supplier</th>
                                                     <th>Reciever</th>
                                                     <th>Payment method</th>
-                                                    <th>Deleivery Method</th>
                                                     <th>Cost of delivery </th>
-                                                    <th>barcode </th>
-                                                    <th>Manufacture Date </th>
-                                                    <th>Expire Date </th>
-                                                    <th>Total Damaged </th>
                                                     <th>Status </th>
                                                     <th>Activated ? </th>
                                                     <th>Actions </th>
@@ -67,20 +58,11 @@
                                                     <th>ID</th>
                                                     <th>Product Name</th>
                                                     <th>Brand Name</th>
-                                                    <th>Category Name</th>
                                                     <th>Purchse Price</th>
-                                                    <th>QTY Recieved</th>
-                                                    <th>Date</th>
-                                                    <th>Total in Pack</th>
                                                     <th>Supplier</th>
                                                     <th>Reciever</th>
                                                     <th>Payment method</th>
-                                                    <th>Deleivery Method</th>
                                                     <th>Cost of delivery </th>
-                                                    <th>barcode </th>
-                                                    <th>Manufacture Date </th>
-                                                    <th>Expire Date </th>
-                                                    <th>Total Damaged </th>
                                                     <th>Status </th>
                                                     <th>Activated ? </th>
                                                     <th>Actions </th>
@@ -95,27 +77,19 @@
                                                         <td><%= data['id'] %></td>
                                                         <td><%= data['Product_name'] %> </td>
                                                         <td><%= data['Brand_name'] %> </td>
-                                                        <td><%= data['Category_name'] %> </td>
                                                         <td>$ <%= data['Purchase_price'] %> </td>
-                                                        <td><%= data['QTY_recieved'] %> </td>
-                                                        <td><%= data['created_date'] %> </td>
-                                                        <td><%= data['total_in_pack'] %> </td>
                                                         <td><%= data['Supplier_name'] %> </td>
                                                         <td><%= data['Reciever_name'] %> </td>
                                                         <td><%= data['Payment_method'] %> </td>
-                                                        <td><%= data['Delivery_method'] %> </td>
                                                         <td>$ <%= data['Cost_of_delivery'] %> </td>
-                                                        <td><%= data['barcode'] %> </td>
-                                                        <td><%= data['Manufacture_date'] %> </td>
-                                                        <td><%= data['Expire_date'] %> </td>
-                                                        <td><%= data['Total_damaged'] %> </td>
                                                         <td><%= data['status'] %> </td>
                                                         <td><%= data['activate'] %> </td>
 
                                                   <!-- check if button needed -->
                                                         <% if(  data['activate']  == "yes" ){ %>
 
-                                                                <td>
+                                                                <td style="display: flex; margin-right: 2px;">
+                                                                    <a class="btn btn-success" href="/admin/inventory/<%= data['id'] %>"> View</a>
                                                                     <a class="btn btn-secondary" href="/admin/edit-Inventory/<%= data['id'] %>"> edit</a>
                                                                     <form action="/admin/delete-inventory/<%= data['id'] %>" method="POST" style="display: inline;">
                                                                         <input type="hidden" name="_method" value="DELETE" />
@@ -186,5 +160,12 @@
 
     <!-- Logout Modal-->
     <%- include ('./partials/logout') %>
-
-    
+    <%- include ('./partials/createStore') %>
+    <%- include ('./partials/createWholsaler') %>
+    <%- include ('./partials/createInventory') %>
+    <%- include ('./partials/createCategory') %>
+    <%- include ('./partials/createEmployee') %>
+    <%- include ('./partials/createDiscount') %>
+    <%- include ('./partials/createCustomer') %>
+    <%- include ('./partials/createPosition') %>
+    <%- include ('./partials/createReturn') %>
