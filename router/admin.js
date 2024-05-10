@@ -35,6 +35,8 @@ router.get("/create-sales", ensureAuthenticated, adminController.counterForm);
 
 // form section
 router.get("/create-customer", ensureAuthenticated, adminController.newCustomer);
+router.get("/return", ensureAuthenticated, adminController.createReturn);
+
 
 // post request
 router.post("/create-store", ensureAuthenticated, adminController.createNewStore);
@@ -45,6 +47,7 @@ router.post("/create-category", ensureAuthenticated, adminController.createNewCa
 router.post("/create-supplier", ensureAuthenticated, adminController.createNewSupplier);
 router.post("/create-customer", ensureAuthenticated, adminController.createNewCustomer);
 router.post("/create-position", ensureAuthenticated, adminController.createNewPosition);
+router.post("/return", ensureAuthenticated, adminController.returnProcessor);
 
 
 // // add to store

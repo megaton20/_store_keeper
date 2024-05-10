@@ -67,7 +67,9 @@ router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
 
 
 
- 
+//  router.get('/search/:id', ensureAuthenticated, (req, res )=> {
+//   console.log(req.params);
+//  })
 
 
 
