@@ -35,7 +35,8 @@ router.get("/create-sales", ensureAuthenticated, adminController.counterForm);
 
 // form section
 router.get("/create-customer", ensureAuthenticated, adminController.newCustomer);
-router.get("/return", ensureAuthenticated, adminController.createReturn);
+router.get("/return", ensureAuthenticated, adminController.createReturn); // to get sales id
+
 
 
 // post request
@@ -73,6 +74,7 @@ router.put("/edit-supplier/:id", ensureAuthenticated, adminController.editNewSup
 router.put("/edit-category/:id", ensureAuthenticated, adminController.editNewCategory);
 router.put("/edit-inventory/:id", ensureAuthenticated, adminController.editNewInventory);
 router.put("/edit-position/:id", ensureAuthenticated, adminController.editNewPosition);
+router.put("/return/:id", ensureAuthenticated, adminController.returnItem); // to get single item to be
 // router.put("/edit-customer/:id", ensureAuthenticated, adminController.editNewCustomer);
 
 

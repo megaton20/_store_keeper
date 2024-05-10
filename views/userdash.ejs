@@ -271,7 +271,6 @@ return
     metaDataInput.setAttribute('type', "hidden");
     metaDataInput.setAttribute('name', 'meta')
     metaDataInput.setAttribute('value', JSON.stringify(customerName))
-    // metaDataInput.setAttribute('value', JSON.stringify(customerName))
 
 
 
@@ -280,8 +279,13 @@ return
     cartInput.setAttribute('name', 'cart');
     cartInput.setAttribute('value', JSON.stringify(cart));
 
+    
     const formData = document.getElementById('cart-form').appendChild(cartInput);
-       document.getElementById('cart-form').appendChild(metaDataInput)
+    document.getElementById('cart-form').appendChild(metaDataInput)
+    
+    console.log(formData);
+
+
 
     // Submit the form
     const form = document.getElementById('cart-form');

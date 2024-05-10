@@ -38,6 +38,7 @@
                                     <thead>
                                         <tr>
 
+                                          <th>Id</th>
                                           <th>Item Name</th>
                                           <th>Product id</th>
                                           <th>Store id</th>
@@ -55,16 +56,18 @@
 
                                         <% productsData.forEach(function(data) {%>
                                             <tr>
+                                                <td><%= data['id'] %></td>
                                                 <td><%= data['name'] %></td>
                                                 <td><%= data['product_id'] %></td>
                                                 <td><%= data['store_id'] %> </td>
                                                 <td><%= data['sale_id'] %> </td>
                                                 <td><%= data['price_per_item'] %> </td>
                                                 <td>
+                                                  <!-- <a class="btn btn-secondary" href="/admin/return/<%= data['id'] %>"> edit</a> -->
 
-                                                <form action="/admin/delete-category/<%= data['CategoryID'] %>" method="POST" style="display: inline;">
-                                                    <!-- <input type="hidden" name="_method" value="DELETE" /> -->
-                                                    <button  class="btn btn-danger"><i class="fas fa-fw fa-trash"></i></button>
+                                                <form action="/admin/return/<%= data['id'] %>" method="POST" style="display: inline;">
+                                                    <input type="hidden" name="_method" value="PUT" />
+                                                    <button  class="btn btn-secondary"><i class="fas fa-fw fa-trash"></i></button>
                                                 </form>
                                                 </td>
 

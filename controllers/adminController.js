@@ -2359,6 +2359,10 @@ exports.counterForm = (req, res) => {
 
 
 
+
+
+
+
 // post req
 
 exports.createNewEmployee = (req, res) => {
@@ -2774,7 +2778,7 @@ exports.returnProcessor = (req, res) => {
   if (sessionRole == "super") {
 
 
-    db.query(`SELECT * FROM Order_Products WHERE sale_id  = ${searchId} `, (err, results) => {
+    db.query(`SELECT * FROM Order_Products WHERE sale_id  = ${searchId} AND status = "sold"`, (err, results) => {
       if (err) {
         console.log(err);
         req.flash('error_msg', `${err.sqlMessage}`)
@@ -3773,6 +3777,62 @@ exports.editNewPosition = (req, res) => {
     console.log("can not access this feature");
   }
 };
+
+
+// setting item to returned not sold
+exports.returnItem = (req, res) => {
+  let editID = req.params.id;
+
+  const sessionEmail = req.session.employees.email;
+  const sessionRole = req.session.employees.userRole;
+
+  if (!sessionEmail) {
+    req.flash("error_msg", "No session, you are required to log in");
+    res.redirect("/");
+    return;
+  }
+
+  if (sessionRole == "super") {
+
+    db.query(`SELECT * FROM Order_Products WHERE id  = ${editID} AND status = 'sold'`, (err, results) => {
+      if (err) {
+        console.log(err);
+        req.flash('error_msg', `${err.sqlMessage}`)
+        res.redirect('/admin')
+      }  
+      if (results.length <= 0) {
+        req.flash('error_msg', 'sorry! no sold item found in our record')
+        res.redirect('/admin')
+        return
+      }
+      // go on and update
+      let updateData = {
+        status:`returned`
+      }
+      db.query(
+        `UPDATE Order_Products SET ? WHERE id ="${editID}" AND status ="sold"`,
+        updateData, (err, results)=>{
+          if (err) {
+            req.flash("error_msg", `${err.sqlMessage}`)
+            return res.redirect('/admin')
+          }
+          req.flash("success_msg", `Item has been  returned back to store`)
+          return res.redirect('/admin')
+          return
+        })
+    })
+  } else {
+    console.log("can not access this feature");
+  }
+};
+
+
+
+
+
+
+
+
 
 // delete req
 
