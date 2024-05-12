@@ -33,7 +33,7 @@
                                 <div class="col-4">
                                     <div class="form-group">
                                         <label for="">Branch State</label>
-                                        <select name="Branch_state" id="state" class="form-control" onchange="populateLGAs()">
+                                        <select name="Branch_state" id="store-state" class="form-control" onchange="storeLGAs()">
                                             <option value="">Select State</option>
                                             <% stateData.forEach(state => { %>
                                                 <option value="<%= state.state %>"><%= state.state %></option>
@@ -46,7 +46,7 @@
                                 <div class="col-4">
                                     <div class="form-group">
                                         <label for="">Local Government</label>
-                                        <select name="Branch_lga" id="lga" class="form-control">
+                                        <select name="Branch_lga" id="store-lga" class="form-control">
                                             <option value="">Select State to choose</option>
 
                                         </select>
@@ -80,10 +80,36 @@
 
 
 
-
   <script>
-    // Function to open the modal
-    function openModal() {
-        document.getElementById('createStore').style.display = 'block';
-    }
+    function storeLGAs() {
+        const stateSelect = document.getElementById("store-state");
+        const lgaSelect = document.getElementById("store-lga");
+        const selectedState = stateSelect.value;
+      
+        console.log("Selected State: ", selectedState); // Check the selected state
+      
+        // Clear the existing options in the LGA select element
+        while (lgaSelect.options.length > 0) {
+          lgaSelect.remove(0);
+        }
+      
+        if (selectedState) {
+          fetch(`/getlgas/${selectedState}`) // Make an AJAX request to the /getlgas route
+            .then(response => response.json())
+            .then(data => {
+              data.forEach(lga => {
+                const option = document.createElement("option");
+                option.text = lga;
+                option.value = lga;
+                lgaSelect.add(option);
+              });
+            })
+            .catch(error => {
+              console.error('Error fetching LGAs:', error);
+            });
+        }
+      
+      }
+    
+    
 </script>

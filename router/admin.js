@@ -27,8 +27,7 @@ router.get("/all-positions", ensureAuthenticated, adminController.getAllPosition
 router.get("/inventory/:id", ensureAuthenticated, adminController.getInventoryById);
 
 
-// form fotrr prices tag
-router.get("/create-product/:id", ensureAuthenticated, adminController.newProduct);
+
 // counter for attendants
 router.get("/create-sales", ensureAuthenticated, adminController.counterForm);
 
@@ -54,7 +53,10 @@ router.post("/return", ensureAuthenticated, adminController.returnProcessor);
 // // add to store
 router.put('/product-status/unverified/:id',ensureAuthenticated,adminController.remove)
 // add price for new store item to add to market
-router.put("/create-sales/:id", ensureAuthenticated, adminController.createNewSales);
+router.post("/create-sales/:id", ensureAuthenticated, adminController.createNewSalesItem);
+router.put("/resolve/:id", ensureAuthenticated, adminController.resolveSale);
+
+
 
 
 router.get("/edit-stores/:id", ensureAuthenticated, adminController.storeEdit);

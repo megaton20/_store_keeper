@@ -74,7 +74,8 @@
                             <div class="col-3">
                                 <div class="form-group">
                                     <label for="">State</label>
-                                    <select name="State"  class="form-control" id="state" onchange="populateLGAs()">
+                                    <select name="State"  class="form-control" id="employee-state" onchange="populateLGAs()">
+                                        <option value="">Select state</option>
                                         <% stateData.forEach(state => { %>
                                         <option value="<%= state.state %>"><%= state.state %></option>
                                         <% }); %>
@@ -88,8 +89,8 @@
                             <div class="col-3">
                                 <div class="form-group">
                                     <label for="">Local Government</label>
-                                    <select name="lga" id="lga" class="form-control">
-                                        <option value="" selected disabled></option>
+                                    <select name="lga" id="employee-lga" class="form-control">
+                                        <option value="">Select State to choose</option>
                                     </select>
                                 </div>
                             </div>
@@ -131,3 +132,38 @@
       </div>
     </div>
   </div>
+
+
+  <script>
+    function populateLGAs() {
+        const stateSelect = document.getElementById("employee-state");
+        const lgaSelect = document.getElementById("employee-lga");
+        const selectedState = stateSelect.value;
+      
+        console.log("Selected State: ", selectedState); // Check the selected state
+      
+        // Clear the existing options in the LGA select element
+        while (lgaSelect.options.length > 0) {
+          lgaSelect.remove(0);
+        }
+      
+        if (selectedState) {
+          fetch(`/getlgas/${selectedState}`) // Make an AJAX request to the /getlgas route
+            .then(response => response.json())
+            .then(data => {
+              data.forEach(lga => {
+                const option = document.createElement("option");
+                option.text = lga;
+                option.value = lga;
+                lgaSelect.add(option);
+              });
+            })
+            .catch(error => {
+              console.error('Error fetching LGAs:', error);
+            });
+        }
+      
+      }
+    
+    
+</script>

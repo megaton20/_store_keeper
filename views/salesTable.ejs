@@ -22,11 +22,10 @@
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Sales Details Tables </h1>
-                    <p class="mb-4">This table shows all registered Customers in all branches </p>
+                    <%- include ('./partials/messages') %>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
-                        <%- include ('./partials/messages') %>
 
                         <% if(allSales.length <= 0){ %>
                             <div class="card-body">
@@ -46,22 +45,11 @@
                                               <th>Payment type</th>
                                               <th>Attendant id</th>
                                               <th>Date</th>
+                                              <th>Action</th>
     
                                             </tr>
                                         </thead>
-                                        <tfoot>
-                                            <tr>
-                                                <th>Id</th>
-                                                <th>Store Name</th>
-                                                <th>Store id</th>
-                                                <th>Sale UUID</th>
-                                                <th>Total Amount</th>
-                                                <th>Payment type</th>
-                                                <th>Attendant id</th>
-                                                <th>Date</th>
-    
-                                              </tr>
-                                        </tfoot>
+                                        
                                         <tbody>
                                       
                                             <% allSales.forEach(function(data) {%>     
@@ -75,11 +63,30 @@
                                                     <td><%= data['Payment_type'] %></td>
                                                     <td><%= data['attendant_id'] %></td>
                                                     <td><%= data['created_date'] %></td>
+
+                                                    <% if( data['status'] == "resolved" ){ %>
+                                                        <td>
+                                                            <button disabled class="btn btn-primary"> Resolved</button>
+                                                        </td>
+                                                        <% } else{ %>  
+
+                                                    <td>
+                                                        <form
+                                                        action="/admin/resolve/<%= data['id'] %>"
+                                                        method="POST"
+                                                      >
+                                                        <input type="hidden" name="_method" value="PUT" />
+                                                        <button class="btn btn-primary">Resolve</button>
+                                                      </form>
+                                                    </td>
+                                                        
+                                                     <% } %>
                                               
                                                </tr> 
                                                
-                                                   <% }) %>
-                                     
+                                            <% }) %>
+                                               
+
                                        
                                         
     

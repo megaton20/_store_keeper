@@ -42,22 +42,12 @@
                                                   <th>Category</th>
                                                   <th>Unit Price</th>
                                                   <th>Stock QTY</th>
+                                                  <th>Shelf Item</th>
                                                   <th>Activated ?</th>
                                                   <th>Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tfoot>
-                                                <tr>
-                                                    <th>Id</th>
-                                                  <th>Product name</th>
-                                                  <th>Brand Name</th>
-                                                  <th>Category</th>
-                                                  <th>Unit Price</th>
-                                                  <th>Stock QTY</th>
-                                                  <th>Activated ?</th>
-                                                  <th>Actions</th>
-                                                  </tr>
-                                            </tfoot>
+                                          
                                             <tbody>
                                           
         
@@ -70,6 +60,7 @@
                                                         <td><%= data['category'] %> </td>
                                                         <td><%= data['UnitPrice'] %> </td>
                                                         <td><%= data['StockQuantity'] %> </td>
+                                                        <td><%= data['total_on_shelf'] %> </td>
                                                         <td><%= data['activate'] %> </td>
                                                         <td>
                                                             <button disabled  class="btn btn-primary">delete</button>

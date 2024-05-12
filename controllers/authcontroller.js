@@ -41,7 +41,7 @@ exports.loginHandler = (req, res) => {
       let role = employees[0].userRole
       if (role = 'super') {
         session.employees = employees[0];
-        req.flash('success_msg',  `welcome ${email}`)
+        req.flash('success_msg',  `welcome ${session.employees.First_name}`)
         res.redirect('/admin')
         
       } else {
