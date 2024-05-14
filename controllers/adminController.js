@@ -29,23 +29,29 @@ const formatDate = (dateStr) => {
 };
 
 exports.getAdminWelcomePage = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
-  let nameA = req.session.employees.First_name;
-  let nameB = req.session.employees.Last_name;
+
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+
+  let nameA = req.session.Users.First_name;
+  let nameB = req.session.Users.Last_name;
+
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
     res.redirect("/");
     return;
   }
+
+
   if (sessionRole == "super") {
     // to get total sales made
-    db.query(`SELECT total_amount FROM Sales `, (err, results) => {
+     // other quwries
+     db.query(`SELECT total_amount FROM Sales WHERE status = "resolved" `, (err, results) => {
       if (err) {
         console.log(err);
         req.flash("error_msg", `${err.sqlMessage}`);
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
       let data = JSON.stringify(results);
       let allSalesAmount = JSON.parse(data);
@@ -54,168 +60,181 @@ exports.getAdminWelcomePage = (req, res) => {
         (acc, item) => acc + item.total_amount,
         0
       );
-      const averageAmount = totalAmount / allSalesAmount.length;
+      // const averageAmount = totalAmount / allSalesAmount.length;
 
-      // console.log(totalAmount);
-      // console.log(averageAmount)
 
       db.query(
-        `SELECT * FROM Order_Products WHERE status = 'returned' `,
+        `SELECT * FROM Orders WHERE status = 'pending' `,
         (err, results) => {
           if (err) {
             req.flash("error_msg", `${err.sqlMessage}`);
-            return res.redirect("/admin");
+            return res.redirect("/super");
           }
           let data = JSON.stringify(results);
-          let allReturns = JSON.parse(data);
+          let pendingOrders = JSON.parse(data);
 
-          db.query(`SELECT * FROM Sales `, (err, results) => {
-            if (err) {
-              req.flash("error_msg", `${err.sqlMessage}`);
-              return res.redirect("/admin");
-            } else {
+          db.query(
+            `SELECT * FROM Order_Products WHERE status = 'returned' `,
+            (err, results) => {
+              if (err) {
+                req.flash("error_msg", `${err.sqlMessage}`);
+                return res.redirect("/super");
+              }
               let data = JSON.stringify(results);
-              let allSales = JSON.parse(data);
-              let totalSale = allSales.length;
-              allSales.forEach((sales) => {
-                sales.created_date = formatDate(sales.created_date); // Assuming 'date' is the date field in your supplier table
-              });
-
-              db.query(`SELECT * FROM Suppliers `, (err, results) => {
+              let allReturns = JSON.parse(data);
+    
+              db.query(`SELECT * FROM Sales WHERE status = 'resolved' `, (err, results) => {
                 if (err) {
-                  console.log(err.sqlMessage);
                   req.flash("error_msg", `${err.sqlMessage}`);
-                  return res.redirect("/admin");
-                }
-
-                // check if item exist
-
-                let data = JSON.stringify(results);
-                let supplierData = JSON.parse(data);
-
-                // render form
-
-                db.query(`SELECT * FROM Positions `, (err, results) => {
-                  if (err) {
-                    req.flash("error_msg", `${err.sqlMessage}`);
-                    return res.redirect("/admin");
-                  } else {
+                  return res.redirect("/super");
+                } else {
+                  let data = JSON.stringify(results);
+                  let allSales = JSON.parse(data);
+                  let totalSale = allSales.length;
+                  allSales.forEach((sales) => {
+                    sales.created_date = formatDate(sales.created_date); // Assuming 'date' is the date field in your supplier table
+                  });
+    
+                  db.query(`SELECT * FROM Suppliers `, (err, results) => {
+                    if (err) {
+                      console.log(err.sqlMessage);
+                      req.flash("error_msg", `${err.sqlMessage}`);
+                      return res.redirect("/super");
+                    }
+    
+                    // check if item exist
+    
                     let data = JSON.stringify(results);
-                    let allPositions = JSON.parse(data);
-
-                    db.query(`SELECT * FROM Stores `, (err, results) => {
+                    let supplierData = JSON.parse(data);
+    
+                    // render form
+    
+                    db.query(`SELECT * FROM Positions `, (err, results) => {
                       if (err) {
                         req.flash("error_msg", `${err.sqlMessage}`);
-                        return res.redirect("/admin");
+                        return res.redirect("/super");
                       } else {
                         let data = JSON.stringify(results);
-                        let allStores = JSON.parse(data);
-
-                        // to get list of all employees
-                        db.query(`SELECT * FROM Employees `, (err, results) => {
+                        let allPositions = JSON.parse(data);
+    
+                        db.query(`SELECT * FROM Stores `, (err, results) => {
                           if (err) {
-                            console.log(err.sqlMessage);
                             req.flash("error_msg", `${err.sqlMessage}`);
-                            return res.redirect("/admin");
-                          }
-
-                          // check if item exist
-                          if (results.length <= 0) {
-                            console.log("employee is empty");
-                            req.flash(
-                              "error_msg",
-                              `Cannot create inventory when Admin list is empty`
-                            );
-                            res.redirect(`/admin/`);
-                            return;
-                          }
-
-                          let data = JSON.stringify(results);
-                          let employeeData = JSON.parse(data);
-
-                          // get list of all categories
-                          db.query(
-                            `SELECT * FROM Category `,
-                            (err, results) => {
+                            return res.redirect("/super");
+                          } else {
+                            let data = JSON.stringify(results);
+                            let allStores = JSON.parse(data);
+    
+                            // to get list of all employees
+                          db.query(`SELECT * FROM Employees `, (err, results) => {
                               if (err) {
-                                console.log(err);
+                                console.log(err.sqlMessage);
                                 req.flash("error_msg", `${err.sqlMessage}`);
-                                res.redirect("/admin");
-                                return;
+                                return res.redirect("/super");
                               }
+    
                               // check if item exist
                               if (results.length <= 0) {
-                                console.log("category is empty");
+                                console.log("employee is empty");
                                 req.flash(
                                   "error_msg",
-                                  `Cannot create inventory when category is empty`
+                                  `Cannot create inventory when Admin list is empty`
                                 );
-                                res.redirect(`/admin`);
+                                res.redirect(`/admin/`);
                                 return;
                               }
-
-                              // get the items to send to front end
-
+    
                               let data = JSON.stringify(results);
-                              let categoryData = JSON.parse(data);
-
-                              // hence add to form
-                              // total reg customers
+                              let employeeData = JSON.parse(data);
+    
+                              // get list of all categories
                               db.query(
-                                `SELECT * FROM Customers WHERE status = 'verified'`,
+                                `SELECT * FROM Category `,
                                 (err, results) => {
                                   if (err) {
+                                    console.log(err);
+                                    req.flash("error_msg", `${err.sqlMessage}`);
+                                    res.redirect("/super");
+                                    return;
+                                  }
+                                  // check if item exist
+                                  if (results.length <= 0) {
+                                    console.log("category is empty");
                                     req.flash(
                                       "error_msg",
-                                      ` ${err.sqlMessage}`
+                                      `Cannot create inventory when category is empty`
                                     );
-                                    return res.redirect("/");
-                                  } else {
-                                    let totalVerifiedCustomers = results.length;
-                                    res.render("adminSuper", {
-                                      pageTitle: "Welcome",
-                                      name: `${nameA} ${nameB}`,
-                                      month: monthName,
-                                      day: dayName,
-                                      date: presentDay,
-                                      year: presentYear,
-                                      totalVerifiedCustomers,
-                                      stateData,
-                                      categoryData,
-                                      employeeData,
-                                      supplierData,
-                                      allPositions,
-                                      allStores,
-                                      allSales,
-                                      totalSale,
-                                      allReturns,
-                                      totalAmount,
-                                    });
+                                    res.redirect(`/super`);
+                                    return;
                                   }
+    
+                                  // get the items to send to front end
+    
+                                  let data = JSON.stringify(results);
+                                  let categoryData = JSON.parse(data);
+    
+                                  // hence add to form
+                                  // total reg customers
+                                  db.query(
+                                    `SELECT * FROM Users WHERE status = 'verified'`,
+                                    (err, results) => {
+                                      if (err) {
+                                        req.flash(
+                                          "error_msg",
+                                          ` ${err.sqlMessage}`
+                                        );
+                                        return res.redirect("/");
+                                      } else {
+                                        let totalVerifiedCustomers = results.length;
+                                        res.render("./super/adminSuper", {
+                                          pageTitle: "Welcome",
+                                          name: `${nameA} ${nameB}`,
+                                          month: monthName,
+                                          day: dayName,
+                                          date: presentDay,
+                                          year: presentYear,
+                                          totalVerifiedCustomers,
+                                          stateData,
+                                          categoryData,
+                                          employeeData,
+                                          supplierData,
+                                          allPositions,
+                                          allStores,
+                                          allSales,
+                                          totalSale,
+                                          allReturns,
+                                          totalAmount,
+                                          pendingOrders,
+                                        });
+                                      }
+                                    }
+                                  );
                                 }
                               );
-
-                              return;
-                            }
-                          );
-                        });
+                            });
+                          }
+                        }); // stores
                       }
-                    });
-                  }
-                });
-              });
+                    }); // all positions
+                  }); // all suppliers
+                }
+              }); // all sales
             }
-          });
-        }
-      ); // returned products
+          ); // returned products
+        })// pending orders query
+
+      
     });
-  } else if (loggedRole == "admin") {
-    return console.log(`${sessionRole} privilages under construction...`);
-  } else {
-    return console.log(`${sessionRole} privilages under construction...`);
+   
+  } else if (sessionRole == "admin") {
     req.flash(
-      "success_msg",
-      `log in as ${sessionEmail + " Ready to make sales"}`
+      "warning_msg",`That is above  your pay grade ${nameA}`
+    );
+    res.redirect("/employee");
+    return;
+  } else {
+    req.flash(
+      "warning_msg",`That is above  your pay grade ${nameA}`
     );
     res.redirect("/user");
     return;
@@ -224,8 +243,10 @@ exports.getAdminWelcomePage = (req, res) => {
 
 // All employees table
 exports.getAllEmployess = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -237,7 +258,7 @@ exports.getAllEmployess = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -250,7 +271,7 @@ exports.getAllEmployess = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -258,7 +279,7 @@ exports.getAllEmployess = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -270,7 +291,7 @@ exports.getAllEmployess = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -280,7 +301,7 @@ exports.getAllEmployess = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -292,7 +313,7 @@ exports.getAllEmployess = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -302,7 +323,7 @@ exports.getAllEmployess = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -327,9 +348,9 @@ exports.getAllEmployess = (req, res) => {
                           ); // Assuming 'date' is the date field in your supplier table
                         });
 
-                        res.render("employeeTable", {
+                        res.render("./super/employeeTable", {
                           pageTitle: "All Employees",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -370,8 +391,10 @@ exports.getAllEmployess = (req, res) => {
 
 // All sales table
 exports.getAllSales = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -383,7 +406,7 @@ exports.getAllSales = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -396,7 +419,7 @@ exports.getAllSales = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -404,7 +427,7 @@ exports.getAllSales = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -416,7 +439,7 @@ exports.getAllSales = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -426,7 +449,7 @@ exports.getAllSales = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -438,7 +461,7 @@ exports.getAllSales = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -448,7 +471,7 @@ exports.getAllSales = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -471,9 +494,9 @@ exports.getAllSales = (req, res) => {
                           date.created_date = formatDate(date.created_date); // Assuming 'date' is the date field in your supplier table
                         });
 
-                        res.render("salesTable", {
+                        res.render("./super/salesTable", {
                           pageTitle: "Welcome",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -513,8 +536,10 @@ exports.getAllSales = (req, res) => {
 
 // All Damaged table
 exports.getAllDamaged = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -526,7 +551,7 @@ exports.getAllDamaged = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -539,7 +564,7 @@ exports.getAllDamaged = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -547,7 +572,7 @@ exports.getAllDamaged = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -559,7 +584,7 @@ exports.getAllDamaged = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -569,7 +594,7 @@ exports.getAllDamaged = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -581,7 +606,7 @@ exports.getAllDamaged = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -591,7 +616,7 @@ exports.getAllDamaged = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -611,9 +636,9 @@ exports.getAllDamaged = (req, res) => {
                         let data = JSON.stringify(results);
                         let allDamaged = JSON.parse(data);
 
-                        res.render("damageTable", {
+                        res.render("./super/damageTable", {
                           pageTitle: "Welcome",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -653,8 +678,12 @@ exports.getAllDamaged = (req, res) => {
 };
 // all customers tabble
 exports.getAllCustomers = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  console.log(req.session.employees);
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+  const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -666,7 +695,7 @@ exports.getAllCustomers = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -679,7 +708,7 @@ exports.getAllCustomers = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -687,7 +716,7 @@ exports.getAllCustomers = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -699,7 +728,7 @@ exports.getAllCustomers = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -709,7 +738,7 @@ exports.getAllCustomers = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -721,7 +750,7 @@ exports.getAllCustomers = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -731,7 +760,7 @@ exports.getAllCustomers = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -741,7 +770,7 @@ exports.getAllCustomers = (req, res) => {
                     let categoryData = JSON.parse(data);
 
                     // hence add to form
-                    db.query(`SELECT * FROM Customers `, (err, results) => {
+                    db.query(`SELECT * FROM Users `, (err, results) => {
                       if (err) {
                         req.flash("error_msg", ` ${err.sqlMessage}`);
                         return res.redirect("/");
@@ -757,9 +786,9 @@ exports.getAllCustomers = (req, res) => {
                           ); // Assuming 'date' is the date field in your Discount table
                         });
 
-                        res.render("customersTable", {
+                        res.render("./super/customersTable", {
                           pageTitle: "Welcome",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -803,8 +832,11 @@ exports.getAllCustomers = (req, res) => {
 
 // all customers tabble
 exports.getAllSuppliers = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole
+  const  userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+  
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -816,7 +848,7 @@ exports.getAllSuppliers = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -829,7 +861,7 @@ exports.getAllSuppliers = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -837,7 +869,7 @@ exports.getAllSuppliers = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -849,7 +881,7 @@ exports.getAllSuppliers = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -859,7 +891,7 @@ exports.getAllSuppliers = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -871,7 +903,7 @@ exports.getAllSuppliers = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -881,7 +913,7 @@ exports.getAllSuppliers = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -907,9 +939,9 @@ exports.getAllSuppliers = (req, res) => {
                             supplier.created_date
                           ); // Assuming 'date' is the date field in your supplier table
                         });
-                        res.render("supplierTable", {
+                        res.render("./super/supplierTable", {
                           pageTitle: "All suppliers",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -949,8 +981,10 @@ exports.getAllSuppliers = (req, res) => {
 
 // all stores tabble
 exports.getAllStores = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -962,7 +996,7 @@ exports.getAllStores = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -975,7 +1009,7 @@ exports.getAllStores = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -983,7 +1017,7 @@ exports.getAllStores = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -995,7 +1029,7 @@ exports.getAllStores = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -1005,7 +1039,7 @@ exports.getAllStores = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -1017,7 +1051,7 @@ exports.getAllStores = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -1027,7 +1061,7 @@ exports.getAllStores = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -1048,9 +1082,9 @@ exports.getAllStores = (req, res) => {
                         let data = JSON.stringify(results);
                         let allStores = JSON.parse(data);
 
-                        res.render("storesTable", {
+                        res.render("./super/storesTable", {
                           pageTitle: "Welcome",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -1090,8 +1124,10 @@ exports.getAllStores = (req, res) => {
 
 // all stores tabble
 exports.getAllDiscounts = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -1103,7 +1139,7 @@ exports.getAllDiscounts = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -1116,7 +1152,7 @@ exports.getAllDiscounts = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -1124,7 +1160,7 @@ exports.getAllDiscounts = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -1136,7 +1172,7 @@ exports.getAllDiscounts = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -1146,7 +1182,7 @@ exports.getAllDiscounts = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -1158,7 +1194,7 @@ exports.getAllDiscounts = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -1168,7 +1204,7 @@ exports.getAllDiscounts = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -1196,9 +1232,9 @@ exports.getAllDiscounts = (req, res) => {
                           discount.End_date = formatDate(discount.End_date); // Assuming 'date' is the date field in your Discount table
                         });
 
-                        res.render("discountTable", {
+                        res.render("./super/discountTable", {
                           pageTitle: "Welcome",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -1238,8 +1274,10 @@ exports.getAllDiscounts = (req, res) => {
 };
 // all cats
 exports.getAllCategory = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -1251,7 +1289,7 @@ exports.getAllCategory = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -1264,7 +1302,7 @@ exports.getAllCategory = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -1272,7 +1310,7 @@ exports.getAllCategory = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -1284,7 +1322,7 @@ exports.getAllCategory = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -1294,7 +1332,7 @@ exports.getAllCategory = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -1306,7 +1344,7 @@ exports.getAllCategory = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -1316,7 +1354,7 @@ exports.getAllCategory = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -1338,9 +1376,9 @@ exports.getAllCategory = (req, res) => {
                         let data = JSON.stringify(results);
                         let allCategory = JSON.parse(data);
 
-                        res.render("categoryTable", {
+                        res.render("./super/categoryTable", {
                           pageTitle: "Welcome",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -1380,8 +1418,10 @@ exports.getAllCategory = (req, res) => {
 
 // all Products
 exports.getAllProducts = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -1393,7 +1433,7 @@ exports.getAllProducts = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -1406,7 +1446,7 @@ exports.getAllProducts = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -1414,7 +1454,7 @@ exports.getAllProducts = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -1426,7 +1466,7 @@ exports.getAllProducts = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -1436,7 +1476,7 @@ exports.getAllProducts = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -1448,7 +1488,7 @@ exports.getAllProducts = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -1458,7 +1498,7 @@ exports.getAllProducts = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -1478,9 +1518,52 @@ exports.getAllProducts = (req, res) => {
                         let data = JSON.stringify(results);
                         let allProducts = JSON.parse(data);
 
-                        res.render("productsTable", {
+
+                        // allProducts.forEach((products) => {
+                        //   products.created_date = formatDate(
+                        //     products.created_date
+                        //   ); // Assuming 'date' is the date field in your supplier table
+                        //   products.Manufacture_date = formatDate(
+                        //     products.Manufacture_date
+                        //   ); // Assuming 'date' is the date field in your supplier table
+                        //   products.Expire_date = formatDate(
+                        //     products.Expire_date
+                        //   ); // Assuming 'date' is the date field in your supplier table
+                        // });
+                        // const itemsWithDaysLeft = results.map(item => {
+                        //   const today = new Date();
+                        //   let correctedExpireDate = formatDate(item.Expire_date)
+                        //   let correctedManufactureDate = formatDate(item.Manufacture_date)
+                        //   const expiryDate = new Date(correctedExpireDate);
+                    
+                        //   // Calculate the difference in milliseconds between expiry date and today's date
+                        //   const timeDifference = expiryDate.getTime() - today.getTime();
+                    
+                        //   // Convert the difference from milliseconds to days
+                        //   const daysLeft = Math.ceil(timeDifference / (1000 * 3600 * 24));
+                    
+                        //   return { 
+                        //     id: item.id,
+                        //     manufacture_date: correctedManufactureDate,
+                        //     expiry_date: correctedExpireDate,
+                        //     days_left: daysLeft
+                        //   };
+                        // });
+
+                        // const prodcutDataToAdd = allProducts.map(item => {
+                        //   const correspondingWatchData = itemsWithDaysLeft.find(watchItem => watchItem.id === item.id);
+                        //   return {
+                        //     ...item,
+                        //     watchData: correspondingWatchData
+                        //   };
+                        // });
+
+                        // console.log(prodcutDataToAdd);
+
+
+                        res.render("./super/productsTable", {
                           pageTitle: "All products",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -1519,8 +1602,10 @@ exports.getAllProducts = (req, res) => {
 };
 // all transac
 exports.getAllTransactions = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -1532,7 +1617,7 @@ exports.getAllTransactions = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -1545,7 +1630,7 @@ exports.getAllTransactions = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -1553,7 +1638,7 @@ exports.getAllTransactions = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -1565,7 +1650,7 @@ exports.getAllTransactions = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -1575,7 +1660,7 @@ exports.getAllTransactions = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -1587,7 +1672,7 @@ exports.getAllTransactions = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -1597,7 +1682,7 @@ exports.getAllTransactions = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -1623,9 +1708,9 @@ exports.getAllTransactions = (req, res) => {
                           ); // Assuming 'date' is the date field in your supplier table
                         });
 
-                        res.render("transactionTable", {
+                        res.render("./super/transactionTable", {
                           pageTitle: "All Transactions",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -1665,8 +1750,10 @@ exports.getAllTransactions = (req, res) => {
 
 // all Inventory
 exports.getAllInventory = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -1678,7 +1765,7 @@ exports.getAllInventory = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -1691,7 +1778,7 @@ exports.getAllInventory = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -1699,7 +1786,7 @@ exports.getAllInventory = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -1711,7 +1798,7 @@ exports.getAllInventory = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -1721,7 +1808,7 @@ exports.getAllInventory = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -1733,7 +1820,7 @@ exports.getAllInventory = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -1743,7 +1830,7 @@ exports.getAllInventory = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -1758,13 +1845,17 @@ exports.getAllInventory = (req, res) => {
                     db.query(`SELECT * FROM inventory `, (err, results) => {
                       if (err) {
                         req.flash("error_msg", ` ${err.sqlMessage}`);
-                        return res.redirect("/admin");
+                        return res.redirect("/super");
                       } else {
+
+               
+
+                        
                         let data = JSON.stringify(results);
-                        let allInventory = JSON.parse(data);
+                        let inventoryData = JSON.parse(data);
 
                         // to reformat the date
-                        allInventory.forEach((inventory) => {
+                        inventoryData.forEach((inventory) => {
                           inventory.created_date = formatDate(
                             inventory.created_date
                           ); // Assuming 'date' is the date field in your supplier table
@@ -1776,9 +1867,40 @@ exports.getAllInventory = (req, res) => {
                           ); // Assuming 'date' is the date field in your supplier table
                         });
 
-                        return res.render("inventoryTable", {
+                                               // getting inventory data
+                    const itemsWithDaysLeft = results.map(item => {
+                      const today = new Date();
+                      let correctedExpireDate = formatDate(item.Expire_date)
+                      let correctedManufactureDate = formatDate(item.Manufacture_date)
+                      const expiryDate = new Date(correctedExpireDate);
+                
+                      // Calculate the difference in milliseconds between expiry date and today's date
+                      const timeDifference = expiryDate.getTime() - today.getTime();
+                
+                      // Convert the difference from milliseconds to days
+                      const daysLeft = Math.ceil(timeDifference / (1000 * 3600 * 24));
+                
+                      return { 
+                        id: item.id,
+                        manufacture_date: correctedManufactureDate,
+                        expiry_date: correctedExpireDate,
+                        days_left: daysLeft
+                      };
+                    });
+
+                    // Map through the original data and add watch data to each item
+                      const allInventory = inventoryData.map(item => {
+                        const correspondingWatchData = itemsWithDaysLeft.find(watchItem => watchItem.id === item.id);
+                        return {
+                          ...item,
+                          watchData: correspondingWatchData
+                        };
+                      });
+
+
+                        return res.render("./super/inventoryTable", {
                           pageTitle: "All Inventory",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -1818,8 +1940,10 @@ exports.getAllInventory = (req, res) => {
 
 // all Positions
 exports.getAllPositions = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -1831,7 +1955,7 @@ exports.getAllPositions = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -1844,7 +1968,7 @@ exports.getAllPositions = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -1852,7 +1976,7 @@ exports.getAllPositions = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -1864,7 +1988,7 @@ exports.getAllPositions = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -1874,7 +1998,7 @@ exports.getAllPositions = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -1886,7 +2010,7 @@ exports.getAllPositions = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -1896,7 +2020,7 @@ exports.getAllPositions = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -1911,14 +2035,14 @@ exports.getAllPositions = (req, res) => {
                     db.query(`SELECT * FROM Positions `, (err, results) => {
                       if (err) {
                         req.flash("error_msg", ` ${err.sqlMessage}`);
-                        return res.redirect("/admin");
+                        return res.redirect("/super");
                       } else {
                         let data = JSON.stringify(results);
                         let allPosition = JSON.parse(data);
 
-                        return res.render("positionTable", {
+                        return res.render("./super/positionTable", {
                           pageTitle: "All Inventory",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -1956,11 +2080,12 @@ exports.getAllPositions = (req, res) => {
   }
 };
 
-// createReturn
 
-exports.createReturn = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+exports.getAllOrrders = (req, res) => {
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -1972,7 +2097,7 @@ exports.createReturn = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -1985,7 +2110,7 @@ exports.createReturn = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -1993,7 +2118,7 @@ exports.createReturn = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -2005,7 +2130,7 @@ exports.createReturn = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -2015,7 +2140,7 @@ exports.createReturn = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -2027,7 +2152,7 @@ exports.createReturn = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -2037,7 +2162,161 @@ exports.createReturn = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
+                      return;
+                    }
+
+                    // get the items to send to front end
+
+                    let data = JSON.stringify(results);
+                    let categoryData = JSON.parse(data);
+
+                    // hence add to form
+
+                    db.query(`SELECT * FROM Orders `, (err, results) => { 
+                      if (err) {
+                        req.flash('error_msg', `error for db: ${err.sqlState}`)
+                        return res.redirect('/')
+                      }
+                      let data = JSON.stringify(results);
+                        let allOrders = JSON.parse(data);
+
+                          // to get invent table
+                    db.query(`SELECT * FROM Positions `, (err, results) => {
+                      if (err) {
+                        req.flash("error_msg", ` ${err.sqlMessage}`);
+                        return res.redirect("/super");
+                      } else {
+                        let data = JSON.stringify(results);
+                        let allPosition = JSON.parse(data);
+
+                        return res.render("./super/ordersTable", {
+                          pageTitle: "All Orders",
+                          name: `${userFirstName} ${userLastName}`,
+                          month: monthName,
+                          day: dayName,
+                          date: presentDay,
+                          year: presentYear,
+                          allOrders,
+
+                          stateData,
+                          categoryData,
+                          employeeData,
+                          supplierData,
+                          allPositions,
+                          allStores,
+                        });
+                      }
+                    });
+                    })
+                  });
+                }
+              );
+            }
+          });
+        }
+      });
+    });
+  } else if (loggedRole == "admin") {
+    return console.log(`${sessionRole} privilages under construction...`);
+  } else {
+    return console.log(`${sessionRole} privilages under construction...`);
+    req.flash(
+      "success_msg",
+      `log in as ${sessionEmail + " Ready to make sales"}`
+    );
+    res.redirect("/user");
+    return;
+  }
+};
+
+
+
+
+// createReturn
+
+exports.createReturn = (req, res) => {
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  if (!sessionEmail) {
+    req.flash("error_msg", "No session, you are required to log in");
+    res.redirect("/");
+    return;
+  }
+  if (sessionRole == "super") {
+    db.query(`SELECT * FROM Suppliers `, (err, results) => {
+      if (err) {
+        console.log(err.sqlMessage);
+        req.flash("error_msg", `${err.sqlMessage}`);
+        res.redirect("/super");
+      }
+
+      // check if item exist
+
+      let data = JSON.stringify(results);
+      let supplierData = JSON.parse(data);
+
+      // render form
+
+      db.query(`SELECT * FROM Positions `, (err, results) => {
+        if (err) {
+          req.flash("error_msg", `${err.sqlMessage}`);
+          res.redirect("/super");
+        } else {
+          let data = JSON.stringify(results);
+          let allPositions = JSON.parse(data);
+
+          db.query(`SELECT * FROM Stores `, (err, results) => {
+            if (err) {
+              req.flash("error_msg", `${err.sqlMessage}`);
+              res.redirect("/super");
+            } else {
+              let data = JSON.stringify(results);
+              let allStores = JSON.parse(data);
+
+              // to get list of all employees
+              db.query(
+                `SELECT * FROM Employees WHERE userRole = "admin" `,
+                (err, results) => {
+                  if (err) {
+                    console.log(err.sqlMessage);
+                    req.flash("error_msg", `${err.sqlMessage}`);
+                    res.redirect("/super");
+                  }
+
+                  // check if item exist
+                  if (results.length <= 0) {
+                    console.log("employee is empty");
+                    req.flash(
+                      "error_msg",
+                      `Cannot create inventory when Admin list is empty`
+                    );
+                    res.redirect(`/super`);
+                    return;
+                  }
+
+                  let data = JSON.stringify(results);
+                  let employeeData = JSON.parse(data);
+
+                  // get list of all categories
+                  db.query(`SELECT * FROM Category `, (err, results) => {
+                    if (err) {
+                      console.log(err);
+                      req.flash("error_msg", `${err.sqlMessage}`);
+                      res.redirect("/super");
+                      return;
+                    }
+                    // check if item exist
+                    if (results.length <= 0) {
+                      console.log("category is empty");
+                      req.flash(
+                        "error_msg",
+                        `Cannot create inventory when category is empty`
+                      );
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -2052,14 +2331,14 @@ exports.createReturn = (req, res) => {
                     db.query(`SELECT * FROM Positions `, (err, results) => {
                       if (err) {
                         req.flash("error_msg", ` ${err.sqlMessage}`);
-                        return res.redirect("/admin");
+                        return res.redirect("/super");
                       } else {
                         let data = JSON.stringify(results);
                         let allPosition = JSON.parse(data);
 
-                        return res.render("returnForm", {
+                        return res.render("./super/returnForm", {
                           pageTitle: "return",
-                          name: sessionEmail,
+                          name: `${userFirstName} ${userLastName}`,
                           month: monthName,
                           day: dayName,
                           date: presentDay,
@@ -2100,8 +2379,10 @@ exports.createReturn = (req, res) => {
 exports.getInventoryById = (req, res) => {
   let singleId = req.params.id;
 
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -2113,7 +2394,7 @@ exports.getInventoryById = (req, res) => {
       if (err) {
         console.log(err.sqlMessage);
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       }
 
       // check if item exist
@@ -2126,7 +2407,7 @@ exports.getInventoryById = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -2134,7 +2415,7 @@ exports.getInventoryById = (req, res) => {
           db.query(`SELECT * FROM Stores `, (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             } else {
               let data = JSON.stringify(results);
               let allStores = JSON.parse(data);
@@ -2146,7 +2427,7 @@ exports.getInventoryById = (req, res) => {
                   if (err) {
                     console.log(err.sqlMessage);
                     req.flash("error_msg", `${err.sqlMessage}`);
-                    res.redirect("/admin");
+                    res.redirect("/super");
                   }
 
                   // check if item exist
@@ -2156,7 +2437,7 @@ exports.getInventoryById = (req, res) => {
                       "error_msg",
                       `Cannot create inventory when Admin list is empty`
                     );
-                    res.redirect(`/admin`);
+                    res.redirect(`/super`);
                     return;
                   }
 
@@ -2168,7 +2449,7 @@ exports.getInventoryById = (req, res) => {
                     if (err) {
                       console.log(err);
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                       return;
                     }
                     // check if item exist
@@ -2178,7 +2459,7 @@ exports.getInventoryById = (req, res) => {
                         "error_msg",
                         `Cannot create inventory when category is empty`
                       );
-                      res.redirect(`/admin`);
+                      res.redirect(`/super`);
                       return;
                     }
 
@@ -2195,7 +2476,7 @@ exports.getInventoryById = (req, res) => {
                       (err, results) => {
                         if (err) {
                           req.flash("error_msg", ` ${err.sqlMessage}`);
-                          return res.redirect("/admin");
+                          return res.redirect("/super");
                         } else {
                           let data = JSON.stringify(results);
                           let allInventory = JSON.parse(data);
@@ -2213,9 +2494,9 @@ exports.getInventoryById = (req, res) => {
                             ); // Assuming 'date' is the date field in your supplier table
                           });
 
-                          return res.render("inventorySingle", {
+                          return res.render("./super/inventorySingle", {
                             pageTitle: `${allInventory[0].Product_name} | ${allInventory[0].Brand_name}`,
-                            name: sessionEmail,
+                            name: `${userFirstName} ${userLastName}`,
                             month: monthName,
                             day: dayName,
                             date: presentDay,
@@ -2255,8 +2536,10 @@ exports.getInventoryById = (req, res) => {
 };
 // customers
 exports.newCustomer = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -2265,9 +2548,9 @@ exports.newCustomer = (req, res) => {
   }
 
   if (sessionRole == "super") {
-    res.render("customerForm", {
+    res.render("./super/customerForm", {
       pageTitle: "Create new customers",
-      name: sessionEmail,
+      name: `${userFirstName} ${userLastName}`,
       month: monthName,
       day: dayName,
       date: presentDay,
@@ -2279,8 +2562,10 @@ exports.newCustomer = (req, res) => {
 
 //  at the counter page
 exports.counterForm = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -2296,9 +2581,9 @@ exports.counterForm = (req, res) => {
       let data = JSON.stringify(results);
       let allCategory = JSON.parse(data);
       if (sessionRole == "super") {
-        res.render("userdash", {
+        res.render("./super/userdash", {
           pageTitle: "At the counter",
-          name: sessionEmail,
+          name: `${userFirstName} ${userLastName}`,
           month: monthName,
           day: dayName,
           date: presentDay,
@@ -2306,9 +2591,9 @@ exports.counterForm = (req, res) => {
           allCategory,
         });
       } else {
-        res.render("userdash", {
+        res.render("./super/userdash", {
           pageTitle: "At the counter",
-          name: sessionEmail,
+          name: `${userFirstName} ${userLastName}`,
           month: monthName,
           day: dayName,
           date: presentDay,
@@ -2352,7 +2637,7 @@ exports.createNewEmployee = (req, res) => {
     )
   ) {
     req.flash("error_msg", `Enter all field before submiting`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   db.query(
@@ -2364,7 +2649,7 @@ exports.createNewEmployee = (req, res) => {
           "error_msg",
           `Error from server Database: ${error.sqlMessage}`
         );
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       if (results.length <= 0) {
@@ -2385,10 +2670,10 @@ exports.createNewEmployee = (req, res) => {
         });
 
         req.flash("success_msg", `"${First_name}" added successfully!`);
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
       req.flash("error_msg", `"${First_name}" alrready exist!`);
-      return res.redirect("/admin");
+      return res.redirect("/super");
     }
   );
 };
@@ -2398,7 +2683,7 @@ exports.createNewCategory = (req, res) => {
 
   if (!(Category_name && Desc)) {
     req.flash("error_msg", `Enter all field before submiting new category`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   db.query(
@@ -2410,7 +2695,7 @@ exports.createNewCategory = (req, res) => {
           "error_msg",
           `Error from server Database: ${error.sqlMessage}`
         );
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       if (results.length <= 0) {
@@ -2421,10 +2706,10 @@ exports.createNewCategory = (req, res) => {
         });
 
         req.flash("success_msg", `"${Category_name}" added successfully!`);
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
       req.flash("error_msg", `"${Category_name}" alrready exist!`);
-      return res.redirect("/admin");
+      return res.redirect("/super");
     }
   );
 };
@@ -2436,7 +2721,7 @@ exports.createNewSupplier = (req, res) => {
 
   if (!(First_name && Last_name && email && Phone && Address, Business_name)) {
     req.flash("error_msg", `Enter all field before submiting`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   db.query(
@@ -2448,7 +2733,7 @@ exports.createNewSupplier = (req, res) => {
           "error_msg",
           `Error from server Database: ${error.sqlMessage}`
         );
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       if (results.length <= 0) {
@@ -2467,7 +2752,7 @@ exports.createNewSupplier = (req, res) => {
         return res.redirect("/admin-supplier");
       }
       req.flash("error_msg", `"${Business_name}" alrready exist!`);
-      return res.redirect("/admin");
+      return res.redirect("/super");
     }
   );
 };
@@ -2477,7 +2762,7 @@ exports.createNewStore = (req, res) => {
 
   if (!(Branch_Name && Branch_state && Branch_lga && Branch_address)) {
     req.flash("error_msg", `Enter all field before submiting Store`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   db.query(
@@ -2489,7 +2774,7 @@ exports.createNewStore = (req, res) => {
           "error_msg",
           `Error from server Database: ${error.sqlMessage}`
         );
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       // none found with the name??
@@ -2503,10 +2788,10 @@ exports.createNewStore = (req, res) => {
         });
 
         req.flash("success_msg", `"${Branch_Name}" added successfully!`);
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
       req.flash("error_msg", `"${Branch_Name}" alrready exist!`);
-      return res.redirect("/admin");
+      return res.redirect("/super");
     }
   );
 };
@@ -2530,7 +2815,7 @@ exports.createNewDiscount = (req, res) => {
     )
   ) {
     req.flash("error_msg", `Enter all field before submiting`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   db.query(
@@ -2542,7 +2827,7 @@ exports.createNewDiscount = (req, res) => {
           "error_msg",
           `Error from server Database: ${error.sqlMessage}`
         );
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       if (results.length <= 0) {
@@ -2559,7 +2844,7 @@ exports.createNewDiscount = (req, res) => {
         return res.redirect("/admin/all-discounts");
       }
       req.flash("error_msg", `"${Discount_name}" alrready exist!`);
-      return res.redirect("/admin");
+      return res.redirect("/super");
     }
   );
 };
@@ -2602,7 +2887,7 @@ exports.createNewInventory = (req, res) => {
     )
   ) {
     req.flash("error_msg", `Enter all field before submiting`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   // create the inventory
@@ -2629,10 +2914,10 @@ exports.createNewInventory = (req, res) => {
     (err, results) => {
       if (err) {
         req.flash("error_msg", `Error from server Database: ${err.sqlMessage}`);
-        return res.redirect("/admin");
+        return res.redirect("/super");
       } else {
         req.flash("success_msg", `"${Product_name}" added successfully!`);
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
     }
   );
@@ -2644,7 +2929,7 @@ exports.createNewCustomer = (req, res) => {
 
   if (!(First_name && Last_name && email && Phone && Address)) {
     req.flash("error_msg", `Enter all field before submiting`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   db.query(
@@ -2656,7 +2941,7 @@ exports.createNewCustomer = (req, res) => {
           "error_msg",
           `Error from server Database: ${error.sqlMessage}`
         );
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       if (results.length <= 0) {
@@ -2673,10 +2958,10 @@ exports.createNewCustomer = (req, res) => {
         });
 
         req.flash("success_msg", `"${First_name}" added successfully!`);
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
       req.flash("error_msg", `"${First_name}" alrready exist!`);
-      return res.redirect("/admin");
+      return res.redirect("/super");
     }
   );
 };
@@ -2686,7 +2971,7 @@ exports.createNewPosition = (req, res) => {
 
   if (!(Position_name && Salary && Job_description)) {
     req.flash("error_msg", `Enter all field before submiting`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   db.query(
@@ -2698,7 +2983,7 @@ exports.createNewPosition = (req, res) => {
           "error_msg",
           `Error from server Database: ${error.sqlMessage}`
         );
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       if (results.length <= 0) {
@@ -2710,16 +2995,18 @@ exports.createNewPosition = (req, res) => {
         });
 
         req.flash("success_msg", `"${Position_name}" added successfully!`);
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
       req.flash("error_msg", `"${Position_name}" alrready exist!`);
-      return res.redirect("/admin");
+      return res.redirect("/super");
     }
   );
 };
 exports.returnProcessor = (req, res) => {
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
   let errors = [];
 
   const { searchId } = req.body;
@@ -2736,7 +3023,7 @@ exports.returnProcessor = (req, res) => {
         if (err) {
           console.log(err);
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         }
 
         let data = JSON.stringify(results);
@@ -2748,7 +3035,7 @@ exports.returnProcessor = (req, res) => {
             if (err) {
               console.log(err);
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             }
 
             let data = JSON.stringify(results);
@@ -2758,7 +3045,7 @@ exports.returnProcessor = (req, res) => {
               if (err) {
                 console.log(err.sqlMessage);
                 req.flash("error_msg", `${err.sqlMessage}`);
-                res.redirect("/admin");
+                res.redirect("/super");
               }
 
               // check if item exist
@@ -2771,7 +3058,7 @@ exports.returnProcessor = (req, res) => {
               db.query(`SELECT * FROM Positions `, (err, results) => {
                 if (err) {
                   req.flash("error_msg", `${err.sqlMessage}`);
-                  res.redirect("/admin");
+                  res.redirect("/super");
                 } else {
                   let data = JSON.stringify(results);
                   let allPositions = JSON.parse(data);
@@ -2779,7 +3066,7 @@ exports.returnProcessor = (req, res) => {
                   db.query(`SELECT * FROM Stores `, (err, results) => {
                     if (err) {
                       req.flash("error_msg", `${err.sqlMessage}`);
-                      res.redirect("/admin");
+                      res.redirect("/super");
                     } else {
                       let data = JSON.stringify(results);
                       let allStores = JSON.parse(data);
@@ -2791,7 +3078,7 @@ exports.returnProcessor = (req, res) => {
                           if (err) {
                             console.log(err.sqlMessage);
                             req.flash("error_msg", `${err.sqlMessage}`);
-                            res.redirect("/admin");
+                            res.redirect("/super");
                           }
 
                           // check if item exist
@@ -2801,7 +3088,7 @@ exports.returnProcessor = (req, res) => {
                               "error_msg",
                               `Cannot create inventory when Admin list is empty`
                             );
-                            res.redirect(`/admin`);
+                            res.redirect(`/super`);
                             return;
                           }
 
@@ -2815,7 +3102,7 @@ exports.returnProcessor = (req, res) => {
                               if (err) {
                                 console.log(err);
                                 req.flash("error_msg", `${err.sqlMessage}`);
-                                res.redirect("/admin");
+                                res.redirect("/super");
                                 return;
                               }
                               // check if item exist
@@ -2825,7 +3112,7 @@ exports.returnProcessor = (req, res) => {
                                   "error_msg",
                                   `Cannot create inventory when category is empty`
                                 );
-                                res.redirect(`/admin`);
+                                res.redirect(`/super`);
                                 return;
                               }
 
@@ -2840,10 +3127,10 @@ exports.returnProcessor = (req, res) => {
                                 msg: `make sure you read and understand return plolicies`,
                               });
                               // to get invent table
-                              return res.render("returnProcssor", {
+                              return res.render("./super/returnProcssor", {
                                 pageTitle: "return details",
                                 errors,
-                                name: sessionEmail,
+                                name: `${userFirstName} ${userLastName}`,
                                 month: monthName,
                                 day: dayName,
                                 date: presentDay,
@@ -2891,20 +3178,20 @@ exports.createNewSalesItem = (req, res) => {
   // if user is admin
   if (!price) {
     req.flash("error_msg", `Enter Price before submiting to add to shelf`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
-
+  
   // retreive the data from inventroy table
   db.query(
     `SELECT * FROM inventory WHERE id = "${updateID}" `,
     (err, results) => {
       if (err) {
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       } else {
         let data = JSON.stringify(results);
         let inventoryDataFromDb = JSON.parse(data);
-
+        
         // check if its in pro db
         db.query(
           `SELECT * FROM Products WHERE inventory_id = "${updateID}" `,
@@ -2912,16 +3199,15 @@ exports.createNewSalesItem = (req, res) => {
             if (err) {
               console.log(err);
               req.flash("error_msg", `${err.sqlMessage}`);
-              res.redirect("/admin");
+              res.redirect("/super");
             }
-
+            
             if (results.length <= 0) {
               // no record found with such id in products
-
+              
               let totalInStock = inventoryDataFromDb[0].QTY_recieved * inventoryDataFromDb[0].total_in_pack 
               let totalOnShelf = totalInStock -  inventoryDataFromDb[0].Total_damaged
-
-
+              
               // object to be inserted
               let prodcutDataToAdd = {
                 Brand_name: inventoryDataFromDb[0].Brand_name,
@@ -2935,7 +3221,7 @@ exports.createNewSalesItem = (req, res) => {
                 created_date: sqlDate,
                 activate: inventoryDataFromDb[0].activate,
               };
-
+              
               // adding to products table
               db.query(
                 "INSERT INTO Products SET ?",
@@ -2969,14 +3255,14 @@ exports.createNewSalesItem = (req, res) => {
                               "error_msg",
                               `Error from server Database: ${err.sqlMessage}`
                             );
-                            return res.redirect("/admin");
+                            return res.redirect("/super");
                           }
 
                           req.flash(
                             "success_msg",
                             `price added, now available to be sold in shelf`
                           );
-                          return res.redirect("/admin");
+                          return res.redirect("/super");
                         }
                       );
                     }
@@ -2985,11 +3271,34 @@ exports.createNewSalesItem = (req, res) => {
               );
             } else {
               // record found, no need to add just render price form
-              req.flash(
-                "error_msg",
-                "no record found in product table with categoty  id "
-              );
-              res.render("/");
+
+
+              // updated inventory table
+              db.query(`UPDATE inventory SET ? WHERE id =  "${updateID}"`, {
+                activate: "yes"
+              }, (err, results)=>{
+                if (err) {
+                  console.log(err);
+                  req.flash("error_msg", `error for db: ${err.sqlMessage}`)
+                  return res.redirect('/admin')
+                }
+               
+                // update  shelf table
+              db.query(`UPDATE Products SET ? WHERE inventory_id =  "${updateID}"`, {
+                activate: "yes"
+              }, (err, results)=>{
+                if (err) {
+                  console.log(err);
+                  req.flash("error_msg", `error for db: ${err.sqlMessage}`)
+                  return res.redirect('/admin')
+                }
+                req.flash('success_msg', `new price added as ${price} and status is actived`)
+                res.redirect("/super");
+              })
+              })
+
+
+
             }
           }
         );
@@ -3030,8 +3339,10 @@ exports.remove = (req, res) => {
 // form
 exports.storeEdit = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -3041,20 +3352,20 @@ exports.storeEdit = (req, res) => {
   db.query(`SELECT * FROM Stores WHERE id = ${editID}`, (err, results) => {
     if (err) {
       req.flash("error_msg", `${err.sqlMessage}`);
-      return res.redirect("/admin");
+      return res.redirect("/super");
     } else {
       if (results.length <= 0) {
         req.flash("error_msg", `no item  found`);
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       let data = JSON.stringify(results);
       let storeData = JSON.parse(data);
       console.log(storeData);
 
-      return res.render("storesEditForm", {
+      return res.render("./super/storesEditForm", {
         pageTitle: "Welcome",
-        name: sessionEmail,
+        name: `${userFirstName} ${userLastName}`,
         month: monthName,
         day: dayName,
         date: presentDay,
@@ -3067,8 +3378,10 @@ exports.storeEdit = (req, res) => {
 };
 exports.editDiscount = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -3078,20 +3391,20 @@ exports.editDiscount = (req, res) => {
   db.query(`SELECT * FROM Discount WHERE id = ${editID}`, (err, results) => {
     if (err) {
       req.flash("error_msg", `${err.sqlMessage}`);
-      return res.redirect("/admin");
+      return res.redirect("/super");
     } else {
       if (results.length <= 0) {
         req.flash("error_msg", `no item  found`);
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       let data = JSON.stringify(results);
       let discountData = JSON.parse(data);
       console.log(discountData);
 
-      return res.render("discountEditForm", {
+      return res.render("./super/discountEditForm", {
         pageTitle: "Discount",
-        name: sessionEmail,
+        name: `${userFirstName} ${userLastName}`,
         month: monthName,
         day: dayName,
         date: presentDay,
@@ -3103,8 +3416,10 @@ exports.editDiscount = (req, res) => {
 };
 exports.editEmployee = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -3115,7 +3430,7 @@ exports.editEmployee = (req, res) => {
   db.query(`SELECT * FROM Stores `, (err, results) => {
     if (err) {
       req.flash("error_msg", `${err.sqlMessage}`);
-      return res.redirect("/admin");
+      return res.redirect("/super");
     } else {
       let data = JSON.stringify(results);
       let allStores = JSON.parse(data);
@@ -3123,7 +3438,7 @@ exports.editEmployee = (req, res) => {
       db.query(`SELECT * FROM Positions `, (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
-          return res.redirect("/admin");
+          return res.redirect("/super");
         } else {
           let data = JSON.stringify(results);
           let allPositions = JSON.parse(data);
@@ -3133,19 +3448,19 @@ exports.editEmployee = (req, res) => {
             (err, results) => {
               if (err) {
                 req.flash("error_msg", `${err.sqlMessage}`);
-                return res.redirect("/admin");
+                return res.redirect("/super");
               } else {
                 if (results.length <= 0) {
                   req.flash("error_msg", `no item  found`);
-                  return res.redirect("/admin");
+                  return res.redirect("/super");
                 }
 
                 let data = JSON.stringify(results);
                 let employeeData = JSON.parse(data);
 
-                res.render("employeeEditForm", {
+                res.render("./super/employeeEditForm", {
                   pageTitle: "Edit Employee",
-                  name: sessionEmail,
+                  name: `${userFirstName} ${userLastName}`,
                   month: monthName,
                   day: dayName,
                   date: presentDay,
@@ -3165,8 +3480,10 @@ exports.editEmployee = (req, res) => {
 };
 exports.editSupplier = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -3178,19 +3495,19 @@ exports.editSupplier = (req, res) => {
     db.query(`SELECT * FROM Suppliers WHERE id = ${editID}`, (err, results) => {
       if (err) {
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       } else {
         if (results.length <= 0) {
           req.flash("error_msg", `no item  found`);
-          return res.redirect("/admin");
+          return res.redirect("/super");
         }
 
         let data = JSON.stringify(results);
         let supplierData = JSON.parse(data);
 
-        return res.render("supplierEditForm", {
+        return res.render("./super/supplierEditForm", {
           pageTitle: "Edit Supplier",
-          name: sessionEmail,
+          name: `${userFirstName} ${userLastName}`,
           month: monthName,
           day: dayName,
           date: presentDay,
@@ -3205,8 +3522,10 @@ exports.editSupplier = (req, res) => {
 };
 exports.editCategory = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -3226,9 +3545,9 @@ exports.editCategory = (req, res) => {
         let data = JSON.stringify(results);
         let categoryData = JSON.parse(data);
 
-        return res.render("categoryEditForm", {
+        return res.render("./super/categoryEditForm", {
           pageTitle: "edit Cat",
-          name: sessionEmail,
+          name: `${userFirstName} ${userLastName}`,
           month: monthName,
           day: dayName,
           date: presentDay,
@@ -3244,8 +3563,10 @@ exports.editCategory = (req, res) => {
 };
 exports.editInventory = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -3294,9 +3615,9 @@ exports.editInventory = (req, res) => {
                 let data = JSON.stringify(results);
                 let inventoryData = JSON.parse(data);
 
-                res.render("inventoryEditForm", {
+                res.render("./super/inventoryEditForm", {
                   pageTitle: "edit inventory",
-                  name: sessionEmail,
+                  name: `${userFirstName} ${userLastName}`,
                   month: monthName,
                   day: dayName,
                   date: presentDay,
@@ -3319,8 +3640,10 @@ exports.editInventory = (req, res) => {
 };
 exports.editPosition = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -3332,19 +3655,19 @@ exports.editPosition = (req, res) => {
     db.query(`SELECT * FROM Positions WHERE id = ${editID}`, (err, results) => {
       if (err) {
         req.flash("error_msg", `${err.sqlMessage}`);
-        res.redirect("/admin");
+        res.redirect("/super");
       } else {
         if (results.length <= 0) {
           req.flash("error_msg", `no item  found`);
-          return res.redirect("/admin");
+          return res.redirect("/super");
         }
 
         let data = JSON.stringify(results);
         let positionData = JSON.parse(data);
 
-        return res.render("positionEditForm", {
+        return res.render("./super/positionEditForm", {
           pageTitle: "Edit Roles",
-          name: sessionEmail,
+          name: `${userFirstName} ${userLastName}`,
           month: monthName,
           day: dayName,
           date: presentDay,
@@ -3418,12 +3741,12 @@ exports.editNewDiscount = (req, res) => {
 
   if (!(Discount_name && Discount_Provider && Discount_Percentage)) {
     req.flash("error_msg", `Enter all field before submiting`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   if (!End_Date && Start_Date) {
     req.flash("error_msg", `Enter Date field before submiting`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   db.query(
@@ -3435,7 +3758,7 @@ exports.editNewDiscount = (req, res) => {
           "error_msg",
           `Error from server Database: ${error.sqlMessage}`
         );
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       if (results.length <= 0) {
@@ -3502,7 +3825,7 @@ exports.editNewEmployee = (req, res) => {
     )
   ) {
     req.flash("error_msg", `Enter all field before submiting`);
-    return res.redirect("/admin");
+    return res.redirect("/super");
   }
 
   db.query(
@@ -3514,7 +3837,7 @@ exports.editNewEmployee = (req, res) => {
           "error_msg",
           `Error from server Database: ${error.sqlMessage}`
         );
-        return res.redirect("/admin");
+        return res.redirect("/super");
       }
 
       if (results.length <= 0) {
@@ -3627,7 +3950,7 @@ exports.editNewCategory = (req, res) => {
       if (error) {
         console.log(error);
         req.flash("error_msg", `Error from server Database `);
-        return res.redirect(`/admin`);
+        return res.redirect(`/super`);
       }
 
       //   check if to hhave multiple
@@ -3734,8 +4057,10 @@ exports.editNewInventory = (req, res) => {
 };
 exports.editNewPosition = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -3780,8 +4105,10 @@ exports.editNewPosition = (req, res) => {
 exports.returnItem = (req, res) => {
   let editID = req.params.id;
 
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -3796,11 +4123,11 @@ exports.returnItem = (req, res) => {
         if (err) {
           console.log(err);
           req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/admin");
+          res.redirect("/super");
         }
         if (results.length <= 0) {
           req.flash("error_msg", "sorry! no sold item found in our record");
-          res.redirect("/admin");
+          res.redirect("/super");
           return;
         }
         // go on and update
@@ -3813,10 +4140,10 @@ exports.returnItem = (req, res) => {
           (err, results) => {
             if (err) {
               req.flash("error_msg", `${err.sqlMessage}`);
-              return res.redirect("/admin");
+              return res.redirect("/super");
             }
             req.flash("success_msg", `Item has been  returned back to store`);
-            return res.redirect("/admin");
+            return res.redirect("/super");
             return;
           }
         );
@@ -3829,8 +4156,10 @@ exports.returnItem = (req, res) => {
 
 exports.resolveSale = (req, res) => {
   const editID = req.params.id;
-  const sessionEmail = req.session.employees.email;
-  const sessionRole = req.session.employees.userRole;
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
 
   if (!sessionEmail) {
     req.flash("error_msg", "No session, you are required to log in");
@@ -3911,6 +4240,83 @@ exports.resolveSale = (req, res) => {
 };
 
 
+exports.flagProduct =(req, res)=>{
+
+  let editID = req.params.id;
+  const sessionEmail = req.session.employees.email; //  to get more info if needed
+  const sessionRole = req.session.employees.userRole;
+
+   // create the inventory
+   let deactivate =   {
+    activate: 'no'
+  }
+   db.query(
+    `UPDATE inventory SET ? WHERE id = "${editID}" `,
+    deactivate,
+    (err, results) => {
+      if (err) {
+        req.flash("error_msg", `Error from server Database: ${err.sqlMessage}`);
+        return res.redirect(`/admin/edit-inventory/${editID}`);
+      } 
+
+      db.query(
+        `UPDATE Products SET ? WHERE inventory_id = "${editID}" `,
+        deactivate,
+        (err, results) => {
+          if (err) {
+            req.flash("error_msg", `Error from server Database: ${err.sqlMessage}`);
+            return res.redirect(`/super`);
+          } else {
+            req.flash("warning_msg", ` Deactivated successfully!`);
+            return res.redirect("/admin/all-products");
+          }
+        }
+      );
+    }
+  );
+  
+
+ 
+}
+
+exports.unflagProduct =(req, res)=>{
+
+  let editID = req.params.id;
+  const sessionEmail = req.session.employees.email; //  to get more info if needed
+  const sessionRole = req.session.employees.userRole;
+
+   // create the inventory
+   let deactivate =   {
+    activate: 'yes'
+  }
+   db.query(
+    `UPDATE inventory SET ? WHERE id = "${editID}" `,
+    deactivate,
+    (err, results) => {
+      if (err) {
+        req.flash("error_msg", `Error from server Database: ${err.sqlMessage}`);
+        return res.redirect(`/admin/edit-inventory/${editID}`);
+      } 
+
+      db.query(
+        `UPDATE Products SET ? WHERE inventory_id = "${editID}" `,
+        deactivate,
+        (err, results) => {
+          if (err) {
+            req.flash("error_msg", `Error from server Database: ${err.sqlMessage}`);
+            return res.redirect(`/super`);
+          } else {
+            req.flash("success_msg", ` Activated successfully!`);
+            return res.redirect("/admin/all-products");
+          }
+        }
+      );
+    }
+  );
+  
+
+ 
+}
 
 // delete req
 
@@ -3935,7 +4341,6 @@ exports.deleteStore = (req, res) => {
     req.flash("error_msg", `could not delete`);
     return res.redirect("/");
   }
-  // req body
 };
 
 exports.deleteDiscount = (req, res) => {

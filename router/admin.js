@@ -21,6 +21,7 @@ router.get("/all-products", ensureAuthenticated, adminController.getAllProducts)
 router.get("/all-transactions", ensureAuthenticated, adminController.getAllTransactions);
 router.get("/all-inventory", ensureAuthenticated, adminController.getAllInventory);
 router.get("/all-positions", ensureAuthenticated, adminController.getAllPositions);
+router.get("/all-orders", ensureAuthenticated, adminController.getAllOrrders);
 
 
 // get single
@@ -35,6 +36,8 @@ router.get("/create-sales", ensureAuthenticated, adminController.counterForm);
 // form section
 router.get("/create-customer", ensureAuthenticated, adminController.newCustomer);
 router.get("/return", ensureAuthenticated, adminController.createReturn); // to get sales id
+
+
 
 
 
@@ -55,6 +58,8 @@ router.put('/product-status/unverified/:id',ensureAuthenticated,adminController.
 // add price for new store item to add to market
 router.post("/create-sales/:id", ensureAuthenticated, adminController.createNewSalesItem);
 router.put("/resolve/:id", ensureAuthenticated, adminController.resolveSale);
+router.put("/flag-product/:id", ensureAuthenticated, adminController.flagProduct);
+router.put("/unflag-product/:id", ensureAuthenticated, adminController.unflagProduct);
 
 
 

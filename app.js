@@ -84,6 +84,7 @@ const openRoutes = require('./router/index.js')
 const authRouter = require('./router/auth')
 const adminRouter = require('./router/admin')
 const userRouter =  require('./router/userRouter.js')
+const employeeRouter =  require('./router/employeeRouter.js')
 
 
 app.use(bodyParser.urlencoded({extended : false}));
@@ -126,7 +127,8 @@ app.use(function(req, res, next) {
 
 app.use('/', openRoutes);
 app.use('/auth', authRouter)
-app.use('/admin', adminRouter)
+app.use('/super', adminRouter)
+app.use('/employee', employeeRouter)
 app.use('/user', userRouter)
 
 // 404 route

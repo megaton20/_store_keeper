@@ -11,7 +11,9 @@ const { newCategory } = require('../controllers/adminController');
 router.get('/', forwardAuthenticated, (req, res) => res.render('login',{
   pageTitle:"Login To continue Using Store Keeper"
   }));
-
+  router.get('/register', forwardAuthenticated, (req, res) => res.render('register',{
+    pageTitle:"Login To continue Using Store Keeper"
+    }));
 
   // Route to fetch LGAs for a selected state
 router.get("/getlgas/:state", ensureAuthenticated, (req, res) => {
@@ -43,7 +45,7 @@ router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
 
 
         // select from products
-        db.query(`SELECT * FROM Products WHERE category = '${id}' `, (err, results)=>{
+        db.query(`SELECT * FROM Products WHERE category = '${id}' AND activate = "yes" `, (err, results)=>{
           if (err) {
             console.log(err.sqlMessage);
               req.flash("error_msg", ` ${err.sqlMessage}`)

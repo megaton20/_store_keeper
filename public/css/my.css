@@ -1,6 +1,6 @@
 body{
 
-    background-image: linear-gradient(40deg, #3a4c61, #31816e) !important;
+    /* background-image: linear-gradient(40deg, #3a4c61, #31816e) !important; */
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -22,8 +22,6 @@ body{
     width: 300px;
 }
 .wrapper input {
-    background-color: #2e663f;
-    color: #ffff;
     padding: 10px;
     margin-top: 10px;
     border-radius: 5px;
@@ -31,9 +29,7 @@ body{
     width: 280px;
 }
 
- input::placeholder{
-    color: #ffff;
-}
+
 input:active{
     border: none;
 }

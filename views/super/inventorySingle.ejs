@@ -1,0 +1,116 @@
+
+
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+      
+        <!-- Sidebar -->
+        <%- include ('../partials/superSidebar') %>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                 <!-- Topbar -->
+                 <%- include ('../partials/topbar') %>
+                 <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+
+                        <%- include ('../partials/messages') %>
+
+                                 <!-- Content Row -->
+                            <p>inventory Preview</p>
+
+                                <div class="row">
+
+                                    <!-- Area Chart -->
+                                    <div class="col-xl-8 col-lg-7">
+                                        <div class="card shadow mb-4">
+                                            <!-- Card Header - Dropdown -->
+                                 
+                                            <!-- Card Body -->
+                                            <div class="card-body">
+
+                                                <p>Product Name: <%= allInventory[0].Product_name %></p>
+                                                <p>Brand Name: <%= allInventory[0].Brand_name %></p>
+                                                <p>Category: <%= allInventory[0].Category_name %></p>
+                                                <p>Purchase Price: <%= allInventory[0].Purchase_price %></p>
+                                                <p>QTY  rec: <%= allInventory[0].QTY_recieved %></p>
+                                                <p>Total in Pack: <%= allInventory[0].total_in_pack %></p>
+                                                
+                                                
+                                                <p>Delivery Method: <%= allInventory[0].Delivery_method %></p>
+                                                <p>Cost of Delivery: <%= allInventory[0].Cost_of_delivery %></p>
+                                                <p>Barcode information: <%= allInventory[0].barcode %></p>
+                                                <p>Manufacture Date: <%= allInventory[0].Manufacture_date %></p>
+                                                <p>EXP Date: <%= allInventory[0].Expire_date %></p>
+                                                <p>Total Damage from deleivery: <%= allInventory[0].Total_damaged %></p>
+                                                <p>Status: <%= allInventory[0].status %></p>
+                                                <p>Store Presence: <%= allInventory[0].activate %></p>
+
+                                            </div>
+                                        </div>
+                                    </div>
+            
+                                    <!-- Pie Chart -->
+                                    <div class="col-xl-4 col-lg-5">
+                                        <div class="card shadow mb-4">
+                                            <!-- Card Header - Dropdown -->
+
+                                            <!-- Card Body -->
+
+
+                                                  
+                                                    <div class="card-body">
+                                                        <p>Reciever Name: <%= allInventory[0].Reciever_name %></p>
+                                                        <p>Supplier Name: <%= allInventory[0].Supplier_name %></p>
+                                                        <p>Date Recieved: <%= allInventory[0].created_date %></p>
+
+                                                    </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                             
+
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+              <!-- Footer -->
+              <%- include ('../partials/footer') %>
+              <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <%- include ('../partials/logout') %>
+    <%- include ('../partials/createStore') %>
+    <%- include ('../partials/createWholsaler') %>
+    <%- include ('../partials/createInventory') %>
+    <%- include ('../partials/createCategory') %>
+    <%- include ('../partials/createEmployee') %>
+    <%- include ('../partials/createDiscount') %>
+    <%- include ('../partials/createPosition') %>
+    <%- include ('../partials/createReturn') %>

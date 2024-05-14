@@ -1,0 +1,107 @@
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <%- include ('../partials/superSidebar') %>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <%- include ('../partials/topbar') %>
+                <!-- End of Topbar -->
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-2 text-gray-800">Editing "<%= storeData[0].store_name %>" </h1>
+                    <p class="mb-4">Fill the form below to create new Branch, this can only edited later by authorised personel. </p>
+                    
+                    <!-- DataTales Example -->
+                    <div class="card shadow mb-4">
+                        <%- include ('../partials/messages') %>
+
+                        <div class="card-body">
+                            <div class="form mt-4 mb-4">
+                                <form action="/super/edit-store/<%= storeData[0].id %>" method="post" class="form">
+                                   <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="">Branch Name</label>
+                                            <input type="text" name="Branch_Name" class="form-control" value="<%= storeData[0].store_name %>">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="">Branch State</label>
+                                            <select name="Branch_state" id="state" class="form-control" onchange="populateLGAs()">
+                                                <option value="<%= storeData[0].state %>"><%= storeData[0].state %></option>
+                                                <% stateData.forEach(state => { %>
+                                                    <option value="<%= state.state %>"><%= state.state %></option>
+                                                    <% }); %>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                   
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="">Local Government</label>
+                                            <select name="Branch_lga" id="lga" class="form-control">
+                                                <option value="<%= storeData[0].lga %>"><%= storeData[0].lga %></option>
+                                                
+
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="">Branch Address</label>
+                                            <input type="text" name="Branch_address" class="form-control" value="<%= storeData[0].store_address %>">
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+                                <div class="mt-4">
+                                    <input type="hidden" name="_method" value="PUT">
+                                    <input name="_method" type="submit" value="Update" class="btn btn-primary "/>
+
+                                </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <%- include ('../partials/footer') %>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <%- include ('../partials/logout') %>
