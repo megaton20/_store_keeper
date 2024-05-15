@@ -34,7 +34,9 @@ router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
 
   const { id } = req.params;
 
-  db.query(`SELECT * FROM Category WHERE Category_name = "${id}"`, (err, results)=>{
+  db.query(`SELECT * FROM Category WHERE Category_name = "${id}" `, (err, results)=>{
+
+
     if (err) {
         req.flash("error_msg", ` ${err.sqlMessage}`)
        return res.redirect('/admin')
@@ -45,7 +47,7 @@ router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
 
 
         // select from products
-        db.query(`SELECT * FROM Products WHERE category = '${id}' AND activate = "yes" `, (err, results)=>{
+        db.query(`SELECT * FROM Products WHERE category = '${id}' AND activate = "yes" AND total_on_shelf > 0 `, (err, results)=>{
           if (err) {
             console.log(err.sqlMessage);
               req.flash("error_msg", ` ${err.sqlMessage}`)

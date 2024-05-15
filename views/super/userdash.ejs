@@ -327,12 +327,12 @@ let form = document.getElementById('submit-cart')
         itemHeading.innerHTML = `This are all the items from "${item.category}"`
         const itemElement = document.createElement('div');
         itemElement.innerHTML = `
-          <button class="add-to-cart tile card text-dark text-center mb-4 mr-2" data-id="${item.id}" data-name="${item.ProductName}" data-price = '${item.UnitPrice}' onclick=" handleBbuttonClick(this)">
+          <button class="add-to-cart tile card shadow text-dark text-center mb-4 mr-2" data-id="${item.id}" data-name="${item.ProductName}" data-price = '${item.UnitPrice}' onclick=" handleBbuttonClick(this)">
             <a>
-              <img style="max-width: 120px; max-height: 120px;" src="/images/default.JPG" class="card-img-top rounded-4" alt="...">
-              <div class="card-body text-center">
-                <p class="card-text">${item.ProductName}</p>
-                <p class="card-text"><small>$ ${item.UnitPrice}</small></p>
+              <img style="max-width: 130px; max-height: 120px;" src="/images/default.JPG" class="card-img-top rounded-4" alt="...">
+              <div class="text-center">
+                <p class="card-text  " style="font-size:20px">${item.ProductName}</p>
+                <p class="card-text " style="font-size:20px"><small>$ ${item.UnitPrice}</small></p>
               </div>
             </a>
           </button>

@@ -1,4 +1,4 @@
-<%- include ('../partials/counterTopbar') %>
+<%- include ('../partials/topbarUser') %>
 
 <div class="p-4">
   <%- include ('../partials/messages') %>
@@ -69,14 +69,25 @@
 
           
   
-              <select  id="payment-method" class="form-control text-dark">
+         
 
-                <option value="Cash">Cash</option>
-                <option value="Debit Card">Debit Card</option>
-                <option value="Split Payment">Split Payment</option>
+         <div class="row">
+          <div class="col-6">
+            <select  id="payment-method" class="form-control text-dark">
+              <option value="cash">cash</option>
+              <option value="Debit card">Debit card</option>
+              <option value="Split payment">Split payment</option>
+            </select>
+          </div>
+
+            <div class="col-6">
+              <select  id="delivery-method" class="form-control text-dark">
+
+                <option value="Pickup">Pickup</option>
+                <option value="delivery">delivery</option>
               </select>
-
-           
+            </div>
+         </div>  
   
             <button class="btn btn-success mt-3" type="submit"   id="submit-cart" style="width: 100%" > submit</button>
           </form>
@@ -95,7 +106,7 @@
 
 <div class="my-footer " style="position: fixed; bottom: 0; width: 100%;">
   
-  <%- include('./partials/footer') %>
+  <%- include('../partials/footer') %>
 </div>
 <%- include ('../partials/logout') %>
 
@@ -252,9 +263,12 @@ return
 
 
     const paymentInput = document.getElementById('payment-method').value
+    const deliveryInput = document.getElementById('delivery-method').value
+
     let customerName = {
       sumTotal: submitPrice,
-      paymentType: paymentInput
+      paymentType: paymentInput,
+      deliveryInput:deliveryInput
     }
 
     const paymentMethodInput = document.getElementById('payment-method')

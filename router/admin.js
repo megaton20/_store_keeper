@@ -65,7 +65,11 @@ router.get("/edit-supplier/:id", ensureAuthenticated, adminController.editSuppli
 router.get("/edit-category/:id", ensureAuthenticated, adminController.editCategory)
 router.get("/edit-Inventory/:id", ensureAuthenticated, adminController.editInventory)
 router.get("/edit-position/:id", ensureAuthenticated, adminController.editPosition);
-// router.get("/edit-customer/:id", ensureAuthenticated, adminController.editNewCustomer);
+
+
+
+
+router.get("/view-order/:id", ensureAuthenticated, adminController.getSingleOrder);
 
 
 router.put("/edit-store/:id", ensureAuthenticated, adminController.editNewStore);

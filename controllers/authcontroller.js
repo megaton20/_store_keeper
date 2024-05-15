@@ -59,13 +59,15 @@ exports.loginHandler = (req, res) => {
 
         if ((role == "super")) {
           req.flash("success_msg", `welcome ${session.Users.First_name}`);
-          res.redirect("/super");
+         return res.redirect("/super");
 
         } else if (role == "admin") {
           
           req.flash("success_msg", `welcome ${session.Users.First_name}`);
-          res.redirect("/employee");
-        } {
+         return res.redirect("/employee");
+        } else if(role == "user"){
+          req.flash("success_msg", `welcome ${session.Users.First_name}`);
+         return res.redirect("/user");
         }
       }
 
