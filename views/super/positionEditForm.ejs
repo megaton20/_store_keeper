@@ -22,11 +22,9 @@
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Edit Position: <%= positionData[0].Position_name %></h1>
-                    <p class="mb-4">Fill the form below to create new Position, this can only edited later by authorised personel. </p>
-
+                    <%- include ('../partials/messages') %>
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
-                        <%- include ('../partials/messages') %>
                         <div class="card-body">
                             <div class="form mt-4 mb-4">
                                 <form action="/super/edit-position/<%= positionData[0].id%>" method="post" class="form">
@@ -35,8 +33,13 @@
 
                                     <div class="col-6">
                                         <div class="form-group">
-                                            <label for="">Enter Position Name</label>
-                                            <input type="text" name="Position_name" class="form-control" value="<%= positionData[0].Position_name %>">
+                                            <label for="">Position</label>
+                                            <select name="Position_name" id="Position_name" class="form-control" >
+                                                <option value="<%= positionData[0].Position_name %>"><%= positionData[0].Position_name %></option>
+                                                <% allPositions.forEach(function (data) { %>
+                                                    <option value="<%= data['Position_name']%>"><%= data['Position_name']%></option>
+                                               <% }) %>
+                                            </select>
                                         </div>
                                     </div>
 
@@ -92,7 +95,6 @@
     <%- include ('../partials/createWholsaler') %>
     <%- include ('../partials/createInventory') %>
     <%- include ('../partials/createCategory') %>
-    <%- include ('../partials/createEmployee') %>
     <%- include ('../partials/createDiscount') %>
     <%- include ('../partials/createPosition') %>
     <%- include ('../partials/createReturn') %>

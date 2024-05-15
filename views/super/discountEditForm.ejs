@@ -21,11 +21,10 @@
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Editing "<%= discountData[0].Discount_name %>" Discount</h1>
-                    <p class="mb-4">Fill the form below to create new Discount, this can only edited later by authorised personel. </p>
+                    <%- include ('../partials/messages') %>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
-                        <%- include ('../partials/messages') %>
                         <div class="card-body">
                             <div class="form mt-4 mb-4">
                                 <form action="/super/edit-discount/<%= discountData[0].id %>" method="post" class="form">
@@ -107,7 +106,6 @@
     <%- include ('../partials/createWholsaler') %>
     <%- include ('../partials/createInventory') %>
     <%- include ('../partials/createCategory') %>
-    <%- include ('../partials/createEmployee') %>
     <%- include ('../partials/createDiscount') %>
     <%- include ('../partials/createPosition') %>
     <%- include ('../partials/createReturn') %>

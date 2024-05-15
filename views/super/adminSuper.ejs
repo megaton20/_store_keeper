@@ -51,7 +51,7 @@
                                                     <div class="col mr-2">
                                                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                                             Total Users</div>
-                                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><%= totalVerifiedCustomers%></div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><%= totalVerifiedUsers%></div>
                                                     </div>
                                                     <div class="col-auto">
                                                         <i class="fas fa-user fa-2x text-gray-300"></i>
@@ -222,7 +222,7 @@
                                             <!-- Card Header - Dropdown -->
                                             <div
                                                 class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                <h6 class="m-0 font-weight-bold text-primary">Employee Record</h6>
+                                                <h6 class="m-0 font-weight-bold text-primary">Users Record</h6>
                                               
                                             </div>
                                             <!-- Card Body -->
@@ -251,7 +251,7 @@
                                                             
                           
                           
-                                                                  <% employeeData.forEach(function(data) {%>
+                                                                  <% allUsers.forEach(function(data) {%>
                                                                       <tr>
                                                                           <td><%= data['id'] %></td>
                                                                           <td><%= data['First_name'] %>  <%= data['Last_name'] %>  </td>
@@ -355,7 +355,6 @@
     <%- include ('../partials/createWholsaler') %>
     <%- include ('../partials/createInventory') %>
     <%- include ('../partials/createCategory') %>
-    <%- include ('../partials/createEmployee') %>
     <%- include ('../partials/createDiscount') %>
     <%- include ('../partials/createPosition') %>
     <%- include ('../partials/createReturn') %>

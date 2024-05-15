@@ -22,11 +22,11 @@
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Discount Tables </h1>
-                    <p class="mb-4">This table shows all registered Customers in all branches </p>
+
+                    <%- include ('../partials/messages') %>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
-                        <%- include ('../partials/messages') %>
                         <% if(allDiscounts.length <= 0){ %>
                             <div class="card-body">
                                 
@@ -111,7 +111,6 @@
     <%- include ('../partials/createWholsaler') %>
     <%- include ('../partials/createInventory') %>
     <%- include ('../partials/createCategory') %>
-    <%- include ('../partials/createEmployee') %>
     <%- include ('../partials/createDiscount') %>
     <%- include ('../partials/createPosition') %>
     <%- include ('../partials/createReturn') %>

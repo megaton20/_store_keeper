@@ -22,221 +22,191 @@ let sqlDate = presentYear + "-" + presentMonth + "-" + presentDay;
 
 exports.cartForm = (req, res) => {
 
-  let employeeEmail = req.session.employees.email;
+  let employeeEmail = req.session.Users.email;
+  let userRole  = req.session.Users.userRole;
+  let userId  = req.session.Users.id;
+
+ const storeId =   req.session.Users.store_id;
+  const storeName = req.session.Users.store_name
+  // return
+
+  console.log(storeId);
 
   var metaItems = JSON.parse(req.body.meta);
   var cartItems = JSON.parse(req.body.cart);
 
   let productName, price, uuid, unknownStore;
 
-  // to make sure we got something in the cart
   if (cartItems.length <= 0) {
+  // to make sure we got something in the cart
+  if (userRole == "admin") {
+      req.flash("error_msg", "Cart cannot  be empty");
+      res.redirect("/employee/create-sales");
+      return;
+    
+  }else if(userRole == "super"){
     req.flash("error_msg", "Cart cannot  be empty");
-    res.redirect("/admin/create-sales");
+    res.redirect("/super/create-sales");
     return;
   }
+}else if (userRole == "user"){
+  // its a user
+  req.flash("error_msg", "Cart cannot  be empty");
+  res.redirect("/user/create-sales");
+  return;
+}
+var uuidForEachSale = Date.now() + Math.floor(Math.random() * 1000);
 
-  // checking employee id
+if (userRole == "super"){
+  
+
+  let insertData = {
+      sale_id: uuidForEachSale,
+      store_id: null, 
+      store_name: null, // to be updated later to any given store
+      created_date: sqlDate,
+      attendant_id: userId,
+      Payment_type: metaItems.paymentType,
+      total_amount: metaItems.sumTotal,
+    };
+
+  //   insert
 
   db.query(
-    `SELECT * FROM Employees WHERE email = '${employeeEmail}' `,
-    (err, results) => {
-      if (err) {
-        console.log(err);
-        req.flash("error-msg", `${err.sqlMessage}`);
-        return res.redirect("/admin/create-sales");
-      }
-      let data = JSON.stringify(results);
-      let allEmployee = JSON.parse(data);
+      "INSERT INTO Sales SET ? ",
+      insertData,
+      (error, result) => {
+        if (error) {
+          req.flash("errror_msg", `error from db ${error.sqlMessage}`);
+          res.redirect("/super/create-sales");
+          return;
+        }
+        // Define an array to store promises
+        const promises = [];
 
-      // check if user is admin
+        cartItems.forEach((cartItem) => {
+          const { id, name, price } = cartItem;
 
-      if (allEmployee[0].userRole === "super") {
-        // insert diretly into store
-
-   // creating a unique sale id each  time sale is neing made
-   var uuidForEachSale = Date.now() + Math.floor(Math.random() * 1000);
-
-        let insertData = {
+          let productItem = {
             sale_id: uuidForEachSale,
-            store_id: null, 
-            store_name: null, // to be updated later to any given store
-            created_date: sqlDate,
-            attendant_id: allEmployee[0].id,
-            Payment_type: metaItems.paymentType,
-            total_amount: metaItems.sumTotal,
+            product_id: id,
+            price_per_item: price,
+            store_id: null,
+            name: name,
           };
 
-        //   insert
+          // Push the promise into the array
+          promises.push(
+            new Promise((resolve, reject) => {
+              // Step 3: Insert or retrieve product record from Products table
+              db.query(
+                "INSERT INTO Order_Products SET ?",
+                productItem,
+                async (error, result) => {
+                  if (error) {
+                    req.flash("error_msg", `${error.sqlMessage}`)
+                    res.redirect('/super/create-sales')
+                    return;
+                  }
 
-        db.query(
-            "INSERT INTO Sales SET ? ",
-            insertData,
-            (error, result) => {
-              if (error) {
-                console.log(error);
-                req.flash("errror_msg", `error from db ${error.sqlMessage}`);
-                res.redirect("/admin/create-sales");
-                return;
-              }
-
-              // Step 2: Iterate through products in the cart
-              // Define an array to store promises
-              const promises = [];
-
-              cartItems.forEach((cartItem) => {
-                const { id, name, price } = cartItem;
-
-                let productItem = {
-                  sale_id: uuidForEachSale,
-                  product_id: id,
-                  price_per_item: price,
-                  store_id: null,
-                  name: name,
-                };
-
-                // Push the promise into the array
-                promises.push(
-                  new Promise((resolve, reject) => {
-                    // Step 3: Insert or retrieve product record from Products table
-                    db.query(
-                      "INSERT INTO Order_Products SET ?",
-                      productItem,
-                      async (error, result) => {
-                        if (error) {
-                          console.log(error);
-                          reject("Error creating sales_products");
-                          return;
-                        }
-
-                        // Resolve the promise
-                        resolve(result);
-                      }
-                    );
-                  })
-                );
-              });
-
-              // Wait for all promises to resolve
-              Promise.all(promises)
-                .then(() => {
-                  console.log("sales created");
-                  req.flash(
-                    "success_msg",
-                    `Cart has been submitted, click here to print receipt.`
-                  );
-                  res.redirect("/admin/create-sales");
-                })
-                .catch((error) => {
-                  console.error(error);
-                  res
-                    .status(500)
-                    .json({ error: "Error creating sales_products" });
-                });
-            }
+                  // Resolve the promise
+                  resolve(result);
+                }
+              );
+            })
           );
+        });
 
-      } else {
-        // to get store id
-        db.query(
-          `SELECT * FROM Stores WHERE store_name = '${allEmployee[0].Store}' `,
-          (err, results) => {
-            if (err) {
-              console.log(err.sqlMessage);
-              req /
-                flash("error_msg", `error form database:  ${err.sqlMessage}`);
-              res.redirect("/admin/create-sales");
-            }
+        // Wait for all promises to resolve
+        Promise.all(promises)
+          .then(() => {
+            req.flash(
+              "success_msg",
+              `Cart has been submitted, click here to print receipt.`
+            );
+            res.redirect("/super/create-sales");
+          })
+          .catch((error) => {
+            req.flash('error_msg', `error occured: ${error}`)
+            return res.redirect('/super/create-sales')
+          });
+      }
+    );
+} else  if (userRole == "admin"){
 
-            if (results.length <= 0) {
-              unknownStore = "unknown store";
-            }
+      let insertData = {
+        sale_id: uuidForEachSale,
+        store_id: storeId,
+        store_name: storeName,
+        created_date: sqlDate,
+        attendant_id: userId,
+        Payment_type: metaItems.paymentType,
+        total_amount: metaItems.sumTotal,
+      };
 
-            let data = JSON.stringify(results);
-            let storeData = JSON.parse(data);
+      db.query(
+        "INSERT INTO Sales SET ? ",
+        insertData,
+        (error, result) => {
+          if (error) {
+            req.flash("errror_msg", `error from db ${error.sqlMessage}`);
+            res.redirect("/employee/create-sales");
+            return;
+          }
 
-            // creating a unique sale id each  time sale is neing made
-            var uuidForEachSale = Date.now() + Math.floor(Math.random() * 1000);
+          // Define an array to store promises
+          const promises = [];
 
-            let insertData = {
+          cartItems.forEach((cartItem) => {
+            const { id, name, price } = cartItem;
+
+            let productItem = {
               sale_id: uuidForEachSale,
-              store_id: storeData[0].id,
-              store_name: storeData[0].store_name,
-              created_date: sqlDate,
-              attendant_id: allEmployee[0].id,
-              Payment_type: metaItems.paymentType,
-              total_amount: metaItems.sumTotal,
+              product_id: id,
+              price_per_item: price,
+              store_id: storeId,
+              name: name,
             };
 
-            db.query(
-              "INSERT INTO Sales SET ? ",
-              insertData,
-              (error, result) => {
-                if (error) {
-                  console.log(error);
-                  req.flash("errror_msg", `error from db ${error.sqlMessage}`);
-                  res.redirect("/admin/create-sales");
-                  return;
-                }
+            // Push the promise into the array
+            promises.push(
+              new Promise((resolve, reject) => {
+                // Step 3: Insert or retrieve product record from Products table
+                db.query(
+                  "INSERT INTO Order_Products SET ?",
+                  productItem,
+                  async (error, result) => {
+                    if (error) {
+                      req.flash('error_msg', `error occured: ${error}`)
+                      return res.redirect('/employee/create-sales')
+                    }
 
-                // Step 2: Iterate through products in the cart
-                // Define an array to store promises
-                const promises = [];
-
-                cartItems.forEach((cartItem) => {
-                  const { id, name, price } = cartItem;
-
-                  let productItem = {
-                    sale_id: uuidForEachSale,
-                    product_id: id,
-                    price_per_item: price,
-                    store_id: storeData[0].id,
-                    name: name,
-                  };
-
-                  // Push the promise into the array
-                  promises.push(
-                    new Promise((resolve, reject) => {
-                      // Step 3: Insert or retrieve product record from Products table
-                      db.query(
-                        "INSERT INTO Order_Products SET ?",
-                        productItem,
-                        async (error, result) => {
-                          if (error) {
-                            console.log(error);
-                            reject("Error creating sales_products");
-                            return;
-                          }
-
-                          // Resolve the promise
-                          resolve(result);
-                        }
-                      );
-                    })
-                  );
-                });
-
-                // Wait for all promises to resolve
-                Promise.all(promises)
-                  .then(() => {
-                    console.log("sales created");
-                    req.flash(
-                      "success_msg",
-                      `Cart has been submitted, click here to print receipt.`
-                    );
-                    res.redirect("/admin/create-sales");
-                  })
-                  .catch((error) => {
-                    console.error(error);
-                    res
-                      .status(500)
-                      .json({ error: "Error creating sales_products" });
-                  });
-              }
+                    // Resolve the promise
+                    resolve(result);
+                  }
+                );
+              })
             );
-          }
-        );
-      }
-    }
-  );
+          });
+
+          // Wait for all promises to resolve
+          Promise.all(promises)
+            .then(() => {
+              req.flash(
+                "success_msg",
+                `Cart has been submitted, click here to print receipt.`
+              );
+              res.redirect("/employee/create-sales");
+            })
+            .catch((error) => {
+              req.flash('error_msg', `error occured: ${error}`)
+              return res.redirect('/employee/create-sales')
+            });
+        }
+      );
+
+} else if (userRole == "user"){
+  return console.log("still in construction");
+}
+
 };

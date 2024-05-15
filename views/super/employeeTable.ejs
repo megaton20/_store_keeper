@@ -29,7 +29,7 @@
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <%- include ('../partials/messages') %>
-                        <% if(allEmployees.length <= 0){ %>
+                        <% if(allUsers.length <= 0){ %>
                             <div class="card-body">
                                 
                                 <h1>No Employee Record Found !</h1>  
@@ -44,13 +44,13 @@
                                                 <th>Name</th>
                                                 <th>email</th>
                                                 <th>phone</th>
-                                                <th>State</th>
-                                                <th>l.g.a </th>
-                                                <th>Position</th>
-                                                <th>Store</th>
-                                                <th>Gender</th>
+                                                <th>date Added </th>
+                                                <th>Last login</th>
+                                                <th>Status</th>
                                                 <th>role</th>
-                                                <th>Date added</th>
+                                                <th>store id</th>
+                                                <th>store_name</th>
+                                                <th>gender</th>
                                                 <th>actions</th>
     
                                             </tr>
@@ -58,26 +58,26 @@
                                        
                                         <tbody>
     
-                                            <% allEmployees.forEach(function(data) {%>
+                                            <% allUsers.forEach(function(data) {%>
                                              <tr>
                                                  <td><%= data['id'] %></td>
                                                  <td><%= data['First_name'] %> <%= data['Last_name'] %></td>
                                                  <td><%= data['email'] %></td>
-                                                 <td><%= data['Contact_phone'] %></td>
-                                                 <td><%= data['State'] %></td>
-                                                 <td><%= data['lga'] %></td>
-                                                 <td><%= data['Position'] %></td>
-                                                 <td><%= data['Store'] %></td>
-                                                 <td><%= data['Gender'] %></td>
-                                                 <td><%= data['userRole'] %></td>
+                                                 <td><%= data['Phone'] %></td>
                                                  <td><%= data['created_date'] %></td>
+                                                 <td><%= data['Previous_visit'] %></td>
+                                                 <td><%= data['status'] %></td>
+                                                 <td><%= data['userRole'] %></td>
+                                                 <td><%= data['store_id'] %></td>
+                                                 <td><%= data['store_name'] %></td>
+                                                 <td><%= data['gender'] %></td>
 
 
                                                  <td style="display: flex; justify-content: space-between;">
-                                                    <a class="btn btn-secondary" href="/super/edit-employee/<%= data['id'] %>"> edit</a>
+                                                    <!-- <a class="btn btn-secondary" href="/super/edit-employee/<%= data['id'] %>"> edit</a> -->
                                                     <form action="/super/delete-employee/<%= data['id'] %>" method="POST" style="display: inline;">
                                                         <input type="hidden" name="_method" value="DELETE" />
-                                                        <button  class="btn btn-danger">Delete</button>
+                                                        <button  class="btn btn-danger"><i  class="fa  fa-bin"></i>Fire</button>
                                                     </form> 
                                                 </td>
                                            
@@ -121,7 +121,6 @@
     <%- include ('../partials/createWholsaler') %>
     <%- include ('../partials/createInventory') %>
     <%- include ('../partials/createCategory') %>
-    <%- include ('../partials/createEmployee') %>
     <%- include ('../partials/createDiscount') %>
     <%- include ('../partials/createPosition') %>
     <%- include ('../partials/createReturn') %>
