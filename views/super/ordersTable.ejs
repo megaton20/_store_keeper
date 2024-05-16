@@ -25,11 +25,10 @@
                     <%- include ('../partials/messages') %>
 
                     <!-- DataTales Example -->
-                    <div class="card shadow mb-4">
+                    <div class=" mb-4">
                         <% if(allOrders.length <= 0){ %>
-                            <div class="card-body">
+
                                 <h1>No Products Record Found !</h1>  
-                            </div> 
                             <% } else{ %> 
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -43,8 +42,8 @@
                                                   <th>Delivery</th>
                                                   <th>Payment Type</th>
                                                   <th>Total</th>
-                                                  <th>Date</th>
                                                   <th>Status</th>
+                                                  <th>Date</th>
                                                   <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -64,12 +63,22 @@
                                                         <td><%= data['total_amount'] %> </td>
                                                         <td><%= data['status'] %> </td>
                                                         <td><%= data['created_date'] %> </td>
+
+                                                        <% if( data['status'] == "incomplete" ){ %>
+                                                            <td>
+                                                                
+                                                                <a href="/super/view-order/<%= data['id'] %>"  class="btn btn-primary">View</a>
+                                                            </td>
+                                                            
+                                                            
+                                                            <% } else{ %>  
+                                                                <td>
+                                                                    <a href="/super/view-order/<%= data['id'] %>"  class="btn btn-primary">View</a> . 
+                                                                      <a href="/super/ship-order/<%= data['id'] %>"  class="btn btn-success">Ship</a>
+                                                                    </td>
+                                                                  
+                                                               <% } %>
         
-                                                        <td>
-
-                                                            <a href="/super/view-order/<%= data['id'] %>"  class="btn btn-primary">View</a>
-
-                                                        </td>
                                                   
                                                    </tr> 
                                                    

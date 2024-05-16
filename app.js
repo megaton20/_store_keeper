@@ -134,7 +134,9 @@ app.use('/user', userRouter)
 // 404 route
 app.use(function(req, res, next) {
   res.status(404)
-  res.render('404')
+  res.render('404', {
+    pageTitle:"Login To continue Using Store Keeper"
+  })
 })
 
 app.listen(PORT, console.log(`app running on port ${PORT}`))

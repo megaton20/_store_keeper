@@ -6,7 +6,7 @@
 
       
         <!-- Sidebar -->
-        <%- include ('../partials/superSidebar') %>
+
         <!-- End of Sidebar -->
 
         <!-- Content Wrapper -->
@@ -16,7 +16,7 @@
             <div id="content">
 
                  <!-- Topbar -->
-                 <%- include ('../partials/topbar') %>
+
                  <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
@@ -39,46 +39,32 @@
                                             <div class="card-body">
                                                 <p class="text-uppercase text-primary">order details</p>
 
-                                                <div class="row"> <div class="col-6"> customer email</div> <div class="col-6"><%= orderData[0].customer_email %></div></div>
-                                                <div class="row"> <div class="col-6">customer id: </div> <div class="col-6"><%= orderData[0].customer_id %></div></div>
-                                                <div class="row"> <div class="col-6">Pick up location: </div> <div class="col-6"><%= orderData[0].pick_up_store_name %></div></div>
-                                                <div class="row"> <div class="col-6">Sale id: </div> <div class="col-6"><%= orderData[0].sale_id %></div></div>
-                                                <div class="row"> <div class="col-6">Delivery: </div> <div class="col-6"><%= orderData[0].Delivery %></div></div>
-                                                <div class="row"> <div class="col-6">Amount: </div> <div class="col-6"><%= orderData[0].total_amount %></div></div>
-                                                <div class="row"> <div class="col-6">Payment: </div> <div class="col-6"><%= orderData[0].payment_type %></div></div>
-                                                <div class="row"> <div class="col-6">Date: </div> <div class="col-6"><%= orderData[0].created_date %></div></div>
-                                                <div class="row"> <div class="col-6">Status: </div> <div class="col-6"><%= orderData[0].status %></div></div>
-                                                <div class="row"> <div class="col-6">Address: </div> <div class="col-6"><%= orderData[0].address %></div></div>
-                                                <div class="row"> <div class="col-6">phone: </div> <div class="col-6"><%= orderData[0].phone %></div></div>
-                                                <div class="row"> <div class="col-6">State: </div> <div class="col-6"><%= orderData[0].state %></div></div>
-                                                <div class="row"> <div class="col-6">lga: </div> <div class="col-6"><%= orderData[0].lga %></div></div>
-                                                <div class="row"> <div class="col-6">State: </div> <div class="col-6"><%= orderData[0].state %></div></div>
+                                                <div class="row"> <div class="col-6"> customer email</div> <div class="col-6"><%= orderToComplete[0].customer_email %></div></div>
+                                                <div class="row"> <div class="col-6">customer id: </div> <div class="col-6"><%= orderToComplete[0].customer_id %></div></div>
+                                                <div class="row"> <div class="col-6">Pick up location: </div> <div class="col-6"><%= orderToComplete[0].pick_up_store_name %></div></div>
+                                                <div class="row"> <div class="col-6">Sale id: </div> <div class="col-6"><%= orderToComplete[0].sale_id %></div></div>
+                                                <div class="row"> <div class="col-6">Delivery: </div> <div class="col-6"><%= orderToComplete[0].Delivery %></div></div>
+                                                <div class="row"> <div class="col-6">Amount: </div> <div class="col-6"><%= orderToComplete[0].total_amount %></div></div>
+                                                <div class="row"> <div class="col-6">Payment: </div> <div class="col-6"><%= orderToComplete[0].payment_type %></div></div>
+                                                <div class="row"> <div class="col-6">Date: </div> <div class="col-6"><%= orderToComplete[0].created_date %></div></div>
+                                                <div class="row"> <div class="col-6">Status: </div> <div class="col-6"><%= orderToComplete[0].status %></div></div>
+                                                <div class="row"> <div class="col-6">Address: </div> <div class="col-6"><%= orderToComplete[0].address %></div></div>
+                                                <div class="row"> <div class="col-6">phone: </div> <div class="col-6"><%= orderToComplete[0].phone %></div></div>
+                                                <div class="row"> <div class="col-6">State: </div> <div class="col-6"><%= orderToComplete[0].state %></div></div>
+                                                <div class="row"> <div class="col-6">lga: </div> <div class="col-6"><%= orderToComplete[0].lga %></div></div>
+                                                <div class="row"> <div class="col-6">State: </div> <div class="col-6"><%= orderToComplete[0].state %></div></div>
 
                                                 <br>
                                                 <hr>
                                                 
                                                 
-                                                <% if( orderData[0].status == "incomplete" ){ %>
-                                                          
-                                              <a href="/super/confirm-order/<%= orderData[0].id %>">
-                                                <button type="submit" class="btn btn-success mt-4" style="width: 100%;"> Confirm order</button>
+                                                <% if( orderedProducts[0].status == "shipped" ){ %>               
+                                                <a href="/employee/finish-order/<%= orderedProducts[0].id %>">
+                                                  <button type="submit" class="btn btn-success mt-4" style="width: 100%;"> Complete Delivery</button>
 
-                                            </a>
+                                                  </a>
                                                 <% } else{ %>  
-
-                                                  <% if( orderData[0].status == "waiting" ){ %>
-                                                    
-                                                    <a href="/super/ship-order/<%= orderData[0].id %>" style="width: 100%;"  class="btn btn-success">Ship</a>
-                                                    
-                                                    <% } else{ %>  
-
-                                                      <button type="submit" class="btn btn-secondary mt-4" style="width: 100%;" disabled> Done</button>
-
-                                                      <% } %>
-
-                                                      
-                                                    
-                                                    
+                                                  <button type="submit" class="btn btn-secondary mt-4" style="width: 100%;" disabled> Completed</button>
                                                  <% } %>
                                             </div>
                                         </div>
@@ -111,7 +97,7 @@
                                                 </thead>
                                 
                                                 <tbody>
-                                                    <% productBought.forEach(function(data) {%>
+                                                    <% orderedProducts.forEach(function(data) {%>
                                                     <tr>
                                                       <td><%= data['id'] %></td>
                                                       <td><%= data['cart_id'] %></td>
@@ -160,10 +146,3 @@
 
     <!-- Logout Modal-->
     <%- include ('../partials/logout') %>
-    <%- include ('../partials/createStore') %>
-    <%- include ('../partials/createWholsaler') %>
-    <%- include ('../partials/createInventory') %>
-    <%- include ('../partials/createCategory') %>
-    <%- include ('../partials/createDiscount') %>
-    <%- include ('../partials/createPosition') %>
-    <%- include ('../partials/createReturn') %>

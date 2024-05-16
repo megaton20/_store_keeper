@@ -68,10 +68,14 @@ exports.getAdminWelcomePage = (req, res) => {
         } 
       }
     });
-  } else {
+  } else if(sessionRole == "super"){
         // not amin
         req.flash('warning_msg', `the entry  pattern was for admins only`)
        return res.redirect("/super")
+  }else if (sessionRole == 'user') {
+       // not amin
+       req.flash('warning_msg', `the entry  pattern was for admins only`)
+       return res.redirect("/user")
   }
 
 
@@ -125,6 +129,163 @@ exports.counterForm = (req, res) => {
 
 
 
+// delivery
+exports.allPendingDelivery = (req, res)=>{
+
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  if (sessionRole == "admin") {
+  db.query(`SELECT * FROM Orders WHERE  status = "shipped" `, (err, results) => {
+    if (err) {
+      req.flash("error_msg", ` ${err.sqlMessage}`);
+      return res.redirect("/");
+    } else {
+      let data = JSON.stringify(results);
+      let pendingDelivery = JSON.parse(data);
+
+       return res.render("./employee/employeeDeliveryTable", {
+          pageTitle: "delivery to maked",
+          name: `${userFirstName} ${userLastName}`,
+          month: monthName,
+          day: dayName,
+          date: presentDay,
+          year: presentYear,
+          pendingDelivery,
+        }); // for admin only
+        
+      }
+    });
+  } else if (sessionRole == "super") {
+    
+    req.flash('error_msg', `you are not ready to use this feature yet`)
+    res.redirect('/super')
+    return
+  }else if (sessionRole == "user") {
+    req.flash('error_msg', `you can't handle your own delivery ogaaaa`)
+    res.redirect('/user')
+    return
+  }
+}
 
 
 
+exports.oneDelivery = (req, res)=>{
+  let editId = req.params.id
+
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  if (sessionRole == "admin") {
+  db.query(`SELECT * FROM Orders WHERE  id = "${editId}" `, (err, results) => {
+    if (err) {
+      req.flash("error_msg", ` ${err.sqlMessage}`);
+      return res.redirect("/");
+    } else {
+      let data = JSON.stringify(results);
+      let orderToComplete = JSON.parse(data);
+
+      let itemId = orderToComplete[0].sale_id
+
+      db.query(`SELECT * FROM Order_Products WHERE  sale_id = "${itemId}" `, (err, results) => {
+        if (err) {
+          console.log(err);
+          req.flash("error_msg", `error from db ${err}`)
+          return res.redirect("/employee")
+        }
+        let data = JSON.stringify(results);
+        let orderedProducts = JSON.parse(data);
+
+        return res.render("./employee/employeeDeliveryDetails", {
+          pageTitle: "delivery to maked",
+          name: `${userFirstName} ${userLastName}`,
+          month: monthName,
+          day: dayName,
+          date: presentDay,
+          year: presentYear,
+          orderedProducts,
+          orderToComplete,
+        }); // for admin only
+      })// to get the products ordered
+    
+      }
+    }); // to get the pending item
+  } else if (sessionRole == "super") {
+    
+    req.flash('error_msg', `you are not ready to use this feature yet`)
+    res.redirect('/super')
+    return
+  }else if (sessionRole == "user") {
+    req.flash('error_msg', `you can't handle your own delivery ogaaaa`)
+    res.redirect('/user')
+    return
+  }
+}
+
+
+
+exports.finishDelivery = (req, res)=>{
+  let editId = req.params.id
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  // turn sale item to unresolved
+  // chhange order_products to shhipped
+  // change order to complete
+
+  
+  if (sessionRole == "admin") {
+    db.query(`SELECT * FROM Order_Products WHERE  id = "${editId}" `, (err, results) => {
+      if (err) {
+        req.flash("error_msg", ` ${err.sqlMessage}`);
+        return res.redirect("/");
+      } else {
+        let data = JSON.stringify(results);
+        let orderToComplete = JSON.parse(data);
+        
+        let itemId = orderToComplete[0].sale_id
+        
+        
+        db.query(`UPDATE Orders SET ? WHERE  sale_id = "${itemId}" `, {
+          status: 'complete'
+        },(err, results) => {
+          
+          if(err){
+            console.log(err);
+            req.flash('error_msg', `error whhile updating ${err}`)
+            return res.redirect("/employee")
+          }
+
+          db.query(`UPDATE  Order_Products SET ? WHERE  sale_id = "${itemId}" `, {
+            status: 'sold'
+          },(err, results) => {
+            if (err) {
+              req.flash("error_msg", `error from db ${err}`)
+              return res.redirect("/employee")
+            }  
+            req.flash("success_msg", `order has been marked as completed`)
+            return res.redirect('/employee/all-deliveries')
+          })// to complete the products ordered
+        }) // update  order to conplete
+
+
+      
+        }
+      }); // to get the pending item
+    } else if (sessionRole == "super") {
+      
+      req.flash('error_msg', `you are not ready to use this feature yet`)
+      res.redirect('/super')
+      return
+    }else if (sessionRole == "user") {
+      req.flash('error_msg', `you can't handle your own delivery ogaaaa`)
+      res.redirect('/user')
+      return
+    }
+}

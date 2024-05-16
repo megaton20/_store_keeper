@@ -36,6 +36,10 @@ router.get("/create-sales", ensureAuthenticated, adminController.counterForm);
 // form section
 router.get("/return", ensureAuthenticated, adminController.createReturn); // to get sales id
 
+router.get("/view-order/:id", ensureAuthenticated, adminController.getSingleOrder);
+router.get("/confirm-order/:id", ensureAuthenticated, adminController.confirmOrder);
+router.get("/ship-order/:id", ensureAuthenticated, adminController.completeOrder);
+
 
 // post request
 router.post("/create-store", ensureAuthenticated, adminController.createNewStore);
@@ -59,6 +63,7 @@ router.put("/unflag-product/:id", ensureAuthenticated, adminController.unflagPro
 
 
 
+
 router.get("/edit-stores/:id", ensureAuthenticated, adminController.storeEdit);
 router.get("/edit-discount/:id", ensureAuthenticated,adminController.editDiscount);
 router.get("/edit-supplier/:id", ensureAuthenticated, adminController.editSupplier)
@@ -69,7 +74,7 @@ router.get("/edit-position/:id", ensureAuthenticated, adminController.editPositi
 
 
 
-router.get("/view-order/:id", ensureAuthenticated, adminController.getSingleOrder);
+
 
 
 router.put("/edit-store/:id", ensureAuthenticated, adminController.editNewStore);

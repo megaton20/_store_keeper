@@ -528,10 +528,9 @@ exports.counterForm = (req, res) => {
           allCategory,
         }); // for admin only
         // not user
-        req.flash('warning_msg', `the entry  pattern is for admins only`)
-        res.redirect("/")
       }
     });
+
    
   } 
 };

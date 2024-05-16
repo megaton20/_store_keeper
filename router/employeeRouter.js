@@ -13,6 +13,16 @@ router.get("/", ensureAuthenticated, employeeController.getAdminWelcomePage);
 router.get("/create-sales", ensureAuthenticated, employeeController.counterForm);
 
 
+// all-deliveries
+router.get("/all-deliveries", ensureAuthenticated, employeeController.allPendingDelivery);
+router.get("/all-deliveries/:id", ensureAuthenticated, employeeController.oneDelivery);
+// finish delivery
+router.get("/finish-order/:id", ensureAuthenticated, employeeController.finishDelivery);
+
+
+
+
+
 // router.get("/return", ensureAuthenticated, employeeController.createReturn); // to get sales id
 
 
