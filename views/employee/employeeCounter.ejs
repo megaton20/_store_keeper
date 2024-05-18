@@ -44,7 +44,7 @@
             <div class="row">
               <div class="col-md-6 " id="itemHeading">Items </div>
               <div class="search-bar col-md-6 ">
-                <input style="padding: 2px; padding-left: 5px;" type="text" placeholder="search items"
+                <input id="searchInput" style="padding: 2px; padding-left: 5px;" type="text" placeholder="search items"
                   class="form-control bg-transparent text-dark" />
               </div>
             </div>
@@ -333,45 +333,56 @@ return
 let form = document.getElementById('submit-cart')
   form.addEventListener('click', submitCart);
 
-  const itemHeading = document.getElementById('itemHeading')
-  // Add event listener to category buttons
+  
+  const itemHeading = document.getElementById('itemHeading');
+  const searchInput = document.getElementById('searchInput');
   const categoryButtons = document.querySelectorAll('.categoryButton');
+
   categoryButtons.forEach(button => {
     button.addEventListener('click', function () {
       const category = this.getAttribute('data-category');
-
-      fetch(`/getItems/${category}`) // Adjust the route according to your server setup
-        .then(response => response.json())
-        .then(items => {
-          populateItems(items);
-        })
-        .catch(error => {
-          console.error('Error fetching items:', error);
-        });
+      fetchItems(category, '');
     });
   });
 
-  // Function to populate items in the itemsContainer
+  searchInput.addEventListener('input', function () {
+    const searchTerm = this.value;
+    const activeCategoryButton = document.querySelector('.categoryButton.active');
+    const category = activeCategoryButton ? activeCategoryButton.getAttribute('data-category') : '';
+
+    fetchItems("", searchTerm);
+  });
+
+  function fetchItems(category, searchTerm) {
+    fetch(`/getItems/${category} ?search=${searchTerm}`)
+      .then(response => response.json())
+      .then(items => {
+        populateItems(items);
+      })
+      .catch(error => {
+        console.error('Error fetching items:', error);
+      });
+  }
+
   function populateItems(items) {
     const itemsContainer = document.getElementById('itemsContainer');
-    itemsContainer.innerHTML = ''; // Clear existing items
+    itemsContainer.innerHTML = '';
     if (items.length === 0) {
-      // Display message when no items are found
-      itemsContainer.innerHTML = '<p class="p-4 text-dark "> No items found for this category at the  moment (-:)</p>';
-      itemHeading.classList.remove("text-dark")
-      itemHeading.classList.add("text-danger")
-      itemHeading.innerHTML = `no item in this category  yet`
+      itemsContainer.innerHTML = '<p class="p-4 text-dark "> No items found for this category at the moment (-:)</p>';
+      itemHeading.classList.remove("text-dark");
+      itemHeading.classList.add("text-danger");
+      itemHeading.innerHTML = `Shelf is empty`;
     } else {
+      itemHeading.classList.remove("text-danger");
+      itemHeading.classList.add("text-warning");
+      itemHeading.innerHTML = `All items on our shelf`;
       items.forEach(item => {
-        itemHeading.classList.remove("text-danger")
-        itemHeading.classList.add("text-warning")
-        itemHeading.innerHTML = `This are all the items from "${item.category}"`
         const itemElement = document.createElement('div');
         itemElement.innerHTML = `
-          <button class="add-to-cart tile card text-dark text-center mb-4 mr-2" data-id="${item.id}" data-name="${item.ProductName}" data-price = '${item.UnitPrice}' onclick=" handleBbuttonClick(this)">
+          <button class="add-to-cart tile card shadow border-0 text-dark text-center mb-4 mr-2" data-id="${item.id}" data-name="${item.ProductName}" data-price='${item.UnitPrice}' onclick="handleBbuttonClick(this)">
             <a>
               <img style="max-width: 120px; max-height: 120px;" src="/images/default.JPG" class="card-img-top rounded-4" alt="...">
-              <div class="card-body text-center">
+              <div class="text-center">
                 <p class="card-text">${item.ProductName}</p>
                 <p class="card-text"><small>$ ${item.UnitPrice}</small></p>
               </div>
@@ -382,7 +393,7 @@ let form = document.getElementById('submit-cart')
       });
     }
   }
-
+</script>
 
 
 </script>

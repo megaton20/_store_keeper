@@ -13,7 +13,7 @@
         <hr>
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-2 text-gray-800">Pending Delivery  </h1>
+
 
         <%- include ('../partials/messages') %>
 
@@ -23,7 +23,7 @@
 
                 <% if(pendingDelivery.length <= 0){ %>
 
-                        <h1>No Pending Delivery Record Found !</h1>  
+                        <h1>No delivery to make!</h1>  
                     <% } else{ %>  
 
                         <div class="card-body">
@@ -46,6 +46,8 @@
                                     
                                     <tbody>
                                   
+                                 
+
 
 
                                         <% pendingDelivery.forEach(function(data) {%>
@@ -54,7 +56,28 @@
                                                 <td><%= data['customer_email'] %></td>
                                                 <td><%= data['phone'] %> - </td>
                                                 <td><%= data['pick_up_store_name'] %> - </td>
-                                                <td><%= data['status'] %> </td>
+                                                
+
+                                                <% if(  data['status']  == "incomplete"){ %>
+
+                                                    <td class="text-danger ">
+                                                        <%= data['status'] %> 
+                                                    </td>
+                                                    
+                                                <% } else if ( data['status']  == "shipped") { %>  
+                                                    <td class="text-danger">
+                                                        <%= data['status'] %> 
+                                                    </td>   
+                                                    
+                                                    <%} else {%>
+
+                                                    <td class="text-success">
+                                                        <%= data['status'] %> 
+                                                    </td>   
+                                         <% } %>
+
+
+
                                                 <td>
                                                     <a class="btn btn-primary" href="/employee/all-deliveries/<%= data['id'] %>"> view</a>
                                                 </td>

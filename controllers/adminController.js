@@ -45,8 +45,22 @@ exports.getAdminWelcomePage = (req, res) => {
 
 
   if (sessionRole == "super") {
-    // to get total sales made
-     // other quwries
+
+    db.query(`SELECT price_per_item FROM Order_Products WHERE status = "returned" `, (err, results) => {
+      if (err) {
+        console.log(err);
+        req.flash("error_msg", `${err.sqlMessage}`);
+        return res.redirect("/super");
+      }
+      let data = JSON.stringify(results);
+      let returnedAmount = JSON.parse(data);
+
+      const returnedSum = returnedAmount.reduce(
+        (acc, item) => acc + item.price_per_item,
+        0
+      );
+
+        // to get total sales made
      db.query(`SELECT total_amount FROM Sales WHERE status = "resolved" `, (err, results) => {
       if (err) {
         console.log(err);
@@ -56,13 +70,14 @@ exports.getAdminWelcomePage = (req, res) => {
       let data = JSON.stringify(results);
       let allSalesAmount = JSON.parse(data);
 
-      const totalAmount = allSalesAmount.reduce(
+      const salesMade = allSalesAmount.reduce(
         (acc, item) => acc + item.total_amount,
         0
       );
 
+        let totalAmount =  salesMade  - returnedSum  
+
       let formatedProfit  = totalAmount.toLocaleString('en-US')
-      console.log(formatedProfit);
       // const averageAmount = totalAmount / allSalesAmount.length;
 
       db.query(
@@ -98,6 +113,8 @@ exports.getAdminWelcomePage = (req, res) => {
                   }
                   let data = JSON.stringify(results);
                   let allReturns = JSON.parse(data);
+
+                  console.log(allReturns);
         
                   db.query(`SELECT * FROM Sales WHERE status = 'resolved' `, (err, results) => {
                     if (err) {
@@ -248,6 +265,11 @@ exports.getAdminWelcomePage = (req, res) => {
 
       
     });
+
+      }) // to get total amount  of returned items
+
+
+  
    
   } else if (sessionRole == "admin") {
     req.flash(
@@ -4727,58 +4749,82 @@ exports.editNewPosition = (req, res) => {
 
 // setting item to returned not sold
 exports.returnItem = (req, res) => {
-  let editID = req.params.id;
 
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
+    const editID = req.params.id;
+    const sessionEmail = req.session.Users.email;
+    const sessionRole = req.session.Users.userRole;
     const userFirstName = req.session.Users.First_name;
-  const userLastName = req.session.Users.Last_name;
+    const userLastName = req.session.Users.Last_name;
+  
+    if (!sessionEmail) {
+      req.flash("error_msg", "No session, you are required to log in");
+      return res.redirect("/");
+    }
 
-  if (!sessionEmail) {
-    req.flash("error_msg", "No session, you are required to log in");
-    res.redirect("/");
-    return;
-  }
 
-  if (sessionRole == "super") {
-    db.query(
-      `SELECT * FROM Order_Products WHERE id  = ${editID} AND status = 'sold'`,
-      (err, results) => {
-        if (err) {
-          console.log(err);
-          req.flash("error_msg", `${err.sqlMessage}`);
-          res.redirect("/super");
-        }
-        if (results.length <= 0) {
-          req.flash("error_msg", "sorry! no sold item found in our record");
-          res.redirect("/super");
-          return;
-        }
-        // go on and update
-        let updateData = {
-          status: `returned`,
-        };
-        db.query(
-          `UPDATE Order_Products SET ? WHERE id ="${editID}" AND status ="sold"`,
-          updateData,
-          (err, results) => {
-            if (err) {
-              req.flash("error_msg", `${err.sqlMessage}`);
-              return res.redirect("/super");
-            }
-            req.flash("success_msg", `Item has been  returned back to store`);
-            return res.redirect("/super");
+    
+    if (sessionRole === "super") {
+   
+        
+        db.query(`SELECT * FROM Order_Products WHERE id = "${editID}"`, (err, orderResults) => {
+          if (err) {
+            req.flash('error_msg', `Error from database: ${err.sqlMessage}`);
+            return res.redirect('/super/all-sales');
           }
-        );
-      }
-    );
-  }  else if (sessionRole == "admin") {
-    req.flash("error_msg",`Can not access this endpoint`);
-    return res.redirect("/employee");
-  } else {
-    req.flash("error_msg",`Can not access this endpoint`);
-    return res.redirect("/user");
-  }
+
+          // to get current stock numebr
+          db.query(`SELECT * FROM Products WHERE id = "${orderResults[0].product_id}"`, (err, shelfResults) => {
+            if (err) {
+              req.flash('error_msg', `Error from database: ${err.sqlMessage}`);
+              return res.redirect('/super/all-sales');
+            }
+
+            let data = JSON.stringify(shelfResults);
+            let productData = JSON.parse(data);
+
+            let newQty = productData[0].total_on_shelf + 1
+            let  updatedShelfQuantity = {
+              total_on_shelf : newQty
+            }
+
+            // updates
+            db.query(
+              `UPDATE Order_Products SET ? WHERE cart_id ="${orderResults[0].cart_id}}"`,
+              {status:"returned"},
+              (err, results) => {
+                if (err) {
+                  req.flash("error_msg", `${err.sqlMessage}`);
+                  return res.redirect("/super");
+                }
+            
+                // incremetnt the shelf item
+                db.query(`UPDATE Products SET ? WHERE id = "${orderResults[0].product_id}"`, updatedShelfQuantity, (error, done) => {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    req.flash("success_msg", "Sales has been returned back to shelf");
+                    res.redirect("/super/all-sales");
+                  }
+                });
+              
+              }
+            );
+
+          
+          }) // curent stock in products
+          
+         
+        });
+
+    } else if (sessionRole == "admin") {
+      req.flash("error_msg", "Cannot access this endpoint");
+      return res.redirect("/employee");
+    } else {
+      req.flash("error_msg", "Cannot access this endpoint");
+      return res.redirect("/user");
+    }
+
+  
 };
 
 exports.resolveSale = (req, res) => {
@@ -5120,7 +5166,7 @@ exports.deletePosition = (req, res) => {
 
 
 // orders
-
+// view order
 exports.getSingleOrder = (req, res) => {
   const sessionEmail = req.session.Users.email; //  to get more info if needed
   const sessionRole = req.session.Users.userRole;
@@ -5330,7 +5376,7 @@ exports.getSingleOrder = (req, res) => {
 }
 
 
-
+// confirm for shipping
 exports.confirmOrder = (req, res) =>{
   let editID = req.params.id
   const sessionEmail = req.session.Users.email;
@@ -5357,74 +5403,84 @@ exports.confirmOrder = (req, res) =>{
       let thatOrder = JSON.parse(data);
       const  saleID = thatOrder[0].sale_id
 
+      // ensure its not confirmed yet
 
-
-      db.query(`SELECT * FROM Sales WHERE sale_id = "${saleID}"`, (err, results)=>{
-        if (err) {
-          console.log(err);
-          req.flash('error_msg', `error from: ${err.sqlMessage}`)
-          return res.redirect('/super')
-        }
-        
-        let data = JSON.stringify(results);
-        let saleData = JSON.parse(data);
-
-        if (saleData.length >0) {
-          req.flash("warning_msg",`this order has already een confrimed`)
-          return res.redirect('/super/all-orders')
-        }
-
-        // if item does not exist in sales 
-        // add to sales and update the ordered products
-
-        db.query(`INSERT INTO Sales SET ? `,{
-          store_name:null,
-          store_id:null,
-          sale_type: "order",
-          sale_id:saleID,
-          created_date:sqlDate,
-          Discount_applied: 0,
-          attendant_id:0,
-          total_amount:thatOrder[0].total_amount,
-          Payment_type:thatOrder[0].payment_type,
-          status:"waiting"
-
-        }, (err, results)=>{
+      if (thatOrder[0].status == 'incomplete') {
+        db.query(`SELECT * FROM Sales WHERE sale_id = "${saleID}"`, (err, results)=>{
           if (err) {
-            req.flash('error_msg', `error from ${err.sqlMessage}`)
+            console.log(err);
+            req.flash('error_msg', `error from: ${err.sqlMessage}`)
             return res.redirect('/super')
           }
-
-          db.query(`UPDATE Order_Products  SET ? WHERE sale_id = "${saleID}" AND status ="pending"`, {
-            status:"waiting",
-            
+          
+          let data = JSON.stringify(results);
+          let saleData = JSON.parse(data);
+  
+          if (saleData.length >0) {
+            req.flash("warning_msg",`this order has already een confrimed`)
+            return res.redirect('/super/all-orders')
+          }
+  
+          // if item does not exist in sales 
+          // add to sales and update the ordered products
+  
+          db.query(`INSERT INTO Sales SET ? `,{
+            store_name:null,
+            store_id:null,
+            sale_type: "order",
+            sale_id:saleID,
+            created_date:sqlDate,
+            Discount_applied: 0,
+            attendant_id:0,
+            total_amount:thatOrder[0].total_amount,
+            Payment_type:thatOrder[0].payment_type,
+            status:"waiting"
+  
           }, (err, results)=>{
             if (err) {
-              console.log(err);
-              req.flash('error_msg', `error form db: ${err.sqlMessage}`)
+              req.flash('error_msg', `error from ${err.sqlMessage}`)
               return res.redirect('/super')
-            }else{
-
-              db.query(`UPDATE Orders  SET ? WHERE id = "${editID}"`, {
-                status:"waiting",
-                
-              }, (err, results)=>{ 
-                if (err) {
-                  console.log(err);
-                  req.flash('error_msg', `error form db: ${err.sqlMessage}`)
-                  return res.redirect('/super')
-                }
-                
-                req.flash('success_msg', `order has been confirmed! status is set to  waiting (to be resolved)`)
-                res.redirect(`/super/view-order/${editID}`)
-              }) // set  the order  status to waiting to be resolved
             }
-           
-          })  // updateing the orders products to from pending  to sold
+  
+            db.query(`UPDATE Order_Products  SET ? WHERE sale_id = "${saleID}" AND status ="pending"`, {
+              status:"waiting",
+              
+            }, (err, results)=>{
+              if (err) {
+                console.log(err);
+                req.flash('error_msg', `error form db: ${err.sqlMessage}`)
+                return res.redirect('/super')
+              }else{
+  
+                db.query(`UPDATE Orders  SET ? WHERE id = "${editID}"`, {
+                  status:"waiting",
+                  
+                }, (err, results)=>{ 
+                  if (err) {
+                    console.log(err);
+                    req.flash('error_msg', `error form db: ${err.sqlMessage}`)
+                    return res.redirect('/super')
+                  }
+                  
+                  req.flash('success_msg', `order has been confirmed! status is set to  waiting (to be resolved)`)
+                 return res.redirect(`/super/view-order/${editID}`)
+                }) // set  the order  status to waiting to be resolved
+              }
+             
+            })  // updateing the orders products to from pending  to sold
+  
+          })  // add  to sales table
+        
+        }) // to chheck if sales has been added before
+      } 
+      //  ensure not confirmed ends
+      else{
+        req.flash("warning_msg",`this order has already been confrimed`)
+        return res.redirect(`/super/view-order/${editID}`)
+      }
 
-        })  // add  to sales table
-      
-      }) // to chheck if sales has been added before
+
+   
     })
     
   }else if(sessionRole == "admin") {

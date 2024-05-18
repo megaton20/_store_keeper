@@ -32,12 +32,10 @@ exports.dashbboard = (req, res) => {
   const storeName = req.session.Users.store_name
   // return
 
-  console.log(storeId);
 
   var metaItems = JSON.parse(req.body.meta);
   var cartItems = JSON.parse(req.body.cart);
 
-  let productName, price, uuid, unknownStore;
 
   if (cartItems.length <= 0) {
   // to make sure we got something in the cart
@@ -198,7 +196,7 @@ if (userRole == "super"){
                 "success_msg",
                 `Cart has been submitted, click here to print receipt.`
               );
-              res.redirect("/employee/create-sales");
+              res.redirect(`/employee/create-sales`);
             })
             .catch((error) => {
               req.flash('error_msg', `error occured: ${error}`)
@@ -243,10 +241,12 @@ exports.cartForm = (req, res) => {
     return;
   }else if (userRole == "user"){
   // its a user
-  req.flash("error_msg", "Cart cannot  be empty");
-  res.redirect("/user");
-  return;
-}
+  
+    req.flash("error_msg", "Cart cannot  be empty");
+    res.redirect("/user");
+    return;
+  }
+
 }
 
 
@@ -478,9 +478,9 @@ if (userRole == "super"){
         .then(() => {
           req.flash(
             "success_msg",
-            `Cart has been submitted, click here to print receipt.`
+            `Cart has been submitted, Your order reference number is: ${uuidForEachSale}`
           );
-          res.redirect("/user");
+          return res.redirect(`/user/invoice/${uuidForEachSale}`)
         })
         .catch((error) => {
           req.flash('error_msg', `error occured: ${error}`)
@@ -494,7 +494,7 @@ if (userRole == "super"){
 };
 
 
-
+// to render the cart with the category data
 exports.counterForm = (req, res) => {
   const sessionEmail = req.session.Users.email;
   const sessionRole = req.session.Users.userRole;
@@ -533,4 +533,110 @@ exports.counterForm = (req, res) => {
 
    
   } 
+};
+
+
+exports.invoice = (req, res) => {
+  const saleId  = req.params.id
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  if (!sessionEmail) {
+    req.flash("error_msg", "No session, you are required to log in");
+    res.redirect("/");
+    return;
+  }
+
+
+
+  db.query(`SELECT * FROM Orders WHERE sale_id = "${saleId}"`, (err, results) => {
+    if (err) {
+      req.flash("error_msg", ` ${err.sqlMessage}`);
+      return res.redirect("/");
+    } else {
+      let data = JSON.stringify(results);
+      let newOrder = JSON.parse(data);
+
+
+  db.query(`SELECT * FROM Order_Products WHERE sale_id = "${saleId}"`, (err, results) => {
+    if (err) {
+      req.flash("error_msg", ` ${err.sqlMessage}`);
+      return res.redirect("/");
+    } else {
+      let data = JSON.stringify(results);
+      let newOrderProducts = JSON.parse(data);
+
+      db.query(`SELECT * FROM Sales WHERE sale_id =" ${saleId}"`, (err, results) => {
+        if (err) {
+          req.flash("error_msg", ` ${err.sqlMessage}`);
+          return res.redirect("/");
+        } else {
+          let data = JSON.stringify(results);
+          let newSale = JSON.parse(data);
+  
+          return res.render("./user/userInvoice", {
+            pageTitle: "invoice",
+            name: `${userFirstName} ${userLastName}`,
+            month: monthName,
+            day: dayName,
+            date: presentDay,
+            year: presentYear,
+            newSale,
+            newOrderProducts,
+            newOrder,
+          }); // for admin only
+          // not user
+        }
+      });
+    }
+  }) // products ordered
+    }
+  })// order details
+
+
+
+
+ 
+
+   
+};
+
+
+exports.allUserOder = (req, res) => {
+  const saleId  = req.params.id
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  if (!sessionEmail) {
+    req.flash("error_msg", "No session, you are required to log in");
+    res.redirect("/");
+    return;
+  }
+
+
+  db.query(`SELECT * FROM Orders WHERE customer_email = "${sessionEmail}" ORDER BY id DESC LIMIT 10`, (err, results) => {
+    if (err) {
+      req.flash("error_msg", ` ${err.sqlMessage}`);
+      return res.redirect("/");
+    } else {
+      let data = JSON.stringify(results);
+      let newOrder = JSON.parse(data);
+
+      return res.render("./user/userOrders", {
+        pageTitle: "orders",
+        name: `${userFirstName} ${userLastName}`,
+        month: monthName,
+        day: dayName,
+        date: presentDay,
+        year: presentYear,
+        newOrder,
+      }); 
+
+    }
+  })
+
 };

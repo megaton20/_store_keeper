@@ -31,49 +31,48 @@ router.get("/getlgas/:state", ensureAuthenticated, (req, res) => {
 
 
 router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
-
   const { id } = req.params;
+  const { search } = req.query;
 
-  db.query(`SELECT * FROM Category WHERE Category_name = "${id}" `, (err, results)=>{
 
 
+
+  db.query(`SELECT * FROM Category WHERE Category_name = "${id}"`, (err, results) => {
     if (err) {
-        req.flash("error_msg", ` ${err.sqlMessage}`)
-       return res.redirect('/admin')
-    }else{
+      req.flash("error_msg", `${err.sqlMessage}`);
+      return res.redirect('/admin');
+    } else {
+      let data = JSON.stringify(results);
+      let categoryData = JSON.parse(data);
 
-        let data = JSON.stringify(results);
-        let categoryData = JSON.parse(data);
+      let query = `SELECT * FROM Products WHERE category = '${id}' AND activate = "yes" AND total_on_shelf > 0`;
+      
+      // Add search term to query if provided
+      if (search) {
+         query = `SELECT * FROM Products WHERE activate = "yes" AND total_on_shelf > 0`;
+        query += ` AND ProductName LIKE '%${search}%'`;
+      }
 
-
-        // select from products
-        db.query(`SELECT * FROM Products WHERE category = '${id}' AND activate = "yes" AND total_on_shelf > 0 `, (err, results)=>{
-          if (err) {
-            console.log(err.sqlMessage);
-              req.flash("error_msg", ` ${err.sqlMessage}`)
-             return res.redirect('/admin')
-          }else{
-
-            if (results.length  <= 0) {
-              return res.json('')
-             }
-
-            let data = JSON.stringify(results);
-            let allProducts = JSON.parse(data);
-
-      // prepare payload
-        return  res.json(allProducts)
+      db.query(query, (err, results) => {
+        if (err) {
+          console.log(err.sqlMessage);
+          req.flash("error_msg", `${err.sqlMessage}`);
+          return res.redirect('/admin');
+        } else {
+          if (results.length <= 0) {
+            return res.json([]);
           }
-        
-        })
+
+          let data = JSON.stringify(results);
+          let allProducts = JSON.parse(data);
+
+          return res.json(allProducts);
+        }
+      });
     }
-  })
-
-
-
-
-
+  });
 });
+
   // logout
 router.get("/logout", (req, res) => {
   req.session.destroy();

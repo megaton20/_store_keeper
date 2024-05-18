@@ -61,30 +61,45 @@
                                                         <td><%= data['Delivery'] %> </td>
                                                         <td><%= data['payment_type'] %> </td>
                                                         <td><%= data['total_amount'] %> </td>
-                                                        <td><%= data['status'] %> </td>
+
+                                                            <% if(  data['status']  == "incomplete"){ %>
+
+                                                                        <td class="text-danger ">
+                                                                            <%= data['status'] %> 
+                                                                        </td>
+                                                                        
+                                                                    <% } else if ( data['status']  == "shipped") { %>  
+                                                                        <td class="text-warning">
+                                                                            <%= data['status'] %> 
+                                                                        </td>   
+                                                                        
+                                                                        <%} else {%>
+
+                                                                        <td class="text-success">
+                                                                            <%= data['status'] %> 
+                                                                        </td>   
+                                                             <% } %>
+
+
+                                                           
+
                                                         <td><%= data['created_date'] %> </td>
 
-                                                        <% if( data['status'] == "incomplete" ){ %>
+
                                                             <td>
                                                                 
                                                                 <a href="/super/view-order/<%= data['id'] %>"  class="btn btn-primary">View</a>
                                                             </td>
                                                             
                                                             
-                                                            <% } else{ %>  
-                                                                <td>
-                                                                    <a href="/super/view-order/<%= data['id'] %>"  class="btn btn-primary">View</a> . 
-                                                                      <a href="/super/ship-order/<%= data['id'] %>"  class="btn btn-success">Ship</a>
-                                                                    </td>
-                                                                  
-                                                               <% } %>
+
         
                                                   
                                                    </tr> 
                                                    
                                                        <% }) %>
                                          
-                                           
+                                                   
                                             
         
                                                 </tbody>

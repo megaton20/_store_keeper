@@ -1,12 +1,7 @@
 
 
-<br>
-<br>
-<br>
-<br>
-<br>
 	  <!-- Page Content-->
-	  <div class="container px-5 my-5">
+	  <div class="container px-5 ">
              
 		<div class="row justify-content-center">
 			<div class="col-lg-6 col-xl-6 col-xxl-4">
@@ -16,7 +11,7 @@
 
 				<%- include ('./partials/messages') %>
 
-					<div class=" border-1  mb45">
+					<div class=" border-1  m-3">
 						
 						<div class="card-body p-4">
 							<div class="row mb-4 mt-3" >
@@ -30,10 +25,10 @@
 							<form action="/auth/register" method="post">
 								<div class="row">
 									<div class="form-group col-6">
-										<input type="text" class="form-control mt-2 bg-transparent text-dark" placeholder="Enter First name" name="first_name">
+										<input type="text" class="form-control mt-2 bg-transparent text-dark" placeholder=" First name" name="first_name">
 									</div>
 									<div class="form-group col-6">
-										<input type="text" class="form-control mt-2 bg-transparent text-dark" placeholder="Enter Last name" name="last_name">
+										<input type="text" class="form-control mt-2 bg-transparent text-dark" placeholder=" Last name" name="last_name">
 									</div>
 									<div class="form-group col-6">
 										<input type="email" class="form-control mt-2 bg-transparent text-dark" placeholder="Enter Email" name="email">
@@ -47,6 +42,46 @@
 									<div class="form-group col-6">
 										<input type="password" class="form-control mt-2 bg-transparent text-dark" placeholder="Enter same password" name="confirm_password">
 									</div>
+
+
+									<div class="col-6">
+										<div class="form-group">
+											<!-- <label for="">Payment Method</label> -->
+											<select name="gender" id="" class="form-control">
+												<option value="">Select gender</option>
+												<option value="male"> male</option>
+												<option value="female"> female</option>
+												<option value="other"> other</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-6">
+										<div class="form-group">
+											<!-- <label for="">Payment Method</label> -->
+											<select name="gender" id="" class="form-control">
+												<option value="">Select State</option>
+												
+											</select>
+										</div>
+									</div>
+
+									<div class="col-6">
+										<div class="form-group">
+											<!-- <label for="">Payment Method</label> -->
+											<select name="gender" id="" class="form-control">
+												<option value="">Select lga</option>
+												
+											</select>
+										</div>
+									</div>
+									<div class="form-group col-6">
+										<input type="text" class="form-control mt-2 bg-transparent text-dark" placeholder="Enter your address " name="Address">
+									</div>
+									<div class="form-group col-12">
+										<input type="text" class="form-control mt-2 bg-transparent text-dark" placeholder="Enter Land mark " name="land_mark">
+									</div>
+
 								</div>
 			
 								<button class="btn btn-success mt-2 " style="width: 100%;" type="submit">Register</button>
