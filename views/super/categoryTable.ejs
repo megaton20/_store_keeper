@@ -58,12 +58,18 @@
                                                             <td><%= data['Category_name'] %></td>
                                                             <td><%= data['details'] %> </td>
                                                             <td>
-                                                                <a class="btn btn-primary" href="/super/edit-category/<%= data['CategoryID'] %>"> edit</a>
+                                                                <div class="row">
+                                                                    <div class="col-6">
+                                                                        <a class="btn btn-primary" href="/super/edit-category/<%= data['CategoryID'] %>"> edit</a>
+                                                                    </div>
 
-                                                            <form action="/super/delete-category/<%= data['CategoryID'] %>" method="POST" style="display: inline;">
-                                                                <input type="hidden" name="_method" value="DELETE" />
-                                                                <button  class="btn btn-danger">Delete</button>
-                                                            </form>
+                                                                    <div class="col-6">
+                                                                        <form action="/super/delete-category/<%= data['CategoryID'] %>" method="POST" style="display: inline;">
+                                                                            <input type="hidden" name="_method" value="DELETE" />
+                                                                            <button  class="btn btn-danger">Delete</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
                                                             </td>
 
                                                             

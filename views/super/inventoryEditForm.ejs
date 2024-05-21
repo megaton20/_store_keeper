@@ -94,7 +94,7 @@
                                             <label for="">Reciever Name</label>
                                             <select name="Reciever_name" id="" class="form-control" >
                                                 <option value="<%= inventoryData[0].Reciever_name %>"><%= inventoryData[0].Reciever_name %></option>
-                                                <% employeeData.forEach(function(data) {%>
+                                                <% allUsers.forEach(function(data) {%>
                                                 <option value="<%= data['First_name'] %> <%= data['Last_name'] %> "> <%= data['First_name'] %> <%= data['Last_name'] %> </option>
                                                 <% }) %>
                                             </select>

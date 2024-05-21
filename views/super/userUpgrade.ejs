@@ -1,5 +1,4 @@
 
-
 <body id="page-top">
 
     <!-- Page Wrapper -->
@@ -23,12 +22,11 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Employees</h1>
-                    <p class="mb-4">This table shows all registered Customers in all branches </p>
+                    <h1 class="h3 mb-2 text-gray-800">Registered Users </h1>
 
+                    <%- include ('../partials/messages') %>
                     <!-- DataTales Example -->
                     <div class=" mb-4">
-                        <%- include ('../partials/messages') %>
                         <% if(allUsers.length <= 0){ %>
                                 <h1>No Employee Record Found !</h1>  
 
@@ -42,10 +40,12 @@
                                                 <th>Name</th>
                                                 <th>email</th>
                                                 <th>phone</th>
+
                                                 <th>Last login</th>
-                                                <th>Position</th>
+                                                <th>position</th>
+                                                <th>store id</th>
                                                 <th>store_name</th>
-                                                <th>gender</th>
+
                                                 <th>actions</th>
     
                                             </tr>
@@ -59,18 +59,17 @@
                                                  <td><%= data['First_name'] %> <%= data['Last_name'] %></td>
                                                  <td><%= data['email'] %></td>
                                                  <td><%= data['Phone'] %></td>
+
                                                  <td><%= data['Previous_visit'] %></td>
                                                  <td><%= data['position'] %></td>
+                                                 <td><%= data['store_id'] %></td>
                                                  <td><%= data['store_name'] %></td>
-                                                 <td><%= data['gender'] %></td>
+
 
 
                                                  <td style="display: flex; justify-content: space-between;">
-                                                    <a class="btn btn-secondary mr-2" href="/super/edit-employee/<%= data['id'] %>"> edit</a>
-                                                    <form action="/super/delete-employee/<%= data['id'] %>" method="POST" style="display: inline;">
-                                                        <input type="hidden" name="_method" value="DELETE" />
-                                                        <button  class="btn btn-danger"><i  class="fa  fa-bin"></i>Fire</button>
-                                                    </form> 
+                                                    <a class="btn btn-secondary" href="/super/upgrade-users/<%= data['id'] %>"> Upgrade</a>
+
                                                 </td>
                                            
                                             </tr> 

@@ -1,15 +1,7 @@
 
 
-
-  <!-- Page Wrapper -->
-  <div id="wrapper">
-
-      <!-- Sidebar -->
- 
-      <!-- End of Sidebar -->
-      <!-- Content Wrapper -->
-      <div class="container-fluid">
-        <%- include ('../partials/employeeTopbar') %>
+  <div class="container-fluid">
+          <%- include ('./employeeTopbar') %>
         <hr>
 
         <!-- Page Heading -->
@@ -18,84 +10,86 @@
         <%- include ('../partials/messages') %>
 
         <!-- DataTales Example -->
-        <div class=" mb-4">
-            <div class="card-body">
-
-                <% if(pendingDelivery.length <= 0){ %>
-
-                        <h1>No delivery to make!</h1>  
-                    <% } else{ %>  
-
-                        <div class="card-body">
-                    
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-
-                                          <th>Id</th>
-                                          <th>Customer Email</th>
-                                          <th>Customer phone</th>
-                                          <th>Pick up location</th>
-                                          <th>Status</th>
-                                          <th>
-                                            action
-                                          </th>
-                                        </tr>
-                                    </thead>
-                                    
-                                    <tbody>
-                                  
-                                 
-
-
-
-                                        <% pendingDelivery.forEach(function(data) {%>
+        <div class="container">
+            <div class=" mb-4">
+                <div class="card-body">
+    
+                    <% if(pendingDelivery.length <= 0){ %>
+    
+                            <h1>No delivery to make!</h1>  
+                        <% } else{ %>  
+    
+                            <div class="card-body">
+                        
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
                                             <tr>
-                                                <td><%= data['id'] %></td>
-                                                <td><%= data['customer_email'] %></td>
-                                                <td><%= data['phone'] %> - </td>
-                                                <td><%= data['pick_up_store_name'] %> - </td>
-                                                
-
-                                                <% if(  data['status']  == "incomplete"){ %>
-
-                                                    <td class="text-danger ">
-                                                        <%= data['status'] %> 
+    
+                                              <th>Id</th>
+                                              <th>Customer Email</th>
+                                              <th>Customer phone</th>
+                                              <th>Pick up location</th>
+                                              <th>Status</th>
+                                              <th>
+                                                action
+                                              </th>
+                                            </tr>
+                                        </thead>
+                                        
+                                        <tbody>
+                                      
+                                     
+    
+    
+    
+                                            <% pendingDelivery.forEach(function(data) {%>
+                                                <tr>
+                                                    <td><%= data['id'] %></td>
+                                                    <td><%= data['customer_email'] %></td>
+                                                    <td><%= data['customer_phone'] %> </td>
+                                                    <td><%= data['customer_address'] %> </td>
+                                                    
+    
+                                                    <% if(  data['status']  == "incomplete"){ %>
+    
+                                                        <td class="text-danger ">
+                                                            <%= data['status'] %> 
+                                                        </td>
+                                                        
+                                                    <% } else if ( data['status']  == "shipped") { %>  
+                                                        <td class="text-danger">
+                                                            <%= data['status'] %> 
+                                                        </td>   
+                                                        
+                                                        <%} else {%>
+    
+                                                        <td class="text-success">
+                                                            <%= data['status'] %> 
+                                                        </td>   
+                                             <% } %>
+    
+    
+    
+                                                    <td>
+                                                        <a class="btn btn-primary" href="/employee/all-deliveries/<%= data['id'] %>"> view</a>
                                                     </td>
+    
                                                     
-                                                <% } else if ( data['status']  == "shipped") { %>  
-                                                    <td class="text-danger">
-                                                        <%= data['status'] %> 
-                                                    </td>   
-                                                    
-                                                    <%} else {%>
-
-                                                    <td class="text-success">
-                                                        <%= data['status'] %> 
-                                                    </td>   
-                                         <% } %>
-
-
-
-                                                <td>
-                                                    <a class="btn btn-primary" href="/employee/all-deliveries/<%= data['id'] %>"> view</a>
-                                                </td>
-
-                                                
-                                           </tr> 
-                                           
-                                               <% }) %>
-                                 
-                                   
-                                    
-
-                                        </tbody>
-                                </table>
-                            </div>
-                        </div> 
-                        <% } %>
-               
+                                               </tr> 
+                                               
+                                                   <% }) %>
+                                     
+                                       
+                                        
+    
+                                            </tbody>
+                                    </table>
+                                </div>
+                            </div> 
+                            <% } %>
+                   
+                </div>
             </div>
         </div>
 

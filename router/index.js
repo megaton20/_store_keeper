@@ -12,11 +12,12 @@ router.get('/', forwardAuthenticated, (req, res) => res.render('login',{
   pageTitle:"Login To continue Using Store Keeper"
   }));
   router.get('/register', forwardAuthenticated, (req, res) => res.render('register',{
-    pageTitle:"Login To continue Using Store Keeper"
+    pageTitle:"Login To continue Using Store Keeper",
+    stateData
     }));
 
   // Route to fetch LGAs for a selected state
-router.get("/getlgas/:state", ensureAuthenticated, (req, res) => {
+router.get("/getlgas/:state", (req, res) => {
 
   const { state } = req.params;
   const selectedState = stateData.find((s) => s.state === state);
@@ -35,43 +36,34 @@ router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
   const { search } = req.query;
 
 
+  let query = `SELECT * FROM Products WHERE activate = "yes" AND total_on_shelf > 0`;
 
+  if (id !== 'all') {
+    query += ` AND category = '${id}'`;
+  }
 
-  db.query(`SELECT * FROM Category WHERE Category_name = "${id}"`, (err, results) => {
+  if (search) {
+    query += ` AND ProductName LIKE '%${search}%'`;
+  }
+
+  db.query(query, (err, results) => {
     if (err) {
+      console.log(err.sqlMessage);
       req.flash("error_msg", `${err.sqlMessage}`);
       return res.redirect('/admin');
     } else {
-      let data = JSON.stringify(results);
-      let categoryData = JSON.parse(data);
-
-      let query = `SELECT * FROM Products WHERE category = '${id}' AND activate = "yes" AND total_on_shelf > 0`;
-      
-      // Add search term to query if provided
-      if (search) {
-         query = `SELECT * FROM Products WHERE activate = "yes" AND total_on_shelf > 0`;
-        query += ` AND ProductName LIKE '%${search}%'`;
+      if (results.length <= 0) {
+        return res.json([]);
       }
 
-      db.query(query, (err, results) => {
-        if (err) {
-          console.log(err.sqlMessage);
-          req.flash("error_msg", `${err.sqlMessage}`);
-          return res.redirect('/admin');
-        } else {
-          if (results.length <= 0) {
-            return res.json([]);
-          }
+      let data = JSON.stringify(results);
+      let allProducts = JSON.parse(data);
 
-          let data = JSON.stringify(results);
-          let allProducts = JSON.parse(data);
-
-          return res.json(allProducts);
-        }
-      });
+      return res.json(allProducts);
     }
   });
 });
+
 
   // logout
 router.get("/logout", (req, res) => {

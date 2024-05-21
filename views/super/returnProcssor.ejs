@@ -47,6 +47,8 @@
                                           <th>Store id</th>
                                           <th>Sales id</th>
                                           <th>price per Item</th>
+                                          <th>QTY</th>
+                                          <th>S total</th>
                                           <th>
                                             action
                                           </th>
@@ -65,12 +67,10 @@
                                                 <td><%= data['store_id'] %> </td>
                                                 <td><%= data['sale_id'] %> </td>
                                                 <td><%= data['price_per_item'] %> </td>
+                                                <td><%= data['quantity'] %> </td>
+                                                <td><%= data['subTotal'] %> </td>
                                                 <td>
-                                                  <!-- <a class="btn btn-secondary" href="/admin/return/<%= data['id'] %>"> edit</a> -->
-
-                                                <form action="#"  style="display: inline;">
-                                                    <button  disabled class="btn btn-secondary"><i class="fas fa-fw fa-trash"></i></button>
-                                                </form>
+                                                  
                                                 </td>
 
                                                 
@@ -91,53 +91,54 @@
                           <div class="card-body">
                       
                               <div class="table-responsive">
-                                  <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                      <thead>
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                  <thead>
+                                      <tr>
+
+                                        <th>Id</th>
+                                        <th>Item Name</th>
+                                        <th>Product id</th>
+                                        <th>Cart id</th>
+                                        <th>Store id</th>
+                                        <th>price per Item</th>
+                                        <th>QTY</th>
+                                        <th>S total</th>
+                                        <th>
+                                          action
+                                        </th>
+                                      </tr>
+                                  </thead>
+
+                                  <tbody>
+                                
+
+
+                                      <% productsData.forEach(function(data) {%>
                                           <tr>
-  
-                                            <th>Id</th>
-                                            <th>Item Name</th>
-                                            <th>Product id</th>
-                                            <th>Store id</th>
-                                            <th>Sales id</th>
-                                            <th>price per Item</th>
-                                            <th>
-                                              action
-                                            </th>
-                                          </tr>
-                                      </thead>
-  
-                                      <tbody>
-                                    
-  
-  
-                                          <% productsData.forEach(function(data) {%>
-                                              <tr>
-                                                  <td><%= data['id'] %></td>
-                                                  <td><%= data['name'] %></td>
-                                                  <td><%= data['product_id'] %></td>
-                                                  <td><%= data['store_id'] %> </td>
-                                                  <td><%= data['sale_id'] %> </td>
-                                                  <td><%= data['price_per_item'] %> </td>
-                                                  <td>
-                                                    <!-- <a class="btn btn-secondary" href="/admin/return/<%= data['id'] %>"> edit</a> -->
-  
-                                                  <form action="/super/return/<%= data['id'] %>" method="POST" style="display: inline;">
-                                                      <input type="hidden" name="_method" value="PUT" />
-                                                      <button  class="btn btn-secondary"><i class="fas fa-fw fa-trash"></i></button>
-                                                  </form>
-                                                  </td>
-  
-                                                  
-                                             </tr> 
-                                             
-                                                 <% }) %>
-                                   
-                                     
-                                      
-  
-                                          </tbody>
-                                  </table>
+                                              <td><%= data['id'] %></td>
+                                              <td><%= data['name'] %></td>
+                                              <td><%= data['product_id'] %></td>
+                                              <td><%= data['cart_id'] %></td>
+                                              <td><%= data['sale_id'] %> </td>
+                                              <td><%= data['price_per_item'] %> </td>
+                                              <td><%= data['quantity'] %> </td>
+                                              <td><%= data['subTotal'] %> </td>
+                                              <td>
+                                                <a class="btn btn-secondary" href="/super/return/<%= data['id'] %>"> Return one</a>
+
+                                           
+                                              </td>
+
+                                              
+                                         </tr> 
+                                         
+                                             <% }) %>
+                               
+                                 
+                                  
+
+                                      </tbody>
+                              </table>
                               </div>
                           </div> 
                           <% } %>

@@ -21,7 +21,7 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Products Tables </h1>
+                    <h1 class="h3 mb-2 text-gray-800">Store Shelf  </h1>
                     <%- include ('../partials/messages') %>
 
                     <!-- DataTales Example -->
@@ -37,6 +37,7 @@
                                             <thead>
                                                 <tr>
                                                   <th>Id</th>
+                                                  <th>Picture</th>
                                                   <th>Product name</th>
                                                   <th>Brand Name</th>
                                                   <th>Category</th>
@@ -55,6 +56,7 @@
                                                 <% allProducts.forEach(function(data) {%>
                                                     <tr>
                                                         <td><%= data['id'] %></td>
+                                                        <td><img class="img-thumbnail" style="max-width: 40px;" src="/uploads/<%= data['image'] %>" alt="image"></td>
                                                         <td><%= data['ProductName'] %> </td>
                                                         <td><%= data['Brand_name'] %> </td>
                                                         <td><%= data['category'] %> </td>

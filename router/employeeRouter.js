@@ -22,7 +22,6 @@ router.get("/finish-order/:id", ensureAuthenticated, employeeController.finishDe
 
 
 
-
 // router.get("/return", ensureAuthenticated, employeeController.createReturn); // to get sales id
 
 

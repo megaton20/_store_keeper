@@ -20,6 +20,7 @@ let presentDay = getDay(systemCalander, "/");
 
 let sqlDate = presentYear + "-" + presentMonth + "-" + presentDay;
 
+const shippingFee = 500
 
 //dashboard
 exports.dashbboard = (req, res) => {
@@ -211,12 +212,60 @@ if (userRole == "super"){
 
 };
 
+
+
+
+// shopping window
+exports.counterForm = (req, res) => {
+  const sessionEmail = req.session.Users.email;
+  const sessionRole = req.session.Users.userRole;
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  if (!sessionEmail) {
+    req.flash("error_msg", "No session, you are required to log in");
+    res.redirect("/");
+    return;
+  }
+
+  
+
+  if (sessionRole == "user") {
+    // to get total sales made
+     // other quwries
+     db.query(`SELECT * FROM Category `, (err, results) => {
+      if (err) {
+        req.flash("error_msg", ` ${err.sqlMessage}`);
+        return res.redirect("/user");
+      } else {
+        let data = JSON.stringify(results);
+        let allCategory = JSON.parse(data);
+
+        return res.render("./user/userCounter", {
+          pageTitle: "At the counter",
+          name: `${userFirstName} ${userLastName}`,
+          month: monthName,
+          day: dayName,
+          date: presentDay,
+          year: presentYear,
+          allCategory,
+          shippingFee,
+        }); // for admin only
+        // not user
+      }
+    });
+
+   
+  } 
+};
+
+
 // cart sending for order
 exports.cartForm = (req, res) => {
 
-  let email = req.session.Users.email;
-  let userRole  = req.session.Users.userRole;
-  let userId  = req.session.Users.id;
+  const email = req.session.Users.email;
+  const userRole  = req.session.Users.userRole;
+  const userId  = req.session.Users.id;
 
  const storeId =   req.session.Users.store_id;
   const storeName = req.session.Users.store_name
@@ -225,7 +274,7 @@ exports.cartForm = (req, res) => {
   
   var metaItems = JSON.parse(req.body.meta);
   var cartItems = JSON.parse(req.body.cart);
-
+  
 
   // chhecking for empt cart
   if (cartItems.length <= 0) {
@@ -265,6 +314,7 @@ if (userRole == "super"){
       attendant_id: userId,
       Payment_type: metaItems.paymentType,
       total_amount: metaItems.sumTotal,
+      shipping_fee:0
     };
   //   insert
   db.query(
@@ -281,15 +331,17 @@ if (userRole == "super"){
         const promises = [];
 
         cartItems.forEach((cartItem) => {
-          const { id, name, price , uuid} = cartItem;
-
+          const { id, name, price,  uuid, quantity } = cartItem;
+          let newPricePerItem = price*quantity
           let productItem = {
             sale_id: uuidForEachSale,
             product_id: id,
             price_per_item: price,
+            subTotal: newPricePerItem,
             store_id: null,
             cart_id:uuid,
             name: name,
+            quantity:quantity,
           };
 
           // Push the promise into the array
@@ -340,6 +392,7 @@ if (userRole == "super"){
         attendant_id: userId,
         Payment_type: metaItems.paymentType,
         total_amount: metaItems.sumTotal,
+        shipping_fee:0,
       };
 
       db.query(
@@ -356,15 +409,18 @@ if (userRole == "super"){
           const promises = [];
 
           cartItems.forEach((cartItem) => {
-            const { id, name, price ,  uuid} = cartItem;
+            const { id, name, price,  uuid, quantity } = cartItem;
 
+            let newPricePerItem = price*quantity
             let productItem = {
               sale_id: uuidForEachSale,
               product_id: id,
               price_per_item: price,
+              subTotal: newPricePerItem,
               store_id: storeId,
               cart_id:uuid,
               name: name,
+              quantity:quantity,
             };
 
             // Push the promise into the array
@@ -406,18 +462,25 @@ if (userRole == "super"){
 
 } else if (userRole == "user"){
 
+  // shipping fee
+  let grandPrice = metaItems.sumTotal + shippingFee
   // make a date 
   let insertData = {
     customer_email :email,
     customer_id:userId,
+    customer_phone:req.session.Users.Phone,
+    customer_address: req.session.Users.Address,
+    customer_state:req.session.Users.state,
+    customer_lga:req.session.Users.lga,
     pick_up_store_id: storeId, 
     pick_up_store_name :storeName, // to be updated later to any given store
     sale_id: uuidForEachSale,
-    Delivery:metaItems.deliveryInput,
+    Delivery:metaItems.Delivery,
     status:'incomplete',
     Payment_type: metaItems.paymentType,
     created_date: sqlDate,
-    total_amount: metaItems.sumTotal,
+    total_amount: grandPrice,
+    shipping_fee:shippingFee
   };
 
 
@@ -439,16 +502,19 @@ if (userRole == "super"){
       const promises = [];
 
       cartItems.forEach((cartItem) => {
-        const { id, name, price,  uuid } = cartItem;
+        const { id, name, price,  uuid, quantity } = cartItem;
 
+        let newPricePerItem = price*quantity
         let productItem = {
           sale_id: uuidForEachSale,
           product_id: id,
           price_per_item: price,
+          subTotal: newPricePerItem,
           store_id: storeId,
           cart_id:uuid,
           status:"pending",
           name: name,
+          quantity:quantity,
         };
 
 
@@ -493,49 +559,7 @@ if (userRole == "super"){
 
 };
 
-
-// to render the cart with the category data
-exports.counterForm = (req, res) => {
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
-    const userFirstName = req.session.Users.First_name;
-  const userLastName = req.session.Users.Last_name;
-
-  if (!sessionEmail) {
-    req.flash("error_msg", "No session, you are required to log in");
-    res.redirect("/");
-    return;
-  }
-
-  if (sessionRole == "user") {
-    // to get total sales made
-     // other quwries
-     db.query(`SELECT * FROM Category `, (err, results) => {
-      if (err) {
-        req.flash("error_msg", ` ${err.sqlMessage}`);
-        return res.redirect("/");
-      } else {
-        let data = JSON.stringify(results);
-        let allCategory = JSON.parse(data);
-
-        return res.render("./user/userCounter", {
-          pageTitle: "At the counter",
-          name: `${userFirstName} ${userLastName}`,
-          month: monthName,
-          day: dayName,
-          date: presentDay,
-          year: presentYear,
-          allCategory,
-        }); // for admin only
-        // not user
-      }
-    });
-
-   
-  } 
-};
-
-
+// invoice of an order
 exports.invoice = (req, res) => {
   const saleId  = req.params.id
   const sessionEmail = req.session.Users.email;
@@ -603,7 +627,7 @@ exports.invoice = (req, res) => {
    
 };
 
-
+// all orders made my a user
 exports.allUserOder = (req, res) => {
   const saleId  = req.params.id
   const sessionEmail = req.session.Users.email;
@@ -618,7 +642,7 @@ exports.allUserOder = (req, res) => {
   }
 
 
-  db.query(`SELECT * FROM Orders WHERE customer_email = "${sessionEmail}" ORDER BY id DESC LIMIT 10`, (err, results) => {
+  db.query(`SELECT * FROM Orders WHERE customer_email = "${sessionEmail}" ORDER BY id DESC LIMIT 5`, (err, results) => {
     if (err) {
       req.flash("error_msg", ` ${err.sqlMessage}`);
       return res.redirect("/");

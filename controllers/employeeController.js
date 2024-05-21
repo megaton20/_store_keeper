@@ -138,7 +138,7 @@ exports.allPendingDelivery = (req, res)=>{
   const userLastName = req.session.Users.Last_name;
 
   if (sessionRole == "admin") {
-  db.query(`SELECT * FROM Orders WHERE  status = "shipped" `, (err, results) => {
+  db.query(`SELECT * FROM Orders WHERE driver_email = "${sessionEmail}" AND status = "shipped" `, (err, results) => {
     if (err) {
       req.flash("error_msg", ` ${err.sqlMessage}`);
       return res.redirect("/");
@@ -169,9 +169,6 @@ exports.allPendingDelivery = (req, res)=>{
     return
   }
 }
-
-
-
 exports.oneDelivery = (req, res)=>{
   let editId = req.params.id
 
@@ -225,9 +222,6 @@ exports.oneDelivery = (req, res)=>{
     return
   }
 }
-
-
-
 exports.finishDelivery = (req, res)=>{
   let editId = req.params.id
   const sessionEmail = req.session.Users.email;

@@ -40,13 +40,12 @@
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>Picture</th>
                     <th>Product Name</th>
                     <th>Brand Name</th>
                     <th>Purchse Price</th>
                     <th>Supplier</th>
                     <th>Reciever</th>
-                    <th>Payment method</th>
-                    <th>Cost of delivery</th>
                     <th>Status</th>
                     <th>Activated ?</th>
                     <th>Days Left</th>
@@ -58,14 +57,13 @@
                   <% allInventory.forEach(function(data) { %>
                     <tr>
                       <td><%= data['id'] %></td>
+                      <td><img class="img-thumbnail" style="max-width: 40px;" src="/uploads/<%= data['image'] %>" alt="image"></td>
                       <td><%= data['Product_name'] %></td>
                       <td><%= data['Brand_name'] %></td>
                       <td>$ <%= data['Purchase_price'] %></td>
                       <td><%= data['Supplier_name'] %></td>
                       <td><%= data['Reciever_name'] %></td>
-                      <td><%= data['Payment_method'] %></td>
-                      <td>$ <%= data['Cost_of_delivery'] %></td>
-                      <td><%= data['status'] %></td>
+                      <td><%= data['activate'] %></td>
                       <td><%= data['status'] %></td>
                       <!-- Display the expiry date directly -->
                       <td>
@@ -89,9 +87,8 @@
                         <% } else { %>
                           N/A
                         <% } %>
-                      </td>
+
                   
-                  </td>  <!-- Display watch data -->
 
                     <!-- check if button needed -->
                     <% if( data['activate'] == "yes" ){ %>

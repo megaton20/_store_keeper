@@ -76,61 +76,71 @@ exports.loginHandler = (req, res) => {
   );
 };
 
+// const lastseen = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+
 exports.registerHandler = (req, res) => {
-  let { phone, email, password, confirm_password, first_name, last_name } =
-    req.body;
+  let errors = [];
 
-  if (
-    !(
-      email &&
-      password &&
-      phone &&
-      email &&
-      password &&
-      confirm_password &&
-      first_name &&
-      last_name
-    )
-  ) {
-    return res.render("register", {
-      error_msg: "please enter fields",
-      pageTitle: "Register here",
-    });
+  let { phone, email, password, confirm_password, first_name, last_name, gender, customer_state, customer_lga, customer_address, land_mark } = req.body;
+  
+  // Check if all fields are filled
+  if (!(phone && email && password && confirm_password && first_name && last_name && gender && customer_state && customer_lga && customer_address && land_mark)) {
+    req.flash("error_msg", "Please enter all fields.");
+    return res.redirect("/register");
   }
+  
+  // Check if passwords match
+  if (password !== confirm_password) {
+    req.flash("error_msg", "Passwords do not match.");
+    return res.redirect("/register");
+  }
+  
+  // Validate password strength
+  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+  if (!passwordRegex.test(password)) {
+    req.flash("error_msg", "Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.");
+    return res.redirect("/register");
+  }
+  
+  // Query the database for existing email
+  db.query("SELECT * FROM Users WHERE email = ?", [email], (error, results) => {
+    if (error) {
+      req.flash("error_msg", `Database error: ${error.sqlMessage}`);
+      return res.redirect("/register");
+    }
+    
+    if (results.length > 0) {
+      req.flash("error_msg", `User with this email: ${email} already exists.`);
+      return res.redirect("/register");
+    }
 
-  // quey db for existinf email
-  db.query(
-    "SELECT * FROM Customers WHERE email = ?",
-    [email],
-    (error, results) => {
+    // If email does not exist, insert the new user into the database
+    const newUser = {
+      First_name: first_name,
+      Last_name: last_name,
+      email: email,
+      Phone: phone,
+      Password:password,
+      created_date: sqlDate,
+      Previous_visit: sqlDate,
+      spending: 0,
+      gender: gender,
+      state: customer_state,
+      lga: customer_lga,
+      Address: customer_address,
+      land_mark: land_mark
+    };
+    
+
+    db.query("INSERT INTO Users SET ?", newUser, (error, results) => {
       if (error) {
-        req.flash("error_msg", `Error Database ${error.sqlMessage}`);
+        req.flash("error_msg", `Database error: ${error.sqlMessage}`);
         return res.redirect("/register");
       }
 
-      var resultAsString = JSON.stringify(results);
-      var customer = JSON.parse(resultAsString);
-
-      if (results.length > 0) {
-        return res.render("register", {
-          error_msg: `User with this email: ${email} already exist`,
-          pageTitle: "Register here",
-        });
-      }
-        // do this
-        db.query("INSERT INTO Customers SET ?", {
-          First_name: first_name,
-          Last_name: last_name,
-          email: email,
-          Phone: phone,
-          created_date: sqlDate,
-          Previous_visit: sqlDate,
-          spending: 0,
-        });
-
-        req.flash("success_msg", `"${email}" successfully registered!`);
-        return res.redirect("/");
-
-    }
-  );
+      req.flash("success_msg", `"${email}" successfully registered!`);
+      return res.redirect("/");
+    });
+  });
 };
