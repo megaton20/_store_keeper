@@ -297,8 +297,6 @@ exports.cartForm = (req, res) => {
   }
 
 }
-
-
 // checking empty cat ends here
 
 // creatting new sale actions
@@ -371,9 +369,9 @@ if (userRole == "super"){
           .then(() => {
             req.flash(
               "success_msg",
-              `Cart has been submitted, click here to print receipt.`
+              `Cart has been submitted, Your order reference number is: ${uuidForEachSale}`
             );
-            res.redirect("/super/create-sales");
+            return res.redirect(`/super/invoice/${uuidForEachSale}`)
           })
           .catch((error) => {
             req.flash('error_msg', `error occured: ${error}`)
@@ -449,9 +447,9 @@ if (userRole == "super"){
             .then(() => {
               req.flash(
                 "success_msg",
-                `Cart has been submitted, click here to print receipt.`
+                `Cart has been submitted, Your order reference number is: ${uuidForEachSale}`
               );
-              res.redirect("/employee/create-sales");
+              return res.redirect(`/employee/invoice/${uuidForEachSale}`)
             })
             .catch((error) => {
               req.flash('error_msg', `error occured: ${error}`)

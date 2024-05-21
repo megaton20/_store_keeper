@@ -112,7 +112,17 @@
                                     
                                         </form>
                                       <% } else { %>
+                                        <form class="user" action="/super/add-image/<%= allInventory[0].id %>" method="post" enctype="multipart/form-data">
 
+                                            <div class="form-group">
+                                                <input type="file" name="image">
+                                            </div>
+                                            
+                                            <input type="submit" value="Upload image"  class="btn btn-primary btn-user btn-block">
+                                                
+
+                                    
+                                        </form>
                                         
                                         <!-- HTML to render if the condition is false -->
                                       <% } %>
@@ -154,10 +164,3 @@
 
     <!-- Logout Modal-->
     <%- include ('../partials/logout') %>
-    <%- include ('../partials/createStore') %>
-    <%- include ('../partials/createWholsaler') %>
-    <%- include ('../partials/createInventory') %>
-    <%- include ('../partials/createCategory') %>
-    <%- include ('../partials/createDiscount') %>
-    <%- include ('../partials/createPosition') %>
-    <%- include ('../partials/createReturn') %>

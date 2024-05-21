@@ -55,14 +55,16 @@ exports.loginHandler = (req, res) => {
         let role = Users[0].userRole;
         session.Users = Users[0];
 
-
-
         if ((role == "super")) {
           req.flash("success_msg", `welcome ${session.Users.First_name}`);
          return res.redirect("/super");
 
         } else if (role == "admin") {
           
+          if (Users[0].position == 'Logistics') {
+            req.flash("success_msg", `welcome ${session.Users.First_name}`);
+            return res.redirect("/logistics");
+          }
           req.flash("success_msg", `welcome ${session.Users.First_name}`);
          return res.redirect("/employee");
         } else if(role == "user"){

@@ -82,9 +82,10 @@ printReceipt(items, totalPrice);
 const PORT = process.env.PORT || 2000
 const openRoutes = require('./router/index.js')
 const authRouter = require('./router/auth')
-const adminRouter = require('./router/admin')
+const adminRouter = require('./router/super.js')
 const userRouter =  require('./router/userRouter.js')
 const employeeRouter =  require('./router/employeeRouter.js')
+const logisticsRouter =  require('./router/logisticRouter.js')
 
 
 app.use(bodyParser.urlencoded({extended : false}));
@@ -129,14 +130,15 @@ app.use('/', openRoutes);
 app.use('/auth', authRouter)
 app.use('/super', adminRouter)
 app.use('/employee', employeeRouter)
+app.use('/logistics', logisticsRouter)
 app.use('/user', userRouter)
 
 // 404 route
-app.use(function(req, res, next) {
-  res.status(404)
-  res.render('404', {
-    pageTitle:"Login To continue Using Store Keeper"
-  })
-})
+// app.use(function(req, res, next) {
+//   res.status(404)
+//   res.render('404', {
+//     pageTitle:"Login To continue Using Store Keeper"
+//   })
+// })
 
 app.listen(PORT, console.log(`app running on port ${PORT}`))

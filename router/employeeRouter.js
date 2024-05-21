@@ -3,29 +3,18 @@ const router = express.Router();
 const employeeController = require('../controllers/employeeController')
 
 const { ensureAuthenticated, forwardAuthenticated } = require("../config/auth");
+const { isAttendant } = require("../config/employee");
 
 // Welcome Page
-router.get("/", ensureAuthenticated, employeeController.getAdminWelcomePage);
+router.get("/", ensureAuthenticated,isAttendant, employeeController.getAdminWelcomePage);
 
 
 
 // counter for attendants
-router.get("/create-sales", ensureAuthenticated, employeeController.counterForm);
+router.get("/create-sales", ensureAuthenticated,isAttendant, employeeController.counterForm);
 
 
-// all-deliveries
-router.get("/all-deliveries", ensureAuthenticated, employeeController.allPendingDelivery);
-router.get("/all-deliveries/:id", ensureAuthenticated, employeeController.oneDelivery);
-// finish delivery
-router.get("/finish-order/:id", ensureAuthenticated, employeeController.finishDelivery);
-
-
-
-
-// router.get("/return", ensureAuthenticated, employeeController.createReturn); // to get sales id
-
-
-// router.post("/return", ensureAuthenticated, employeeController.returnProcessor);
+router.get("/invoice/:id", ensureAuthenticated,isAttendant, employeeController.invoice);
 
 
 module.exports = router;

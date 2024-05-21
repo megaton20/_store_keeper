@@ -19,7 +19,9 @@ module.exports = {
       return next()
     }
     req.flash("error_msg", `Already loged in as ${openSession.First_name}`)
-    return res.redirect('/admin')
+    return res.redirect('/')
      
     }
 };
+
+

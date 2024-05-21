@@ -92,7 +92,7 @@
                                                                     <button  class="btn btn-success"><i class="fas fw fa-plus"></i></button>
                                                                   </form>
                                                                 </div>
-                                                                  <div class="col-6">
+                                                                  <div class="col-4">
                                                                     <form
                                                                     action="/super/flag-product/<%= data['inventory_id'] %>"
                                                                     method="POST"
@@ -101,6 +101,8 @@
                                                                     <button  class="btn btn-warning"><i class="fas fw fa-times"></i> </button>
                                                                   </form>
                                                                   </div>
+
+                                                                  <div class="col-4"><a href="/super/edit-Inventory/<%= data['inventory_id'] %>" class="btn btn-warning">Edit</a></div>
                                                                  
                                                             </div>
                                                         </td>
@@ -143,10 +145,3 @@
 
     <!-- Logout Modal-->
     <%- include ('../partials/logout') %>
-    <%- include ('../partials/createStore') %>
-    <%- include ('../partials/createWholsaler') %>
-    <%- include ('../partials/createInventory') %>
-    <%- include ('../partials/createCategory') %>
-    <%- include ('../partials/createDiscount') %>
-    <%- include ('../partials/createPosition') %>
-    <%- include ('../partials/createReturn') %>

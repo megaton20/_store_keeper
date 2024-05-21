@@ -33,13 +33,10 @@
 
                                     <div class="col-6">
                                         <div class="form-group">
-                                            <label for="">Position</label>
-                                            <select name="Position_name" id="Position_name" class="form-control" >
-                                                <option value="<%= positionData[0].Position_name %>"><%= positionData[0].Position_name %></option>
-                                                <% allPositions.forEach(function (data) { %>
-                                                    <option value="<%= data['Position_name']%>"><%= data['Position_name']%></option>
-                                               <% }) %>
-                                            </select>
+
+                                                    <label for="">Position</label>
+                                                    <input type="text" name="Position_name" class="form-control" value="<%= positionData[0].Position_name %>">
+
                                         </div>
                                     </div>
 
@@ -91,10 +88,3 @@
 
     <!-- Logout Modal-->
     <%- include ('../partials/logout') %>
-    <%- include ('../partials/createStore') %>
-    <%- include ('../partials/createWholsaler') %>
-    <%- include ('../partials/createInventory') %>
-    <%- include ('../partials/createCategory') %>
-    <%- include ('../partials/createDiscount') %>
-    <%- include ('../partials/createPosition') %>
-    <%- include ('../partials/createReturn') %>
