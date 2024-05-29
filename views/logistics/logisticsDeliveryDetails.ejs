@@ -30,12 +30,12 @@
 
                       <%- include ('../partials/messages') %>
 
-                <div class="container">
+                <div class="containerw">
 
                   <div class="row">
 
                     <!-- Area Chart -->
-                    <div class="col-xl-7 col-lg-7">
+                    <div class="col-lg-6 col-md-12 col-sm-12 mb-3">
                         <div class=" mb-4">
                             <!-- Card Header - Dropdown -->
                  
@@ -59,17 +59,9 @@
 
 
                                 <br>
-                                <hr>
                                 
                                 
-                                <% if( orderedProducts[0].status == "shipped" ){ %>               
-                                <a href="/logistics/finish-order/<%= orderedProducts[0].id %>">
-                                  <button type="submit" class="btn btn-success mt-4" style="width: 100%;"> Complete Delivery</button>
-
-                                  </a>
-                                <% } else{ %>  
-                                  <button type="submit" class="btn btn-secondary mt-4" style="width: 100%;" disabled> Completed</button>
-                                 <% } %>
+                         
                             </div>
                         </div>
                     </div>
@@ -77,7 +69,7 @@
                           
                    
 
-                    <div class="col-xl-5 col-lg-7">
+                    <div class="col-lg-6 col-md-12 col-sm-12 mb-3">
                         <div class=" mb-4">
                             <!-- Card Header - Dropdown -->
                  
@@ -120,7 +112,9 @@
                               
                                 </tbody>
                               </table>
-                              <div class="row">
+
+
+                              <div class="row mt-4">
 
                                 <div class="col-6">SF:</div>
                                 <div class="col-6"><%= orderToComplete[0].shipping_fee %></div>
@@ -128,9 +122,20 @@
                                 <br>
                                 <hr>
                                   <div class="col-6 text-uppercase text-danger">TOTAL:</div>
-                                  <div class="col-6 text-danger"><%= orderToComplete[0].total_amount %></div>
+                                  <div class="col-6 text-danger"><%= totalAmountToPayOnDelivery %></div>
                 
-                            </div>
+
+                                </div>
+                                <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
+                                  <% if( orderedProducts[0].status == "shipped" ){ %>               
+                                    <a href="/logistics/finish-order/<%= orderedProducts[0].id %>">
+                                      <button type="submit" class="btn btn-success mt-4" style="width: 100%;"> Complete Delivery</button>
+    
+                                      </a>
+                                    <% } else{ %>  
+                                      <button type="submit" class="btn btn-secondary mt-4" style="width: 100%;" disabled> Completed</button>
+                                     <% } %>
+                                </div>
                             </div>
                         </div>
                     </div>

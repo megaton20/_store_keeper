@@ -1,342 +1,290 @@
 
 
-<!-- Page Wrapper -->
-<div id="wrapper">
-  <!-- Sidebar -->
 
-  <!-- End of Sidebar -->
-  <!-- Content Wrapper -->
-  <div class="container-fluid">
-    <%- include ('../partials/topbarUser') %>
+<!-- Topbar -->
 
-    <div class="p-4">
-      <%- include ('../partials/messages') %>
-      <div class="row">
-        <!-- cat Card-->
-        <div class="col-2">
-          <div class="card border-2 rounded-4 mb-2">
-            <div class="card-header text-dark">Categories</div>
-            <div class="card-body">
-              <% allCategory.forEach(data=> { %>
+<%- include('./partials/navbar') %>
+
+
+
+
+      <!-- top advert placement -->
+      <!-- <div class="container">
+        <div class="ads-placement card shadow" style=" height: 100px;">
+        
+        </div>
+      </div> -->
+
+
+
+<div class="container-fluid">
+  <%- include('../partials/messages') %>
+
+  <div class="row mt-4">
+    <!-- Categories -->
+    <div class="col-lg-2 col-md-4 col-sm-12 mb-3">
+      <div class="card-header mb-4">categories</div>
+      <div class="card shadow fixed-width-lg">
+        <div class="d-block d-md-none">
+          <div class="d-flex flex-row flex-nowrap overflow-auto" style="height: 100px; ">
+            <!-- Mobile view categories -->
+            <% allCategory.forEach(data => { %>
               <button
                 data-category="<%= data.Category_name %>"
-                class="categoryButton tile card shadow border-1 bg-light text-dark p-4 h-100"
-                style="width: 100%"
-              >
+                class="categoryButton tile card shadow border-1 bg-light text-dark p-4 mr-2"
+                style="flex: 0 0 auto;">
                 <%= data.Category_name %>
               </button>
-              <% }); %>
-            </div>
+            <% }); %>
           </div>
         </div>
-        <!-- items Card-->
-        <div class="col-6">
-          <section>
-            <div class="card border-2 rounded-4 mb-3">
-              <div class="card-header">
-                <div class="row">
-                  <div class="col-md-6" id="itemHeading">Items</div>
-                  <div class="search-bar col-md-6">
-                    <input
-                      id="searchInput"
-                      style="padding: 2px; padding-left: 5px"
-                      type="text"
-                      placeholder="search items"
-                      class="form-control bg-transparent text-dark"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div class="card-body" style="height: 700px; overflow-y: scroll">
-                <div class="mb-2 row" id="itemsContainer"></div>
-              </div>
+
+        <div class="d-none d-md-block">
+          <!-- Desktop view categories -->
+          <% allCategory.forEach(data => { %>
+            <div class="category">
+              <button
+                data-category="<%= data.Category_name %>"
+                class="categoryButton tile border-0 bg-light text-dark p-3 mb-0"
+                style="width: 100%;">
+                <%= data.Category_name %>
+              </button>
             </div>
-          </section>
+          <% }); %>
         </div>
+      </div>
+    </div>
 
-        <!-- cart Card-->
-        <div class="col-4">
-          <div class="card text-dark border-2 rounded-4 mb-4">
-            <div class="card-header">
-              Total: <span id="Total" class="text-success"> 0 </span> + <%= shippingFee%>
-            </div>
-            <div class="card-body p-4">
-              <div class="mb-2">
-                <!-- to display cart items -->
-                <div id="carte">
-                  <table class="table table-"  width="100%" cellspacing="0">
-                    <thead>
-                      <tr>
-                        <th> Name</th>
-                        <th> QTY</th>
-                        <th> SUB-TOTAL</th>
-                        <th> Action</th>
-                      </tr>
-                    </thead>
+    
+    <!-- Items -->
+    <div class="col-lg-10 col-md-8 col-sm-12 mb-3 card">
 
-                                             
-                    <tbody id="cart">
+      <div class="card-header mb-3 p-1">
+        <div class="row ">
+          <div class="col-lg-6 col-md-8 col-sm-12 "><input id="searchInput" type="text" placeholder="Search in category" class="form-control text-dark"></div>
+          <div class="col-lg-6 col-md-8 col-sm-12 " id="itemHeading"></div>
+        </div>
+      </div>
 
-
-
-                        <!-- Display the expiry date directly -->
-
-
-  
-  
-                
-                  </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <br />
-              <!-- <p>Added Discount: <span id="">- 0</span>Naira</p> -->
-
-              Shipping Fee: <span id="Total" class="text-success"> <%= shippingFee%> </span>
-              <form id="cart-form" action="/user/cart" method="post">
-                <!-- Form for submitting the cart -->
-
-                <div class="row">
-                  <div class="col-6">
-                    <select id="payment-method" class="form-control text-dark">
-                      <option value="cash">cash</option>
-                      <option value="Debit card">Debit card</option>
-                      <option value="Split payment">Split payment</option>
-                    </select>
-                  </div>
-                  <div class="col-6">
-                    <select id="delivery-method" class="form-control text-dark">
-                      <option value="Pickup">Pickup</option>
-                      <option value="delivery">delivery</option>
-                    </select>
-                  </div>
-                </div>
-                <button
-                  class="btn btn-success mt-3"
-                  type="submit"
-                  id="submit-cart"
-                  style="width: 100%"
-                >
-                  submit
-                </button>
-              </form>
-
-              <div class="img mt-3 mb-4">
-                <img style="width: 100%" src="/assets/payments.png" alt="" />
-              </div>
-            </div>
+      <div class="item-container" style="height: 700px; overflow-y: scroll">
+        <div class="row" id="itemsContainer">
+          <div class="no-items" style="display: flex; justify-content: center; align-items: center; margin: auto; margin-top: 200px;">
+            <img style="max-width: 100px; max-height: 100px;" src="/images/fast-food.png" class="card-img-top rounded-4" alt="images">
           </div>
         </div>
       </div>
     </div>
-    <div class="my-footer" style="position: fixed; bottom: 0; width: 100%">
-      <%- include('../partials/footer') %>
-    </div>
   </div>
-  <!-- End of Content Wrapper -->
 </div>
-<!-- End of Page Wrapper -->
 
-<!-- Scroll to Top Button-->
-<a class="scroll-to-top rounded" href="#page-top">
-  <i class="fas fa-angle-up"></i>
-</a>
+<!-- Footer -->
+<%- include('./partials/footer') %>
 
-<!-- Logout Modal-->
-<%- include ('../partials/logout') %>
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
 
 <script>
-  // Array to store items in the cart
-  let cart = [];
-  let submitPrice;
 
-  // Get the total price div
-  const totalDiv = document.getElementById('Total');
+ let cart = [];
 
-  // Calculating the price in the current array
-  function populateCurrentPrice() {
-    const totalPrice = cart.reduce((total, item) => total + (parseFloat(item.price) * item.quantity), 0);
-    totalDiv.innerHTML = totalPrice.toLocaleString('en-US', { style: 'currency', currency: 'NGN' });
-    submitPrice = totalPrice;
+function updateCartBadge() {
+  const cartBadges = document.querySelectorAll('#cart-badge');
+  cartBadges.forEach(cartBadge => {
+    cartBadge.textContent = cart.length;
+  });
+}
+
+function updateItemQuantityNumber(item) {
+  const itemButtonGroup = document.querySelector(`.btn-group[data-id='${item.id}']`);
+  if (itemButtonGroup) {
+    const quantityButton = itemButtonGroup.querySelector('.btn-secondary');
+    if (quantityButton) {
+      quantityButton.textContent = item.quantity;
+    }
   }
+}
 
-  // Function to add item to cart
-  function addToCart(item) {
-    const existingItem = cart.find(cartItem => cartItem.id === item.id);
+function updateItemButton(itemId) {
+  const itemButton = document.querySelector(`.add-to-cart[data-id='${itemId}']`);
+  const cartItem = cart.find(cartItem => cartItem.id === itemId);
 
-    if (existingItem) {
-      if (existingItem.quantity < item.max) {
-        existingItem.quantity++;
-      } else {
-        alert(`You can only add up to ${item.max} of this item.`);
-        return;
-      }
+  if (cartItem) {
+    if (itemButton) {
+      itemButton.outerHTML = `
+        <div class="m-2 btn-group" role="group" data-id="${itemId}">
+          <button class="btn btn-danger" onclick="removeFromCart(${itemId})">-</button>
+          <button class="btn btn-secondary" disabled>${cartItem.quantity}</button>
+          <button class="btn btn-success" onclick="increaseQuantity(${itemId})">+</button>
+        </div>
+      `;
+    }
+  } else {
+    const parentDiv = document.querySelector(`.btn-group[data-id='${itemId}']`);
+    if (parentDiv) {
+      parentDiv.outerHTML = `
+        <button class="m-2 btn btn-primary add-to-cart" data-id="${itemId}" onclick="handleButtonClick(this)">Add to Cart</button>
+      `;
+    }
+  }
+}
+
+function addToCart(item) {
+  let existingItem = cart.find(cartItem => cartItem.id === item.id);
+
+  if (existingItem) {
+    if (existingItem.quantity < item.max) {
+      existingItem.quantity++;
     } else {
-      item.quantity = 1;
-      cart.push(item);
+      alert(`You can only add up to ${item.max} of this item.`);
+      return;
     }
-
-    displayCart();
-    populateCurrentPrice();
+  } else {
+    console.log(item);
+    item.quantity = 1;
+    cart.push(item);
   }
 
-  // Function to remove item from cart
-  function removeFromCart(item) {
-    const existingItem = cart.find(cartItem => cartItem.id === item.id);
+  updateItemQuantityNumber(item);
+  updateCartBadge();
+  updateItemButton(item.id);
 
-    if (existingItem) {
-      existingItem.quantity--;
-      if (existingItem.quantity <= 0) {
-        cart = cart.filter(cartItem => cartItem.id !== item.id);
+  // Send POST request to server to update cart in database
+  $.ajax({
+    type: 'POST',
+    url: '/updateCart',
+    data: JSON.stringify({ cart: cart }),
+    contentType: 'application/json',
+    success: function(response) {
+      console.log('Cart updated successfully:', response);
+    },
+    error: function(error) {
+      console.error('Error updating cart:', error);
+    }
+  });
+}
+
+function increaseQuantity(itemId) {
+  let item = cart.find(cartItem => cartItem.id === itemId);
+  if (item && item.quantity < item.max) {
+    item.quantity++;
+    updateItemQuantityNumber(item);
+    updateCartBadge();
+    updateItemButton(itemId);
+
+    // Update cart in the database
+    $.ajax({
+      type: 'POST',
+      url: '/updateCart',
+      data: JSON.stringify({ cart: cart }),
+      contentType: 'application/json',
+      success: function(response) {
+        console.log('Cart updated successfully:', response);
+      },
+      error: function(error) {
+        console.error('Error updating cart:', error);
       }
+    });
+  } else if (item) {
+    alert(`You can only add up to ${item.max} of this item.`);
+  }
+}
+
+function removeFromCart(itemId) {
+  let item = cart.find(cartItem => cartItem.id === itemId);
+  if (item) {
+    item.quantity--;
+    if (item.quantity === 0) {
+      cart = cart.filter(cartItem => cartItem.id !== itemId);
     }
+    updateItemQuantityNumber(item);
+    updateCartBadge();
+    updateItemButton(itemId);
 
-    displayCart();
-    populateCurrentPrice();
-  }
-
-  // Handle button click for adding items to cart
-  function handleButtonClick(event) {
-    const id = event.getAttribute("data-id");
-    const name = event.getAttribute("data-name");
-    const price = event.getAttribute("data-price");
-    const max = parseInt(event.getAttribute("data-max"), 10);
-
-    const item = { id, name, price, max };
-    var uuid = Date.now()+Math.floor(Math.random()*1000)
-
-    item.uuid  = uuid
-    addToCart(item);
-  }
-
-  function displayCart() {
-    const cartTableBody = document.getElementById('cart');
-    cartTableBody.innerHTML = '';
-
-    cart.forEach(item => {
-      const itemRow = document.createElement('tr');
-
-      const itemNameCell = document.createElement('td');
-      itemNameCell.textContent = item.name;
-
-      const itemQuantityCell = document.createElement('td');
-      itemQuantityCell.textContent = item.quantity;
-
-      const itemPriceCell = document.createElement('td');
-      itemPriceCell.textContent = `${(parseFloat(item.price) * item.quantity).toFixed(2)}`;
-
-      const removeButtonCell = document.createElement('td');
-      const removeButton = document.createElement('button');
-      removeButton.classList.add('btn', 'btn-outline-danger');
-      removeButton.innerHTML = '<i class="fa fa-fw fa-trash"></i>';
-      removeButton.addEventListener('click', () => {
-        removeFromCart(item);
-      });
-
-      removeButtonCell.appendChild(removeButton);
-      itemRow.appendChild(itemNameCell);
-      itemRow.appendChild(itemQuantityCell);
-      itemRow.appendChild(itemPriceCell);
-      itemRow.appendChild(removeButtonCell);
-      cartTableBody.appendChild(itemRow);
+    // Update cart in the database
+    $.ajax({
+      type: 'POST',
+      url: '/updateCart',
+      data: JSON.stringify({ cart: cart }),
+      contentType: 'application/json',
+      success: function(response) {
+        console.log('Cart updated successfully:', response);
+      },
+      error: function(error) {
+        console.error('Error updating cart:', error);
+      }
     });
   }
+}
 
-  // Submit cart data
-  function submitCart(e) {
-    const paymentInput = document.getElementById('payment-method').value;
-    const Delivery = document.getElementById('delivery-method').value;
+function handleButtonClick(event) {
+  const id = parseInt(event.getAttribute("data-id"), 10);
+  const name = event.getAttribute("data-name");
+  const image = event.getAttribute("data-image");
+  const price = parseFloat(event.getAttribute("data-price"));
+  const max = parseInt(event.getAttribute("data-max"), 10);
 
+  const item = { id, name, price, max,image };
+  addToCart(item);
+}
 
-    const customerData = {
-      sumTotal: submitPrice,
-      paymentType: paymentInput,
-      Delivery:Delivery,
-    };
-
-    const metaDataInput = document.createElement('input');
-    metaDataInput.setAttribute('type', 'hidden');
-    metaDataInput.setAttribute('name', 'meta');
-    metaDataInput.setAttribute('value', JSON.stringify(customerData));
-
-    const cartInput = document.createElement('input');
-    cartInput.setAttribute('type', 'hidden');
-    cartInput.setAttribute('name', 'cart');
-    cartInput.setAttribute('value', JSON.stringify(cart));
-
-    const form = document.getElementById('cart-form');
-    form.appendChild(cartInput);
-    form.appendChild(metaDataInput);
-  }
-
-  document.getElementById('submit-cart').addEventListener('click', submitCart);
-
-  // Category and search input event listeners
-  const itemHeading = document.getElementById('itemHeading');
-  const searchInput = document.getElementById('searchInput');
-  const categoryButtons = document.querySelectorAll('.categoryButton');
-
-  categoryButtons.forEach(button => {
-    button.addEventListener('click', function () {
-      categoryButtons.forEach(btn => btn.classList.remove('active'));
-      this.classList.add('active');
-      const category = this.getAttribute('data-category');
-      fetchItems(category, '');
-    });
-  });
-
-  searchInput.addEventListener('input', function () {
-    const searchTerm = this.value;
-    const activeCategoryButton = document.querySelector('.categoryButton.active');
-    const category = activeCategoryButton ? activeCategoryButton.getAttribute('data-category') : ' ';
-
-    fetchItems(category, searchTerm);
-  });
-
-  // Fetch items from the server
-  function fetchItems(category, searchTerm) {
-    fetch(`/getItems/${category} ?search=${searchTerm}`)
-      .then(response => response.json())
-      .then(items => {
-        populateItems(items);
-      })
-      .catch(error => {
-        console.error('Error fetching items:', error);
-      });
-  }
-
-  // Populate items in the UI
-  function populateItems(items) {
-    const itemsContainer = document.getElementById('itemsContainer');
-    itemsContainer.innerHTML = '';
-
-    if (items.length === 0) {
-      itemsContainer.innerHTML = '<p class="p-4 text-dark">No items found for this category at the moment (-:)</p>';
-      itemHeading.classList.remove("text-dark");
-      itemHeading.classList.add("text-danger");
-      itemHeading.innerHTML = `Shelf is empty`;
-    } else {
-      itemHeading.classList.remove("text-danger");
-      itemHeading.classList.add("text-warning");
-      itemHeading.innerHTML = `All items on our shelf`;
-
-      items.forEach(item => {
-        const itemElement = document.createElement('div');
-        itemElement.innerHTML = `
-          <button class="add-to-cart tile card shadow border-0 text-dark text-center mb-4 mr-2" data-id="${item.id}" data-name="${item.ProductName}" data-price="${item.UnitPrice}" data-max="${item.total_on_shelf}" onclick="handleButtonClick(this)">
-            <a>
-              <img style="max-width: 120px; max-height: 120px;" src="/uploads/${item.image}" class="card-img-top rounded-4" alt="...">
-              <div class="text-center">
-                <p class="card-text">${item.ProductName}</p>
-                <p class="card-text"><small>$${item.UnitPrice}</small></p>
-              </div>
-            </a>
-          </button>
-        `;
-        itemsContainer.appendChild(itemElement);
-      });
+function fetchItems(category, searchTerm) {
+  $.ajax({
+    url: `/getItems/${category}?search=${searchTerm}`,
+    method: 'GET',
+    dataType: 'json',
+    success: function(items) {
+      populateItems(items);
+    },
+    error: function(error) {
+      console.error('Error fetching items:', error);
     }
+  });
+}
+
+function populateItems(items) {
+  const itemsContainer = document.getElementById('itemsContainer');
+  // const itemHeading = document.getElementById('itemHeading');
+  itemsContainer.innerHTML = '';
+
+  if (items.length === 0) {
+    itemsContainer.innerHTML = '<p style="display: flex; justify-content: center; align-items: center; margin: auto; margin-top: 200px;" class="p-4 text-dark container">No items found for this category at the moment (-:)</p>';
+  } else {
+
+    items.forEach(item => {
+      const itemElement = document.createElement('div');
+      itemElement.classList.add('col-6', 'col-md-4', 'col-lg-2');
+      itemElement.innerHTML = `
+        <div class="border-1 text-dark text-center mb-4">
+          <img style="max-width: 100px; max-height: 100px;" src="/uploads/${item.image}" class="card-img-top rounded-4" alt="${item.image}">
+          <p class="card-text text-success m-0">${item.ProductName}</p>
+          <p class="card-text m-0"><small>₦${item.UnitPrice}.00</small></p>
+          <button class="m-2 btn btn-primary add-to-cart"  data-id="${item.id}" data-name="${item.ProductName}" data-price="${item.UnitPrice}" data-max="${item.total_on_shelf}" data-image="${item.image}" onclick="handleButtonClick(this)">Add to Cart</button>
+        </div>
+      `;
+      itemsContainer.appendChild(itemElement);
+      updateItemButton(item.id); // Ensure the button is updated if the item is already in the cart
+    });
   }
+}
+
+document.querySelectorAll('.categoryButton').forEach(button => {
+  button.addEventListener('click', function () {
+    document.querySelectorAll('.categoryButton').forEach(btn => btn.classList.remove('active'));
+    this.classList.add('active');
+    const category = this.getAttribute('data-category');
+    fetchItems(category, '');
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', function () {
+  const searchTerm = this.value;
+  const activeCategoryButton = document.querySelector('.categoryButton.active');
+  const category = activeCategoryButton ? activeCategoryButton.getAttribute('data-category') : '';
+  fetchItems(category, searchTerm);
+});
+
+// Initial load
+fetchItems('', '');
 </script>
 

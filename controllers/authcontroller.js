@@ -25,7 +25,10 @@ exports.loginHandler = (req, res) => {
   let { email, password } = req.body;
 
   if (!(email && password)) {
-    return res.render("login", { error_msg: "please enter fields" });
+    return res.render("login", { 
+      error_msg: "please enter fields",
+      pageTitle: "Login To continue Using Store Keeper",
+    });
   }
 
   // quey db for existinf email

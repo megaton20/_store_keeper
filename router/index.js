@@ -4,7 +4,7 @@ const stateData = require("../model/stateAndLGA");
 const db = require("../model/databaseTable");
 
 const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
-const { newCategory } = require('../controllers/adminController');
+const { newCategory } = require('../controllers/superController');
 
 
 // Welcome Page
@@ -36,7 +36,7 @@ router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
   const { search } = req.query;
 
 
-  let query = `SELECT * FROM Products WHERE activate = "yes" AND total_on_shelf > 0`;
+  let query = `SELECT * FROM Products WHERE activate = "yes" AND total_on_shelf > 0 AND status = "not-expired"`;
 
   if (id !== 'all') {
     query += ` AND category = '${id}'`;
@@ -63,6 +63,112 @@ router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
     }
   });
 });
+
+
+
+router.post('/updateCart', ensureAuthenticated, async (req, res) => {
+  const userId = req.session.Users.id; // Assuming req.session.Users contains the authenticated user's info
+  const userEmail = req.session.Users.email; // Assuming the user's email is stored in session
+
+  
+  // Clear existing cart items for the user
+  const clearCartQuery = `DELETE FROM Cart WHERE user_id = ?`;
+
+  db.query(clearCartQuery, [userId], (err) => {
+    if (err) {
+      console.error(err);
+      req.flash('error_msg', 'Failed to clear existing cart');
+      return res.status(500).json({ error: 'Failed to clear existing cart' });
+    }
+
+    // Insert new cart items
+    const insertCartQuery = `INSERT INTO Cart (user_id, user_email, product_id, quantity, product_name, price_per_item, subtotal, uuid, image) VALUES ?`;
+    const cartValues = req.body.cart.map(item => [
+
+      userId,
+      userEmail,
+      item.id,
+      item.quantity,
+      item.name,
+      item.price,
+      (item.price * item.quantity),
+      item.uuid,
+      item.image
+    ]);
+
+    if (cartValues.length === 0) {
+      req.flash('success_msg', 'Cart updated successfully');
+      return res.status(200).json({ message: 'Cart updated successfully' });
+    }
+
+    db.query(insertCartQuery, [cartValues], (err) => {
+      if (err) {
+        console.error(err);
+        req.flash('error_msg', 'Failed to update cart');
+        return res.status(500).json({ error: 'Failed to update cart' });
+      }
+
+      req.flash('success_msg', 'Cart updated successfully');
+      res.status(200).json({ message: 'Cart updated successfully' });
+    });
+  });
+});
+
+
+
+// Example of a protected POST route
+router.post('/updateCartItem', ensureAuthenticated, (req, res) => {
+    const userId = req.session.Users.id;
+    const userEmail = req.session.Users.email;
+    const { productId, change } = req.body;
+
+    const getItemQuery = `
+        SELECT * FROM Cart WHERE user_id = ? AND user_email = ? AND product_id = ?
+    `;
+
+    db.query(getItemQuery, [userId, userEmail, productId], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, message: 'Failed to fetch cart item' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ success: false, message: 'Cart item not found' });
+        }
+
+        const item = results[0];
+        const newQuantity = item.quantity + change;
+
+        if (newQuantity <= 0) {
+            const deleteItemQuery = `DELETE FROM Cart WHERE id = ?`;
+            db.query(deleteItemQuery, [item.id], (err) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ success: false, message: 'Failed to delete cart item' });
+                }
+                return res.json({ success: true });
+            });
+        } else {
+            const updateItemQuery = `
+                UPDATE Cart 
+                SET quantity = ?, subtotal = price_per_item * ? 
+                WHERE id = ?
+            `;
+            db.query(updateItemQuery, [newQuantity, newQuantity, item.id], (err) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ success: false, message: 'Failed to update cart item' });
+                }
+                return res.json({ success: true });
+            });
+        }
+    });
+});
+
+module.exports = router;
+
+
+
 
 
   // logout

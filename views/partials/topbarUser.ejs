@@ -1,66 +1,84 @@
-<nav class="navbar navbar-expand navbar-light bg-white topbar  static-top">
-
-  <!-- Sidebar Toggle (Topbar) -->
-  <form class="form-inline">
-      <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-          <i class="fa fa-bars"></i>
-      </button>
-  </form>
-
-
-    <a class="btn btn-primary" href="/user"> <i class="fas fa-fw fa-home"></i> Store</a>
-    <!-- <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          Dropdown button
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Action</a></li>
-          <li><a class="dropdown-item" href="#">Another action</a></li>
-          <li><a class="dropdown-item" href="#">Something else here</a></li>
-        </ul>
-      </div> -->
-    <a class="btn btn-primary ml-2" href="/user/user-order"> <i class="fas fa-fw fa-truck"></i> My order</a>
-
-    <!-- <a class="btn btn-primary ml-2" href="/user"> <i class="fas fa-fw fa-love"></i> Wishlist</a> -->
-   
-    <div class="m-2">
-        <span class="mr-2 d-none d-lg-inline text-gray-600 small"><%= day %> </span>
-        <span class="mr-2 d-none d-lg-inline text-gray-600 small"><%= date %> </span>
-        <span class="mr-2 d-none d-lg-inline text-gray-600 small"><%= month %> </span>
-        <span class="mr-2 d-none d-lg-inline text-gray-600 small"><%= year %> </span>
-    </div>
-
-
-  <!-- Topbar Navbar -->
+<nav class="navbar navbar-expand navbar-light bg-light topbar mb-4 static-top shadow">
+  <!-- Other topbar content -->
   <ul class="navbar-nav ml-auto">
+    <!-- Cart Icon -->
+    <li class="nav-item dropdown no-arrow mx-1">
+      <a class="nav-link dropdown-toggle" href="#" id="cartDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-shopping-cart"></i>
+        <!-- Counter - Cart -->
+        <span class="badge badge-danger badge-counter" id="cartCount">0</span>
+      </a>
+      <!-- Dropdown - Cart Items -->
+      <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="cartDropdown">
+        <h6 class="dropdown-header">Cart Items</h6>
+        <div id="cartItemsContainer" class="dropdown-item-text">
+          <!-- Cart items will be dynamically inserted here -->
 
-      <div class="topbar-divider d-none d-sm-block"></div>
+            <div class="card text-dark border-2 rounded-4">
+              <div class="card-header">
+                Total: <span id="Total" class="text-success"> 0 </span> + <%= shippingFee%>
+              </div>
+              <div class="card-body p-4">
+                <div class="mb-2">
+                  <!-- to display cart items -->
+                  <div id="carte">
+                    <table class="table" width="100%" cellspacing="0">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>QTY</th>
+                          <th>SUB-TOTAL</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="cart">
+                        <!-- Display cart items here -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+  
+                <br />
+  
+                Shipping Fee: <span id="Total" class="text-success"> <%= shippingFee%> </span>
+                <form id="cart-form" action="/user/cart" method="post">
+                  <!-- Form for submitting the cart -->
+  
+                  <div class="row">
+                    <div class="col-6 mb-3">
+                      <select id="payment-method" class="form-control text-dark">
+                        <option value="cash">Cash</option>
+                        <option value="Debit card">Debit card</option>
+                        <option value="Split payment">Split payment</option>
+                      </select>
+                    </div>
+                    <div class="col-6 mb-3">
+                      <select id="delivery-method" class="form-control text-dark">
+                        <option value="Pickup">Pickup</option>
+                        <option value="Delivery">Delivery</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button
+                    class="btn btn-success mt-3"
+                    type="submit"
+                    id="submit-cart"
+                    style="width: 100%"
+                  >
+                    Submit
+                  </button>
+                </form>
+  
+                <div class="img mt-3 mb-4">
+                  <img style="width: 100%" src="/assets/payments.png" alt="Payments" />
+                </div>
+              </div>
+            </div>
 
-      <!-- Nav Item - User Information -->
-      <li class="nav-item dropdown no-arrow">
-          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-             
-              <span class="mr-2 d-none d-lg-inline text-gray-600 small"><%= name %>  </span>
-              <img class="img-profile rounded-circle"
-                  src="/img/undraw_profile.svg"> 
-          </a>
-          <!-- Dropdown - User Information -->
-          <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-              aria-labelledby="userDropdown">
-              <a class="dropdown-item" href="/dashboard">
-                  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Profile
-              </a>
-
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                  <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Logout
-              </a>
-          </div>
-      </li>
-
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item text-center small text-gray-500" href="/cart">View Cart</a>
+      </div>
+    </li>
   </ul>
-
 </nav>

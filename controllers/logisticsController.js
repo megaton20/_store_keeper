@@ -122,6 +122,10 @@ exports.oneDelivery = (req, res)=>{
       let orderToComplete = JSON.parse(data);
 
       let itemId = orderToComplete[0].sale_id
+      let itemShippingFee = orderToComplete[0].shipping_fee
+
+      const totalAmountToPayOnDelivery = itemShippingFee + orderToComplete[0].total_amount
+
 
       db.query(`SELECT * FROM Order_Products WHERE  sale_id = "${itemId}" `, (err, results) => {
         if (err) {
@@ -141,6 +145,7 @@ exports.oneDelivery = (req, res)=>{
             year: presentYear,
             orderedProducts,
             orderToComplete,
+            totalAmountToPayOnDelivery
           }); // for admin only
 
      

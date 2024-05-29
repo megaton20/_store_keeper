@@ -1,0 +1,130 @@
+
+  <style>
+     .cart-item {
+
+      margin-bottom: 20px;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    } 
+    .cart-item img {
+      max-width: 40px;
+      max-height: 40px;
+      margin-right: 20px;
+    }
+    .cart-item-details {
+      flex: 1;
+    }
+    .cart-item-actions {
+      display: flex;
+      align-items: center;
+    }
+    .cart-item-actions button {
+      margin: 0 5px;
+    }
+  </style>
+
+
+  <%- include('./partials/navbar') %>
+
+
+
+  <div class="container">
+
+    
+<div class="row mt-4">
+  <!-- Categories -->
+
+  
+  <!-- Items -->
+  <div class="col-lg-8 col-md-12 col-sm-12 mb-3">
+
+          <% cartItems.forEach(item => { %>
+          <div class="cart-item row">
+            <div class="col-1 mr-1">
+              <img src="/uploads/<%= item.image %>" class="img-fluid rounded" alt="<%= item.product_name %>">
+            </div>
+            <div class="cart-item-details col-7 ml-4">
+              <h5 class="m-0"><%= item.product_name %></h5>
+              <p class="m-0">Subtotal: ₦<%= item.subtotal.toFixed(2) %></p>
+            </div>
+            <div class="cart-item-actions col-4 ml-4">
+              <button class="btn btn-danger" onclick="updateQuantity(<%= item.product_id %>, -1)">-</button>
+              <span class="mx-2"><%= item.quantity %></span>
+              <button class="btn btn-success" onclick="updateQuantity(<%= item.product_id %>, 1)">+</button>
+            </div>
+          </div>
+          <% }); %>
+    </div>
+
+ 
+    <div class="col-lg-4 col-md-12 col-sm-12 mb-3">
+      <div class="card">
+        <div class="card-header mb-3">cart summary</div>
+      
+        <div class="p-2">
+      
+        <!-- <select name="payment-type" id="" class="form-control mb-2">
+          <option value="cash">cash</option>
+          <option value="transfer">Transfer</option>
+        </select> -->
+      
+        <div class="row">
+          <div class="col-6 m-0">Subtotal</div>
+          <div class="col-6 m-0">₦<%= totalSubtotal%></div>
+          <div class="col-6 m-0">Shipping</div>
+          <div class="col-6 m-0">₦<%=shippingFee%></div>
+      
+            <hr>
+          <p class="col-6 m-0">Total Amount:</p>
+          <div class="col-6 m-0">₦<%=totalSum%></div>
+        </div>
+        
+      
+          <a href="/user/order/<%= cartItems[0].user_email %>" class=" mt-4 btn btn-primary">Place Order</a>
+        </div>
+        </div>
+    </div>
+    </div>
+  </div>
+
+  <br>
+  <br>
+  <br>
+  <br>
+  <%- include('./partials/footer') %>
+  <script>
+    function updateQuantity(productId, change) {
+      fetch('/updateCartItem', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId, change })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+
+          console.log(data);
+          // alert('Error updating cart item');
+          // return 
+          location.reload();
+        } else {
+          alert('Failed to update cart item');
+        }
+      })
+      .catch(error => {
+        console.error('Error updating cart item:', error);
+        alert('Error updating cart item');
+      });
+    }
+
+
+  </script>
+
+
+
+
+
+
+</div>

@@ -17,4 +17,17 @@ router.get("/create-sales", ensureAuthenticated,isAttendant, employeeController.
 router.get("/invoice/:id", ensureAuthenticated,isAttendant, employeeController.invoice);
 
 
+// counter for attendants
+router.post("/submitCart", ensureAuthenticated,isAttendant, employeeController.employeeSale);
+
+
+// router.get("/", ensureAuthenticated, userController.counterForm);
+
+// // submit-cart
+// router.post("/cart", ensureAuthenticated, userController.cartForm);
+
+
+// router.get("/user-order", ensureAuthenticated, userController.allUserOder);
+// router.get("/invoice/:id", ensureAuthenticated, userController.invoice);
+
 module.exports = router;

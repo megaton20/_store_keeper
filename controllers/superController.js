@@ -1034,7 +1034,7 @@ exports.getInventoryById = (req, res) => {
 };
 
 //  at the counter page
-exports.counterForm = (req, res) => {
+exports.adminCounter = (req, res) => {
   const sessionEmail = req.session.Users.email;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
@@ -1068,7 +1068,6 @@ exports.invoice = (req, res) => {
     const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
-
   db.query(`SELECT * FROM Order_Products WHERE sale_id = "${saleId}"`, (err, results) => {
     if (err) {
       req.flash("error_msg", ` ${err.sqlMessage}`);
@@ -1084,6 +1083,8 @@ exports.invoice = (req, res) => {
         } else {
           let data = JSON.stringify(results);
           let newSale = JSON.parse(data);
+          const cartItems = newSale
+// Calculate the total subtotal
   
           return res.render("./super/saleInvoice", {
             pageTitle: "invoice",
@@ -1094,6 +1095,7 @@ exports.invoice = (req, res) => {
             year: presentYear,
             newSale,
             newOrderProducts,
+            totalSubtotal: newSale[0].total_amount
           }); // for admin only
           // not user
         }
@@ -2654,8 +2656,6 @@ let updateData =       {
 };
 
 
-
-
 exports.editNewPosition = (req, res) => {
   let editID = req.params.id;
   const sessionEmail = req.session.Users.email;
@@ -2691,7 +2691,36 @@ exports.editNewPosition = (req, res) => {
   );
 };
 
+exports.updatePrice = (req, res) => {
+  let editID = req.params.id;
+  const sessionEmail = req.session.Users.email;
 
+  const { price } = req.body;
+
+  if (!(price)) {
+    req.flash("error_msg", `Enter new price`);
+    return res.redirect(`/super/update-price/${editID}`);
+  }
+
+  // update
+
+  let updateData = {
+    UnitPrice: price,
+  };
+
+  db.query(
+    `UPDATE Products SET ? WHERE id ="${editID}"`,
+    updateData,
+    (err, results) => {
+      if (err) {
+        req.flash("error_msg", `"${err.sqlMessage}" `);
+        return res.redirect("/super/all-positions");
+      }
+      req.flash("success_msg", ` updated successfully! ${results}`);
+      return res.redirect("/super");
+    }
+  );
+};
 
 exports.resolveSale = (req, res) => {
   const editID = req.params.id;
@@ -3315,7 +3344,7 @@ exports.completeOrder = (req, res) => {
                           "success_msg",
                           `order has been Shipped! status is set to  shipped (to be recieved then resolved)`
                         );
-                        res.redirect(`/super/all-orders`);
+                        res.redirect(`/super/all-sales`); // to e resolved imidiately
                       }
                     ); // set  the order  status to waiting to be resolved
                   }
@@ -3409,3 +3438,107 @@ exports.upload = (req, res) => {
     })
 
 };
+
+
+exports.superSale = (req, res) => {
+  const email = req.session.Users.email;
+  const userRole  = req.session.Users.userRole;
+  const userId  = req.session.Users.id;
+
+ const storeId =   req.session.Users.store_id;
+  const storeName = req.session.Users.store_name
+    
+  var metaItems = JSON.parse(req.body.meta);
+  var cartItems = JSON.parse(req.body.cart);
+  
+  // chhecking for empt cart
+  if (cartItems.length <= 0) {
+    // to make sure we got something in the cart
+
+      req.flash("error_msg", "Cart cannot  be empty");
+      res.redirect("/super/create-sales");
+      return;
+
+  
+  }
+
+
+  var uuidForEachSale = Date.now() + Math.floor(Math.random() * 1000);
+
+  let insertData = {
+    sale_id: uuidForEachSale,
+    sale_type:"counter",
+    store_id: null, 
+    store_name: null, // to be updated later to any given store
+    created_date: sqlDate,
+    attendant_id: userId,
+    Payment_type: metaItems.paymentType,
+    total_amount: metaItems.sumTotal,
+    shipping_fee:0
+  };
+  //   insert
+  db.query(
+    "INSERT INTO Sales SET ? ",
+    insertData,
+    (error, result) => {
+      if (error) {
+        req.flash("errror_msg", `error from db ${error.sqlMessage}`);
+        res.redirect("/super/create-sales");
+        return;
+      }
+  
+      // Define an array to store promises
+      const promises = [];
+  
+      cartItems.forEach((cartItem) => {
+        const { id, name, price,  uuid, quantity } = cartItem;
+        let newPricePerItem = price*quantity
+        let productItem = {
+          sale_id: uuidForEachSale,
+          product_id: id,
+          price_per_item: price,
+          subTotal: newPricePerItem,
+          store_id: null,
+          cart_id:uuid,
+          name: name,
+          quantity:quantity,
+        };
+  
+        // Push the promise into the array
+        promises.push(
+          new Promise((resolve, reject) => {
+            // Step 3: Insert or retrieve product record from Products table
+            db.query(
+              "INSERT INTO Order_Products SET ?",
+              productItem,
+              async (error, result) => {
+                if (error) {
+                  req.flash("error_msg", `${error.sqlMessage}`)
+                  res.redirect('/super/create-sales')
+                  return;
+                }
+  
+                // Resolve the promise
+                resolve(result);
+              }
+            );
+          })
+        );
+      });
+  
+      // Wait for all promises to resolve
+      Promise.all(promises)
+        .then(() => {
+          req.flash(
+            "success_msg",
+            `Cart has been submitted, Your order reference number is: ${uuidForEachSale}`
+          );
+          return res.redirect(`/super/invoice/${uuidForEachSale}`)
+        })
+        .catch((error) => {
+          req.flash('error_msg', `error occured: ${error}`)
+          return res.redirect('/super/create-sales')
+        });
+    }
+  );
+}

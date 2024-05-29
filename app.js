@@ -7,6 +7,7 @@ const flash = require('connect-flash');
 const dotenv = require("dotenv");
 const methodOverride = require('method-override')
 const ejsLayouts = require("express-ejs-layouts")
+const expiryChecker = require('./config/updateAction')
 
 
 const usb = require('usb');
@@ -133,12 +134,8 @@ app.use('/employee', employeeRouter)
 app.use('/logistics', logisticsRouter)
 app.use('/user', userRouter)
 
-// 404 route
-// app.use(function(req, res, next) {
-//   res.status(404)
-//   res.render('404', {
-//     pageTitle:"Login To continue Using Store Keeper"
-//   })
-// })
 
+// Schedule the job to run every day at midnight
+
+  
 app.listen(PORT, console.log(`app running on port ${PORT}`))

@@ -11,11 +11,13 @@ const userController  = require('../controllers/userController');
 // users cart
 router.get("/", ensureAuthenticated, userController.counterForm);
 
+router.get('/fetchCart', ensureAuthenticated,userController.fetchCart);
+
 // submit-cart
-router.post("/cart", ensureAuthenticated, userController.cartForm);
+router.get("/order/:email", ensureAuthenticated, userController.submitCart);
 
 
-router.get("/user-order", ensureAuthenticated, userController.allUserOder);
+router.get("/orders", ensureAuthenticated, userController.allUserOder);
 router.get("/invoice/:id", ensureAuthenticated, userController.invoice);
 
 
