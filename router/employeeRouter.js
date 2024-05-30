@@ -21,13 +21,5 @@ router.get("/invoice/:id", ensureAuthenticated,isAttendant, employeeController.i
 router.post("/submitCart", ensureAuthenticated,isAttendant, employeeController.employeeSale);
 
 
-// router.get("/", ensureAuthenticated, userController.counterForm);
-
-// // submit-cart
-// router.post("/cart", ensureAuthenticated, userController.cartForm);
-
-
-// router.get("/user-order", ensureAuthenticated, userController.allUserOder);
-// router.get("/invoice/:id", ensureAuthenticated, userController.invoice);
 
 module.exports = router;

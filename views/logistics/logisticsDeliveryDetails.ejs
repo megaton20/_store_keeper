@@ -85,8 +85,8 @@
                               >
                                 <thead>
                                   <tr>
-                                    <th>ID</th>
-                                    <th>cart id</th>
+
+                                    <th>item Image</th>
                                     <th>Product Name</th>
                                     <th>price</th>
                                     <th>QTY</th>
@@ -97,8 +97,8 @@
                                 <tbody>
                                     <% orderedProducts.forEach(function(data) {%>
                                     <tr>
-                                      <td><%= data['id'] %></td>
-                                      <td><%= data['cart_id'] %></td>
+
+                                      <td><img class="img-thumbnail" style="max-width: 40px;" src="/uploads/<%= data['image'] %>" alt="image"></td>
                                       <td> <%= data['name'] %></td>
                                       <td><%= data['price_per_item'] %></td>
                                       <td><%= data['quantity'] %></td>

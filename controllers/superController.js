@@ -268,7 +268,7 @@ exports.getAdminWelcomePage = (req, res) => {
                                                               let totalVerifiedUsers =
                                                                 results.length;
                                                               res.render(
-                                                                "./super/adminSuper",
+                                                                "./super/superHome",
                                                                 {
                                                                   pageTitle:
                                                                     "Welcome",
@@ -1047,7 +1047,7 @@ exports.adminCounter = (req, res) => {
     } else {
       let data = JSON.stringify(results);
       let allCategory = JSON.parse(data);
-      res.render("./super/userdash", {
+      res.render("./super/superCounter", {
         pageTitle: "At the counter",
         name: `${userFirstName} ${userLastName}`,
         month: monthName,
@@ -2505,7 +2505,21 @@ exports.editNewCategory = (req, res) => {
         }
       );
     }
-  );
+  );// category itself is done
+
+
+  // other tale carrying the category data
+
+  // db.query(
+  //   "SELECT * FROM Products WHERE category = ?",
+  //   [editID],
+  //   (error, results) => {
+  //     if (error) {
+  //       console.log(error);
+  //       req.flash("error_msg", `Error from server Database `);
+  //       return res.redirect(`/`);
+  //     }
+  //   })
 };
 
 
@@ -2699,7 +2713,7 @@ exports.updatePrice = (req, res) => {
 
   if (!(price)) {
     req.flash("error_msg", `Enter new price`);
-    return res.redirect(`/super/update-price/${editID}`);
+    return res.redirect(`/super/all-products/`);
   }
 
   // update
@@ -2714,10 +2728,10 @@ exports.updatePrice = (req, res) => {
     (err, results) => {
       if (err) {
         req.flash("error_msg", `"${err.sqlMessage}" `);
-        return res.redirect("/super/all-positions");
+        return res.redirect("/super/all-products");
       }
-      req.flash("success_msg", ` updated successfully! ${results}`);
-      return res.redirect("/super");
+      req.flash("success_msg", ` updated successfully!`);
+      return res.redirect("/super/all-products");
     }
   );
 };
@@ -3149,7 +3163,7 @@ exports.confirmOrder = (req, res) => {
     if (results.length <= 0) {
       req.flash(
         "error_msg",
-        `error from db: no record found for that  order`
+        `no record found for that  order`
       );
       return res.redirect("/super");
     }
@@ -3192,6 +3206,7 @@ exports.confirmOrder = (req, res) => {
               attendant_id: 0,
               total_amount: thatOrder[0].total_amount,
               Payment_type: thatOrder[0].payment_type,
+              shipping_fee: thatOrder[0].shipping_fee,
               status: "waiting",
             },
             (err, results) => {
@@ -3491,7 +3506,9 @@ exports.superSale = (req, res) => {
       const promises = [];
   
       cartItems.forEach((cartItem) => {
-        const { id, name, price,  uuid, quantity } = cartItem;
+        const { id, name, price,  uuid, quantity,image } = cartItem;
+
+
         let newPricePerItem = price*quantity
         let productItem = {
           sale_id: uuidForEachSale,
@@ -3502,6 +3519,7 @@ exports.superSale = (req, res) => {
           cart_id:uuid,
           name: name,
           quantity:quantity,
+          image:image,
         };
   
         // Push the promise into the array

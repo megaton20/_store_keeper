@@ -225,6 +225,7 @@ function handleButtonClick(event) {
   const max = parseInt(event.getAttribute("data-max"), 10);
 
   const item = { id, name, price, max,image };
+  // item.uuid  = uuid
   addToCart(item);
 }
 
@@ -248,7 +249,9 @@ function populateItems(items) {
   itemsContainer.innerHTML = '';
 
   if (items.length === 0) {
-    itemsContainer.innerHTML = '<p style="display: flex; justify-content: center; align-items: center; margin: auto; margin-top: 200px;" class="p-4 text-dark container">No items found for this category at the moment (-:)</p>';
+    itemsContainer.innerHTML =   `<div class="no-items" style="display: flex; justify-content: center; align-items: center; margin: auto; margin-top: 200px;">
+            <img style="max-width: 100px; max-height: 100px;" src="/images/fast-food.png" class="card-img-top rounded-4" alt="images">
+          </div>`
   } else {
 
     items.forEach(item => {

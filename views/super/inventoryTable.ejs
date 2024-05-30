@@ -185,12 +185,11 @@
 
   // Add event listener to each button
   addPriceButtons.forEach(button => {
-    console.log(button);
+
     button.addEventListener("click", function() {
       // Get the value of the data-value attribute
 
       const btnValue = this.getAttribute('data-value');
-      console.log(btnValue);
 
       // Set the form action dynamically
       linkToAdd.action = `/super/create-sales/${btnValue}`;

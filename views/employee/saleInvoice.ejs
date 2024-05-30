@@ -45,6 +45,7 @@
                   <thead>
                     <tr>
                       <th>ID</th>
+                      <th>Image</th>
                       <th>Product Name</th>
                       <th>unit price</th>
                       <th>QTY</th>
@@ -56,6 +57,7 @@
                     <% newOrderProducts.forEach(function(data) {%>
                     <tr>
                       <td><%= data['id'] %></td>
+                      <td><img class="img-thumbnail" style="max-width: 40px;" src="/uploads/<%= data['image'] %>" alt="image"></td>
                       <td><%= data['name'] %></td>
                       <td><%= data['price_per_item'] %></td>
                       <td><%= data['quantity'] %></td>

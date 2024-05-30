@@ -59,9 +59,9 @@ router.get("/upgrade-users/:id", ensureAuthenticated,isSuper, superController.us
 router.put("/upgrade-users/:id", ensureAuthenticated,isSuper, superController.postUsersToUpgrade);
 // get single
 router.get("/inventory/:id", ensureAuthenticated,isSuper, superController.getInventoryById);
-router.get("/update-price/:id", ensureAuthenticated,isSuper, superController.updatePrice);
 
-
+// shelf manipulation
+router.put("/update-price/:id", ensureAuthenticated,isSuper, superController.updatePrice);
 
 // counter for super
 router.get("/create-sales", ensureAuthenticated,isSuper, superController.adminCounter);

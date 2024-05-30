@@ -11,7 +11,7 @@ const formatDate = (dateStr) => {
 };
 
 const expiryChecker = () => {
-  db.query(`SELECT * FROM inventory`, (err, results) => {
+  db.query(`SELECT * FROM inventory WHERE expired = null`, (err, results) => {
     if (err) {
       console.error("Error fetching inventory data:", err.sqlMessage);
       return;
@@ -46,20 +46,38 @@ const expiryChecker = () => {
         const productQuery = `UPDATE Products SET status = 'expired' WHERE inventory_id = ?`;
         const inventoryQuery = `UPDATE inventory SET expired = 'expired' WHERE id = ?`;
         
-        db.query(productQuery, [itemId], (err, result) => {
+            // update inventory
+            db.query(inventoryQuery, [itemId], (err, result) => {
+              if (err) {
+                console.error(`Error updating inventory with ID ${itemId}:`, err.sqlMessage);
+              } else {
+                console.log(`Inventory with ID ${itemId} has been updated to expired.`);
+              }
+            });
+
+        // first check if it's in the product shelf
+        db.query(`SELECT * FROM Products WHERE inventory_id = ?`,(err,results)=>{
           if (err) {
             console.error(`Error updating product with ID ${itemId}:`, err.sqlMessage);
           } else {
-            console.log(`Product with ID ${itemId} has been updated to expired.`);
+
+            if (results.length <=0) {
+              return console.log(`the community is safe! inventory with id ${itemId} was not added to the shelf...`);
+            }
+
+            db.query(productQuery, [itemId], (err, result) => {
+              if (err) {
+                console.error(`Error updating product with ID ${itemId}:`, err.sqlMessage);
+              } else {
+                console.log(`Product with ID ${itemId} has been updated to expired.`);
+              }
+            });
           }
-        });
-        db.query(inventoryQuery, [itemId], (err, result) => {
-          if (err) {
-            console.error(`Error updating inventory with ID ${itemId}:`, err.sqlMessage);
-          } else {
-            console.log(`Inventory with ID ${itemId} has been updated to expired.`);
-          }
-        });
+        })
+
+     
+
+    
       }
     });
   });

@@ -189,10 +189,11 @@
   function handleButtonClick(event) {
     const id = event.getAttribute("data-id");
     const name = event.getAttribute("data-name");
+    const image = event.getAttribute("data-image");
     const price = event.getAttribute("data-price");
     const max = parseInt(event.getAttribute("data-max"), 10);
 
-    const item = { id, name, price, max };
+    const item = { id, name, price, max, image };
     var uuid = Date.now()+Math.floor(Math.random()*1000)
 
     item.uuid  = uuid
@@ -312,7 +313,7 @@
         const itemElement = document.createElement('div');
         itemElement.classList.add("col-3", "tile", "card", "mb-4", "bg-tranparent", "border-0")
         itemElement.innerHTML = `
-          <button class="add-to-cart border-0 bg-transparent text-dark text-center " data-id="${item.id}" data-name="${item.ProductName}" data-price="${item.UnitPrice}" data-max="${item.total_on_shelf}" onclick="handleButtonClick(this)">
+          <button class="add-to-cart border-0 bg-transparent text-dark text-center " data-id="${item.id}" data-name="${item.ProductName}" data-price="${item.UnitPrice}" data-max="${item.total_on_shelf}" data-image="${item.image}"  onclick="handleButtonClick(this)">
             <a>
               <img style="max-width: 120px; max-height: 120px;" src="/uploads/${item.image}" class="card-img-top rounded-4" alt="...">
               <div class="text-center">

@@ -45,7 +45,7 @@ exports.getAdminWelcomePage = (req, res) => {
         let data = JSON.stringify(results);
         let allCategory = JSON.parse(data);
 
-         return res.render("./employee/adminDash", {
+         return res.render("./employee/employeeDash", {
             pageTitle: "Employee dasdoard",
             name: `${userFirstName} ${userLastName}`,
             month: monthName,
@@ -142,7 +142,8 @@ exports.employeeSale = (req, res) => {
       const promises = [];
 
       cartItems.forEach((cartItem) => {
-        const { id, name, price,  uuid, quantity } = cartItem;
+        const { id, name, price,  uuid, quantity,image } = cartItem;
+
 
         let newPricePerItem = price*quantity
         let productItem = {
@@ -154,6 +155,7 @@ exports.employeeSale = (req, res) => {
           cart_id:uuid,
           name: name,
           quantity:quantity,
+          image:image,
         };
 
         // Push the promise into the array
@@ -197,7 +199,7 @@ exports.employeeSale = (req, res) => {
 exports.invoice = (req, res) => {
   const saleId  = req.params.id
     const userFirstName = req.session.Users.First_name;
-  const userLastName = req.session.Users.Last_nam
+  const userLastName = req.session.Users.Last_name
 
 
 

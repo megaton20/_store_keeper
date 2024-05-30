@@ -83,7 +83,7 @@ printReceipt(items, totalPrice);
 const PORT = process.env.PORT || 2000
 const openRoutes = require('./router/index.js')
 const authRouter = require('./router/auth')
-const adminRouter = require('./router/super.js')
+const superRouter = require('./router/superRouter.js')
 const userRouter =  require('./router/userRouter.js')
 const employeeRouter =  require('./router/employeeRouter.js')
 const logisticsRouter =  require('./router/logisticRouter.js')
@@ -129,7 +129,7 @@ app.use(function(req, res, next) {
 
 app.use('/', openRoutes);
 app.use('/auth', authRouter)
-app.use('/super', adminRouter)
+app.use('/super', superRouter)
 app.use('/employee', employeeRouter)
 app.use('/logistics', logisticsRouter)
 app.use('/user', userRouter)

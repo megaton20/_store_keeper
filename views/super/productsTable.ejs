@@ -83,7 +83,7 @@
         
                                                         <td>
                                                             <div class="row">
-                                                                <div class="col-4">
+                                                                <div class="col-3">
                                                                     <form
                                                                     action="/super/unflag-product/<%= data['inventory_id'] %>"
                                                                     method="POST"
@@ -92,7 +92,7 @@
                                                                     <button  class="btn btn-success"><i class="fas fw fa-plus"></i></button>
                                                                   </form>
                                                                 </div>
-                                                                  <div class="col-4">
+                                                                  <div class="col-3">
                                                                     <form
                                                                     action="/super/flag-product/<%= data['inventory_id'] %>"
                                                                     method="POST"
@@ -102,11 +102,25 @@
                                                                   </form>
                                                                   </div>
 
-                                                                  <div class="col-4"><a href="/super/edit-Inventory/<%= data['inventory_id'] %>" class="btn btn-warning">Edit</a></div>
+
                                                                  
+                                                                  <div class="col-3">
+                                                            <button
+                                                            aria-expanded="true"
+                                                            aria-controls="collapseTwo"
+                                                            class="btn btn-primary click-to-add-price"
+                                                            data-toggle="modal"
+                                                            data-value="<%= data['id'] %>"
+                                                            data-target="#updatePrice"
+                                                            >price</button
+                                                          >
+                                                                  </div>
                                                             </div>
                                                         </td>
                                                   
+
+
+
                                                    </tr> 
                                                    
                                                        <% }) %>
@@ -143,5 +157,26 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Logout Modal-->
+
     <%- include ('../partials/logout') %>
+    <%- include ('../partials/updatPrice') %> 
+
+
+    <script>
+        // Select all buttons with the class "priceModal"
+        let addPriceButtons = document.querySelectorAll(".click-to-add-price");
+        let linkToAdd = document.getElementById("newLink");
+      
+        // Add event listener to each button
+        addPriceButtons.forEach(button => {
+
+          button.addEventListener("click", function() {
+            // Get the value of the data-value attribute
+      
+            const btnValue = this.getAttribute('data-value');
+      
+            // Set the form action dynamically
+            linkToAdd.action = `/super/update-price/${btnValue}`;
+          });
+        });
+      </script>
