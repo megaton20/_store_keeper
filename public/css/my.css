@@ -87,40 +87,90 @@ a {
     transition: .09s ease-in;
 }
 
-.tile-pink{
-    background-color: #ef84a0 !important;
-}
 
-.tile-blue{
-    background-color: #00a6ff !important;
-}
-.tile-orange{
-    background-color: #ff9d00 !important;
-}
-.tile-yellow{
-    background-color: #eccc16 !important;
-}
-.tile-dlbue{
-    background-color: #0066ff !important;
-}
-.tile-purple{
-    background-color: #7b00ff !important;
-}
-.tile-green{
-    background-color: #00ff9d !important;
-}
-.tile-red{
-    background-color: #ff0022 !important;
-}
-.tile-lightpurp{
-    background-color: #c03bed !important;
-}
-.tile-gold{
-    background-color: #ffee00 !important;
-}
 
 .tile .card-text{
     font-size: 13px;
     padding: 0px;
     margin: 0px;
 }
+
+
+
+
+  
+
+  .item-image-container {
+    width: 100%;
+    height: 200px; 
+    overflow: hidden; 
+  }
+  
+  .item-image-container img {
+    width: 80%;
+    height: 80%;
+    object-fit: cover; 
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .item-image-container img:hover {
+    transform: scale(1.1); /* Scale up the image on hover */
+  }
+
+
+
+  .custom-button {
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Align items vertically in the center */
+    width: 200px; /* Adjust the width as needed */
+    height: 50px; /* Adjust the height as needed */
+    border: none; /* Remove the default border */
+    cursor: pointer; /* Change cursor on hover */
+    border-radius: 8px; /* Rounded corners */
+    overflow: hidden; /* Hide overflow */
+    background-color: #f0f0f0; /* Background color */
+    transition: background-color 0.3s ease; /* Smooth transition for background color */
+  }
+  
+  .custom-button:hover {
+    background-color: #e0e0e0; /* Background color on hover */
+  }
+
+  .button-image {
+    width: 50px; /* Set the width for the image part */
+    height: 100%; /* Full height */
+    background-image: url('/images/fast-food.png'); /* Path to your background image */
+    background-size: cover; /* Ensure the image covers the container */
+    background-position: center; /* Center the image */
+  }
+  
+  .button-text {
+    flex: 1; /* Take up remaining space */
+    text-align: center; /* Center the text */
+    color: #333; /* Text color */
+    font-size: 16px; /* Font size */
+  }
+
+
+
+  .item-background-image {
+    width: 100%; /* Set the width for the image part */
+    height: 100%; /* Full height */
+    background-image: url('/images/fast-food.png'); /* Path to your background image */
+    background-size: 200px; 
+    margin-bottom: 40px;
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat;
+  }
+
+ 
+
+  .no-items {
+    width: 100%; /* Set the width for the image part */
+    height: 100%; /* Full height */
+    background-image: url('/images/no data.jpeg'); /* Path to your background image */
+    background-size: 200px; 
+    margin-bottom: 40px;
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat;
+  }

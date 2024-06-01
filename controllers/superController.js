@@ -169,7 +169,7 @@ exports.getAdminWelcomePage = (req, res) => {
                                           return res.redirect("/super");
                                         } else {
                                           let data = JSON.stringify(results);
-                                          let allPositions = JSON.parse(data);
+                                          let positionData = JSON.parse(data);
   
                                           db.query(
                                             `SELECT * FROM Stores `,
@@ -187,7 +187,7 @@ exports.getAdminWelcomePage = (req, res) => {
   
                                                 // to get list of all employees
                                                 db.query(
-                                                  `SELECT * FROM Users WHERE userRole !="user" ORDER BY id DESC`,
+                                                  `SELECT * FROM Users WHERE userRole ="super" ORDER BY id DESC`,
                                                   (err, results) => {
                                                     if (err) {
                                                       console.log(err.sqlMessage);
@@ -200,23 +200,8 @@ exports.getAdminWelcomePage = (req, res) => {
                                                       );
                                                     }
   
-                                                    // check if item exist
-                                                    if (results.length <= 0) {
-                                                      console.log(
-                                                        "employee is empty"
-                                                      );
-                                                      req.flash(
-                                                        "error_msg",
-                                                        `employee is empty`
-                                                      );
-                                                      res.redirect(`/`);
-                                                      return;
-                                                    }
-  
-                                                    let data =
-                                                      JSON.stringify(results);
-                                                    let allUsers =
-                                                      JSON.parse(data);
+                                                    let superAdmin =
+                                                      JSON.parse(JSON.stringify(results));
   
                                                     // get list of all categories
                                                     db.query(
@@ -231,18 +216,7 @@ exports.getAdminWelcomePage = (req, res) => {
                                                           res.redirect("/super");
                                                           return;
                                                         }
-                                                        // check if item exist
-                                                        if (results.length <= 0) {
-                                                          console.log(
-                                                            "category is empty"
-                                                          );
-                                                          req.flash(
-                                                            "error_msg",
-                                                            `Cannot create inventory when category is empty`
-                                                          );
-                                                          res.redirect(`/`);
-                                                          return;
-                                                        }
+                                                
   
                                                         // get the items to send to front end
   
@@ -281,10 +255,11 @@ exports.getAdminWelcomePage = (req, res) => {
                                                                   totalVerifiedUsers,
                                                                   stateData,
                                                                   categoryData,
-                                                                  allUsers,
                                                                   supplierData,
-                                                                  allPositions,
+                                                                  positionData,
+                                                                  superAdmin,
                                                                   allStores,
+                                                                  // recorrds to display
                                                                   allSales,
                                                                   totalSale,
                                                                   allReturnsOrders,
@@ -362,7 +337,6 @@ exports.getAllEmployees = (req, res) => {
 };
 
 exports.getAllUsersToUpgrade = (req, res) => {
-  const sessionEmail = req.session.Users.email;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
     // to get list of all employees
@@ -453,11 +427,6 @@ exports.usersToUpgrade = (req, res) => {
 exports.postUsersToUpgrade = (req, res) => {
   const editId = req.params.id;
 
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
-  const userFirstName = req.session.Users.First_name;
-  const userLastName = req.session.Users.Last_name;
-
   const { store_name, position, Salary } = req.body;
 
   if (!(store_name && position && Salary)) {
@@ -465,21 +434,56 @@ exports.postUsersToUpgrade = (req, res) => {
     return res.redirect(`/super/upgrade-users/${editId}`);
   }
 
-    db.query(
-      `UPDATE Users SET ? WHERE id = ${editId}`,
-      {
-        userRole: "admin",
-        store_name: store_name,
-        salary: Salary,
-        position: position,
-      },
-      (err, results) => {
-        if (err) {
-          req.flash("error_msg", `error udating user ${err.sqlMessage}`);
-          return res.redirect("/super/upgrade-users");
-        }
+  db.query(`SELECT * FROM Positions WHERE Position_name = ?`, [position], (err, results) => {
+    if (err) {
+      req.flash('error_msg', `Error getting category: ${err.sqlMessage}`);
+      return res.redirect('/super');
+    }
+
+    if (results.length === 0) {
+      req.flash('error_msg', `position not found`);
+      return res.redirect('/super');
+    }
+
+    let positionData = JSON.parse(JSON.stringify(results));
+    let positionId = positionData[0].id;
+  
+    db.query(`SELECT * FROM Stores WHERE store_name = ?`, [store_name], (err, results) => {
+      if (err) {
+        req.flash('error_msg', `Error getting category: ${err.sqlMessage}`);
+        return res.redirect('/super');
       }
-    );
+  
+      if (results.length === 0) {
+        req.flash('error_msg', `Store not found`);
+        return res.redirect('/super');
+      }
+  
+      let storeData = JSON.parse(JSON.stringify(results));
+      let storeId = storeData[0].id;
+      db.query(
+        `UPDATE Users SET ? WHERE id = ${editId}`,
+        {
+          userRole: "admin",
+          store_name: store_name,
+          salary: Salary,
+          position: position,
+          position_id:positionId,
+          store_id:storeId,
+  
+        },
+        (err, results) => {
+          if (err) {
+            req.flash("error_msg", `error udating user ${err.sqlMessage}`);
+            return res.redirect("/super/upgrade-users");
+          }
+        }
+      );
+    })
+  
+  })
+
+
 
 };
 
@@ -1282,6 +1286,19 @@ exports.createNewDiscount = (req, res) => {
 
 exports.createNewInventory = (req, res) => {
   // req body
+
+
+  let filename;
+
+  // Setting the image name from the uploaded file
+  if (req.file) {
+    filename = req.file.filename;
+  } else {
+    filename = "default.jpg";
+  }
+
+
+
   const {
     Category_name,
     Brand_name,
@@ -1298,10 +1315,8 @@ exports.createNewInventory = (req, res) => {
     Cost_of_delivery,
     Total_damaged,
   } = req.body;
-  // ensure all fields
 
-
-
+  // Ensure all fields are filled
   if (
     !(
       Category_name &&
@@ -1320,45 +1335,88 @@ exports.createNewInventory = (req, res) => {
       Total_damaged
     )
   ) {
-    req.flash("error_msg", `Enter all field before submiting`);
+    req.flash("error_msg", `Enter all fields before submitting`);
     return res.redirect("/super");
   }
 
-  // create the inventory
-  db.query(
-    "INSERT INTO inventory SET ?",
-    {
-      Category_name: Category_name,
-      Brand_name: Brand_name,
-      Product_name: Product_name,
-      Purchase_price: Purchase_price,
-      Supplier_name: Supplier_name,
-      Payment_method: Payment_method,
-      Reciever_name: Reciever_name,
-      Delivery_method: Delivery_method,
-      QTY_recieved: QTY_recieved,
-      total_in_pack: total_in_pack,
-      Manufacture_date: Manufacture_date,
-      Expire_date: Expire_date,
-      Cost_of_delivery: Cost_of_delivery,
-      Total_damaged: Total_damaged,
-      created_date: sqlDate,
-      activate: "no",
-    },
-    (err, results) => {
-      if (err) {
-        req.flash(
-          "error_msg",
-          `Error from server Database: ${err.sqlMessage}`
-        );
-        return res.redirect("/super");
-      } else {
-        req.flash("success_msg", `"${Product_name}" added successfully!`);
-        return res.redirect("/super");
-      }
+
+  
+  // Get the ID of the Supplier
+
+  db.query(`SELECT * FROM Suppliers WHERE Business_name = ?`, [Supplier_name], (err, results) => {
+    if (err) {
+      req.flash('error_msg', `Error getting category: ${err.sqlMessage}`);
+      return res.redirect('/super');
     }
-  );
+
+    if (results.length === 0) {
+      req.flash('error_msg', `Supplier not found`);
+      return res.redirect('/super');
+    }
+
+    let supplierData = JSON.parse(JSON.stringify(results));
+    let supplierId = supplierData[0].id;
+
+
+    db.query(`SELECT * FROM Category WHERE Category_name = ?`, [Category_name], (err, results) => {
+      if (err) {
+        req.flash('error_msg', `Error getting category: ${err.sqlMessage}`);
+        return res.redirect('/super');
+      }
+  
+      if (results.length === 0) {
+        req.flash('error_msg', `Category not found`);
+        return res.redirect('/super');
+      }
+  
+      let categoryData = JSON.parse(JSON.stringify(results));
+      let categoryId = categoryData[0].CategoryID;
+  
+      // Create the inventory
+      // const sqlDate = new Date().toISOString().slice(0, 19).replace('T', ' '); // Get the current date in SQL format
+      db.query(
+        "INSERT INTO inventory SET ?",
+        {
+          Category_name: Category_name,
+          Brand_name: Brand_name,
+          Product_name: Product_name,
+          Purchase_price: Purchase_price,
+          category_id: categoryId,
+          supplier_id:supplierId,
+          Supplier_name: Supplier_name,
+          Payment_method: Payment_method,
+          Reciever_name: Reciever_name,
+
+          Delivery_method: Delivery_method,
+          QTY_recieved: QTY_recieved,
+          total_in_pack: total_in_pack,
+          Manufacture_date: Manufacture_date,
+          Expire_date: Expire_date,
+          Cost_of_delivery: Cost_of_delivery,
+          Total_damaged: Total_damaged,
+          created_date: sqlDate,
+          activate: "no",
+          image:filename,
+        },
+        (err, results) => {
+          if (err) {
+            req.flash("error_msg", `Error from server Database: ${err.sqlMessage}`);
+            return res.redirect("/super");
+          } else {
+            req.flash("success_msg", `"${Product_name}" added successfully!`);
+            return res.redirect("/super");
+          }
+        }
+      );
+    });
+  })
+ 
+
+
+  // Get the ID of the category
+
 };
+
 
 exports.createNewCustomer = (req, res) => {
   const sessionEmail = req.session.Users.email;
@@ -1651,6 +1709,7 @@ exports.createNewSalesItem = (req, res) => {
                 created_date: sqlDate,
                 activate: inventoryDataFromDb[0].activate,
                 image: inventoryDataFromDb[0].image,
+                category_id: inventoryDataFromDb[0].category_id,
               };
 
               // adding to products table
@@ -2004,6 +2063,9 @@ exports.editInventory = (req, res) => {
   const userLastName = req.session.Users.Last_name;
 
 
+  console.log(req.session.Users);
+
+
   db.query(`SELECT * FROM Suppliers `, (err, results) => {
     if (err) {
       req.flash("error_msg", `${err.sqlMessage}`);
@@ -2014,7 +2076,7 @@ exports.editInventory = (req, res) => {
     let supplierData = JSON.parse(data);
 
     db.query(
-      `SELECT * FROM Users WHERE userRole != "user" `,
+      `SELECT * FROM Users WHERE userRole = "super" `,
       (err, results) => {
         if (err) {
           req.flash("error_msg", `${err.sqlMessage}`);
@@ -2277,21 +2339,59 @@ exports.updateEmployee = (req, res) => {
   const sessionEmail = req.session.Users.email; //  to get more info if needed
   const sessionRole = req.session.Users.userRole;
 
+// i need to get the id for store name and position
 
   if (!(store_name && position && Salary)) {
     req.flash("error_msg", `Enter all field before updating Employee`);
     return res.redirect("/super/all-employees");
   }
 
-  // do this
+  db.query(`SELECT * FROM Positions WHERE Position_name = ?`, [position], (err, results) => {
+    if (err) {
+      req.flash('error_msg', `Error getting category: ${err.sqlMessage}`);
+      return res.redirect('/super');
+    }
+
+    if (results.length === 0) {
+      req.flash('error_msg', `position not found`);
+      return res.redirect('/super');
+    }
+
+    let positionData = JSON.parse(JSON.stringify(results));
+    let positionId = positionData[0].id;
+    // Get the ID of the category
+    db.query(`SELECT * FROM Stores WHERE store_name = ?`, [store_name], (err, results) => {
+      if (err) {
+        req.flash('error_msg', `Error getting category: ${err.sqlMessage}`);
+        return res.redirect('/super');
+      }
+  
+      if (results.length === 0) {
+        req.flash('error_msg', `Store not found`);
+        return res.redirect('/super');
+      }
+  
+      let storeData = JSON.parse(JSON.stringify(results));
+      let storeId = storeData[0].id;
+
+      console.log(storeData);
+        // do this
   db.query(`UPDATE Users SET ? WHERE id ="${updateID}"`, {
     store_name: store_name,
+    store_id:storeId,
+    position_id:positionId,
     position: position,
     Salary: Salary,
   });
 
   req.flash("success_msg", `edited successfully!`);
   return res.redirect("/super/all-employees");
+
+    })
+  })
+
+
+
 };
 
 exports.editNewStore = (req, res) => {
@@ -2499,27 +2599,44 @@ exports.editNewCategory = (req, res) => {
             req.flash("error_msg", `"${err.sqlMessage}" `);
             return res.redirect("/super/all-categories");
           }
-
-          req.flash("success_msg", ` updated successfully! ${results}`);
-          return res.redirect("/super/all-categories");
+          db.query(
+            "SELECT * FROM Products WHERE category_id = ?",
+            [editID],
+            (error, results) => {
+              if (error) {
+                console.log(error);
+                req.flash("error_msg", `Error from server Database `);
+                return res.redirect(`/`);
+              }
+        
+              if (results.length <= 0) {
+                req.flash("success_msg", ` updated successfully!`);
+                  return res.redirect("/super/all-categories");
+              }
+        // new cat shpuld e added to shelf too
+              db.query(
+                `UPDATE Products SET ? WHERE category_id ="${editID}"`,
+                {
+                  category:Category_name,
+                },
+                (err, results) => {
+                  if (err) {
+                    req.flash("error_msg", `"${err.sqlMessage}" `);
+                    return res.redirect("/super/all-categories");
+                  }
+                  req.flash("success_msg", ` updated successfully!`);
+                  return res.redirect("/super/all-categories");
+        
+                }
+              );
+            }
+            )
+          // 
         }
       );
     }
   );// category itself is done
-
-
-  // other tale carrying the category data
-
-  // db.query(
-  //   "SELECT * FROM Products WHERE category = ?",
-  //   [editID],
-  //   (error, results) => {
-  //     if (error) {
-  //       console.log(error);
-  //       req.flash("error_msg", `Error from server Database `);
-  //       return res.redirect(`/`);
-  //     }
-  //   })
+    
 };
 
 
@@ -3036,19 +3153,36 @@ exports.deleteCategory = (req, res) => {
 
 exports.deleteInventory = (req, res) => {
   let editID = req.params.id;
-
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
-
- 
+  
 
   db.query(`DELETE FROM inventory WHERE id = "${editID}"`, (err, results) => {
     if (err) {
       req.flash("error_msg", `could not delete: ${err.sqlMessage}`);
       return res.redirect("/");
     }
-    req.flash("success_msg", `${editID} has been removed`);
-    return res.redirect("/super/all-inventory");
   });
+
+
+  db.query( `SELECT * FROM Products WHERE category_id = ?`, [editID], (error, results)=>{
+    if (err) {
+      req.flash("error_msg", `could not delete: ${err.sqlMessage}`);
+      return res.redirect("/");
+    }
+    if (results.length <= 0) {
+      req.flash("success_msg", `${editID} has been removed`);
+      return res.redirect("/super/all-inventory");
+    }
+
+    db.query(`DELETE FROM Products WHERE category_id = "${editID}"`, (err, results) => {
+      if (err) {
+        req.flash("error_msg", `could not delete: ${err.sqlMessage}`);
+        return res.redirect("/");
+      }
+      req.flash("success_msg", `${editID} has been removed`);
+      return res.redirect("/super/all-inventory");
+    });
+  })
+
 };
 
 exports.deletePosition = (req, res) => {
@@ -3373,7 +3507,7 @@ exports.completeOrder = (req, res) => {
   );
 };
 
-exports.upload = (req, res) => {
+exports.updateImage = (req, res) => {
   const uploadId = req.params.id;
 
   let filename;

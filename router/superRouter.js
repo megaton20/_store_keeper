@@ -31,9 +31,10 @@ const uploadSingle = upload.single('image');
 
 
 
-const { ensureAuthenticated, forwardAuthenticated } = require("../config/auth");
+const { ensureAuthenticated } = require("../config/auth");
 
-router.post('/add-image/:id',ensureAuthenticated,isSuper,uploadSingle,superController.upload)
+// udating image of inventory
+router.post('/add-image/:id',ensureAuthenticated,isSuper,uploadSingle,superController.updateImage)
 
 // Welcome Page
 router.get("/", ensureAuthenticated,isSuper, superController.getAdminWelcomePage);
@@ -52,10 +53,10 @@ router.get("/all-transactions", ensureAuthenticated,isSuper, superController.get
 router.get("/all-inventory", ensureAuthenticated,isSuper, superController.getAllInventory);
 router.get("/all-positions", ensureAuthenticated,isSuper, superController.getAllPositions);
 router.get("/all-orders", ensureAuthenticated,isSuper, superController.getAllOrrders);
-router.get("/upgrade-users", ensureAuthenticated,isSuper, superController.getAllUsersToUpgrade);
 
 
 router.get("/upgrade-users/:id", ensureAuthenticated,isSuper, superController.usersToUpgrade);
+router.get("/upgrade-users", ensureAuthenticated,isSuper, superController.getAllUsersToUpgrade);
 router.put("/upgrade-users/:id", ensureAuthenticated,isSuper, superController.postUsersToUpgrade);
 // get single
 router.get("/inventory/:id", ensureAuthenticated,isSuper, superController.getInventoryById);
@@ -78,7 +79,7 @@ router.post("/ship-order/:id", ensureAuthenticated,isSuper, superController.comp
 // post request
 router.post("/create-store", ensureAuthenticated,isSuper, superController.createNewStore);
 router.post("/create-discount", ensureAuthenticated,isSuper, superController.createNewDiscount);
-router.post("/create-inventory", ensureAuthenticated,isSuper, superController.createNewInventory);
+router.post("/create-inventory", ensureAuthenticated,isSuper,uploadSingle, superController.createNewInventory);
 router.post("/create-category", ensureAuthenticated,isSuper, superController.createNewCategory);
 router.post("/create-supplier", ensureAuthenticated,isSuper, superController.createNewSupplier);
 router.post("/create-customer", ensureAuthenticated,isSuper, superController.createNewCustomer);

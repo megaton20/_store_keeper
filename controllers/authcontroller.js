@@ -87,40 +87,43 @@ exports.loginHandler = (req, res) => {
 exports.registerHandler = (req, res) => {
   let errors = [];
 
-  let { phone, email, password, confirm_password, first_name, last_name, gender, customer_state, customer_lga, customer_address, land_mark } = req.body;
+  let { phone, email, password, confirm_password, first_name, last_name} = req.body;
   
   // Check if all fields are filled
-  if (!(phone && email && password && confirm_password && first_name && last_name && gender && customer_state && customer_lga && customer_address && land_mark)) {
-    req.flash("error_msg", "Please enter all fields.");
-    return res.redirect("/register");
+  if (!(phone && email && password && confirm_password && first_name && last_name  )) {
+    errors.push({msg: "enter all details"})
   }
   
   // Check if passwords match
   if (password !== confirm_password) {
-    req.flash("error_msg", "Passwords do not match.");
-    return res.redirect("/register");
+    errors.push({msg: "password do not match"})
   }
   
   // Validate password strength
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
   if (!passwordRegex.test(password)) {
-    req.flash("error_msg", "Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.");
-    return res.redirect("/register");
+    errors.push({msg: "Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number."})
   }
   
   // Query the database for existing email
   db.query("SELECT * FROM Users WHERE email = ?", [email], (error, results) => {
     if (error) {
-      req.flash("error_msg", `Database error: ${error.sqlMessage}`);
-      return res.redirect("/register");
+      errors.push({msg: "error from the database"})
     }
     
     if (results.length > 0) {
-      req.flash("error_msg", `User with this email: ${email} already exists.`);
-      return res.redirect("/register");
+      errors.push({msg: `User with this email: ${email} already exists.`})
     }
 
-    // If email does not exist, insert the new user into the database
+    if (errors.length > 0) {
+      return res.render("register", {
+        pageTitle:"register again",
+        errors,
+        phone, email, password, first_name, last_name
+    });
+    }
+
+    // gather data to add
     const newUser = {
       First_name: first_name,
       Last_name: last_name,
@@ -130,11 +133,6 @@ exports.registerHandler = (req, res) => {
       created_date: sqlDate,
       Previous_visit: sqlDate,
       spending: 0,
-      gender: gender,
-      state: customer_state,
-      lga: customer_lga,
-      Address: customer_address,
-      land_mark: land_mark
     };
     
 
