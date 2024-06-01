@@ -3,7 +3,7 @@ const router = express.Router();
 const logisticsController = require('../controllers/logisticsController')
 
 const { ensureAuthenticated, forwardAuthenticated } = require("../config/auth");
-const { isLogistics  } = require("../config/logistics");
+const { isLogistics  } = require("../config/isLogistics");
 
 // Welcome Page
 router.get("/", ensureAuthenticated,isLogistics, logisticsController.getAdminWelcomePage);

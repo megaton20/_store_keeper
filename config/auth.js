@@ -18,8 +18,13 @@ module.exports = {
     if (!openSession) {
       return next()
     }
+
+    // sned to landing page
     req.flash("error_msg", `Already loged in as ${openSession.First_name}`)
-    return res.redirect('/')
+    return res.render('login', {
+      pageTitle:"Login To continue Using Store Keeper"
+    })
+    // return res.redirect('/')
      
     }
 };

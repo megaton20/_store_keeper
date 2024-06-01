@@ -2,48 +2,57 @@ const express = require('express');
 const router = express.Router();
 const stateData = require("../model/stateAndLGA");
 const db = require("../model/databaseTable");
+const { isUser } = require("../config/isUser");
 
-const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
+const multer = require('multer');
+const path = require('path')
+const fs = require('fs');
+
+
+// Ensure the /uploads directory exists
+const uploadDir = path.join(__dirname,"..", 'public/uploads');
+
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
+
+const uploadSingle = upload.single('image');
+
+
+const { ensureAuthenticated } = require('../config/auth');
 const userController  = require('../controllers/userController');
 
 
+router.get("/profile", ensureAuthenticated,isUser, userController.profilePage);
+router.get("/edit-user/:id", ensureAuthenticated,isUser, userController.editProfilePage);
+router.post("/add-profile-image/:id", ensureAuthenticated,isUser,uploadSingle, userController.updateImage);
+router.put("/updata-user-info/:id", ensureAuthenticated,isUser, userController.updateUserInfo);
 
 // users cart
-router.get("/", ensureAuthenticated, userController.counterForm);
-
-router.get('/fetchCart', ensureAuthenticated,userController.fetchCart);
-
-// submit-cart
-router.get("/order/:email", ensureAuthenticated, userController.submitCart);
+router.get("/", ensureAuthenticated,isUser, userController.counterForm);
 
 
-router.get("/orders", ensureAuthenticated, userController.allUserOder);
-router.get("/invoice/:id", ensureAuthenticated, userController.invoice);
-
-
+router.get('/fetchCart', ensureAuthenticated,isUser,userController.fetchCart);
 
 // submit-cart
-
-// landing directly to cart to make your purchase
-
-// get  request to see  wishlist page
-// router.get("/", ensureAuthenticated, userController.wishlist);
-// put request to save wishlist item
-// router.put("/", ensureAuthenticated, userController.addWishlist);
-// put request to remove wishlist item
-// router.get("/", ensureAuthenticated, userController.removeWishlist);
-
-// profile page
-
-// get rquest to edit page
-// put request to send edits
+router.get("/order/:email", ensureAuthenticated,isUser, userController.submitCart);
 
 
+router.get("/orders", ensureAuthenticated,isUser, userController.allUserOder);
+router.get("/invoice/:id", ensureAuthenticated,isUser, userController.invoice);
 
-/**
- * users to make order
- * edit themselevs
- * 
- */
+
 
 module.exports = router;

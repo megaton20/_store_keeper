@@ -62,36 +62,3 @@
 
 
 
-	<script>
-		function LGAs() {
-			const stateSelect = document.getElementById("state");
-			const lgaSelect = document.getElementById("lga");
-			const selectedState = stateSelect.value;
-		  
-			console.log("Selected State: ", selectedState); // Check the selected state
-		  
-			// Clear the existing options in the LGA select element
-			while (lgaSelect.options.length > 0) {
-			  lgaSelect.remove(0);
-			}
-		  
-			if (selectedState) {
-			  fetch(`/getlgas/${selectedState}`) // Make an AJAX request to the /getlgas route
-				.then(response => response.json())
-				.then(data => {
-				  data.forEach(lga => {
-					const option = document.createElement("option");
-					option.text = lga;
-					option.value = lga;
-					lgaSelect.add(option);
-				  });
-				})
-				.catch(error => {
-				  console.error('Error fetching LGAs:', error);
-				});
-			}
-		  
-		  }
-		
-		
-	</script>

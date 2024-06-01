@@ -3,7 +3,7 @@ const router = express.Router();
 const employeeController = require('../controllers/employeeController')
 
 const { ensureAuthenticated, forwardAuthenticated } = require("../config/auth");
-const { isAttendant } = require("../config/employee");
+const { isAttendant } = require("../config/isEmployee");
 
 // Welcome Page
 router.get("/", ensureAuthenticated,isAttendant, employeeController.getAdminWelcomePage);

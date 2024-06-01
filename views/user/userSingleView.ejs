@@ -1,0 +1,117 @@
+<!-- Page Wrapper -->
+
+  <!-- Content Wrapper -->
+
+    <!-- Main Content -->
+      <!-- Topbar -->
+      <%- include('./partials/navbar') %>
+      <!-- End of Topbar -->
+
+      <!-- Begin Page Content -->
+      <div class="container-fluid">
+        <%- include ('../partials/messages') %>
+
+        <div class="container">
+
+          <h3>user profile</h3>
+          <div class="row mt-4">
+
+            <div class="col-lg-6 col-md-12 col-sm-12 mb-3">
+              <div class="mb-4">
+                <!-- Card Header - Dropdown -->
+                <% if ( userData.image == null ) { %>
+                  <div class="my-profile-image">
+                    <img class="img-thumbnail rounded-4" src="/images/no data.jpeg" alt="image">
+                    <form class="user" action="/user/add-profile-image/<%= userData.id %>" method="post" enctype="multipart/form-data">
+                      <div class="form-group">
+                        <input type="file" name="image" class="" value="">
+                      </div>
+                      <input type="submit" value="Upload image"  class="btn btn-warning btn-user btn-block">
+                    </form>
+                  </div>
+                  <% } else { %>
+                    <div class="my-profile-image">
+
+                      <img class="img-thumbnail rounded-4 " src="/uploads/<%= userData.image %>" alt="image">
+                      
+                    </div>
+                    
+                    <!-- HTML to render if the condition is false -->
+                  <% } %>
+
+              </div>
+            </div>
+
+
+            <div class="col-lg-6 col-md-12 col-sm-12 mb-3">
+              <div class="mb-4">
+                <!-- Card Header - Dropdown -->
+
+                <!-- Card Body -->
+
+                <p class="text-uppercase text-warning"> Details</p>
+
+                <div class="row mb-4">
+               
+                  <div class="col-6">First name:</div>
+                  <div class="col-6"><%= userData.First_name %></div>
+                  <div class="col-6">Last name:</div>
+                  <div class="col-6"><%= userData.Last_name %></div>
+                  <div class="col-6">Email:</div>
+                  <div class="col-6"><%= userData.email %> </div>
+                  <div class="col-6">Phone Number:</div>
+                  <div class="col-6"><%= userData.Phone %></div>
+                  <div class="col-6">Address:</div>
+                  <div class="col-6"><%= userData.Address %></div>
+                  <div class="col-6">Total Spending:</div>
+                  <div class="col-6"><%= userData.spending %></div>
+
+
+                  <div class="col-6">State:</div>
+                  <div class="col-6"><%= userData.state %></div>
+                  <div class="col-6">LGA:</div>
+                  <div class="col-6"><%= userData.lga %></div>
+                  <div class="col-6">Gender:</div>
+                  <div class="col-6"><%= userData.gender %> </div>
+                  <div class="col-6">Land mark:</div>
+                  <div class="col-6"><%= userData.land_mark %></div>
+                  <div class="col-6">Status:</div>
+                  <div class="col-6"><%= userData.status %></div>
+                </div>
+              </div>
+            </div>
+
+           
+          </div>
+
+          <div class="row">
+            <div class="col-lg-4 col-md-12 col-sm-12 mb-3">
+              <div class="mb-4">
+                <div class="row">
+                  <a 
+                  class="col-lg-4 col-md-12 col-sm-12 mb-3 btn btn-outline-warning"
+                  href="/user/edit-user/<%= userData.id %>"><div class=" ">Edit</div></a>
+                  
+                  
+                  <a 
+                  class="col-lg-4 col-md-12 col-sm-12 mb-3 btn btn-outline-danger"
+                  href="/logout"><div class=" ">Logout</div></a>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /.container-fluid -->
+
+
+
+<br>
+<br>
+<br>
+<br>
+
+<%- include('./partials/footer') %>
+<!-- Logout Modal-->
+<%- include ('../modals/logout') %>

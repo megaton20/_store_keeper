@@ -174,3 +174,31 @@ a {
     background-position: center; /* Center the image */
     background-repeat: no-repeat;
   }
+
+  .my-profile-image {
+    max-width: 70%;
+    max-height: 70%;
+  }
+
+
+  .cart-item {
+
+    margin-bottom: 20px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  } 
+  .cart-item img {
+    max-width: 40px;
+    max-height: 40px;
+    margin-right: 20px;
+  }
+  .cart-item-details {
+    flex: 1;
+  }
+  .cart-item-actions {
+    display: flex;
+    align-items: center;
+  }
+  .cart-item-actions button {
+    margin: 0 5px;
+  }

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const superController = require('../controllers/superController')
-const { isSuper } = require("../config/super");
+const { isSuper } = require("../config/isSuper");
 
 const multer = require('multer');
 const path = require('path')

@@ -60,7 +60,7 @@
             </div>
             <div class="row">
               <div class="col-6">Address:</div>
-              <div class="col-6"><%= orderData[0].address %></div>
+              <div class="col-6"><%= orderData[0].customer_address %></div>
             </div>
             <div class="row">
               <div class="col-6">phone:</div>
@@ -165,7 +165,7 @@
             >
               <div class="form-group">
                 <select name="position" id="" class="form-control">
-                  <option value="">Select Position</option>
+                  <option value="">Select Driver</option>
 
                   <% logisticsDrivers.forEach(function(data) {%>
                   <option value="<%= data['email'] %> ">

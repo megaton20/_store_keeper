@@ -1,28 +1,4 @@
 
-  <style>
-     .cart-item {
-
-      margin-bottom: 20px;
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-    } 
-    .cart-item img {
-      max-width: 40px;
-      max-height: 40px;
-      margin-right: 20px;
-    }
-    .cart-item-details {
-      flex: 1;
-    }
-    .cart-item-actions {
-      display: flex;
-      align-items: center;
-    }
-    .cart-item-actions button {
-      margin: 0 5px;
-    }
-  </style>
-
 
   <%- include('./partials/navbar') %>
 
@@ -63,10 +39,6 @@
       
         <div class="p-2">
       
-        <!-- <select name="payment-type" id="" class="form-control mb-2">
-          <option value="cash">cash</option>
-          <option value="transfer">Transfer</option>
-        </select> -->
       
         <div class="row">
           <div class="col-6 m-0">Subtotal</div>
@@ -84,6 +56,31 @@
           <a href="/user/" class=" mt-4 btn btn-primary">Clear cart</a>
         </div>
         </div>
+
+        <div class="card mt-4">
+          <div class="card-header mb-3">Usable information</div>
+        
+          <div class="p-2">
+          <div class="row">
+            <div class="col-6 m-0">Phone</div>
+            <div class="col-6 m-0"><%= userData.Phone%></div>
+            <div class="col-6 m-0">Address</div>
+            <div class="col-6 m-0"><%= userData.Address%></div>
+            
+            
+            <p class="col-6 m-0">State:</p>
+            <div class="col-6 m-0"><%= userData.state%></div>
+            <p class="col-6 m-0">LGA:</p>
+            <div class="col-6 m-0"><%= userData.lga%></div>
+            <p class="col-6 m-0">Land Mark:</p>
+            <div class="col-6 m-0"><%= userData.land_mark%></div>
+
+          </div>
+          
+        
+     
+          </div>
+          </div>
     </div>
     </div>
   </div>

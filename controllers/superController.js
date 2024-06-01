@@ -393,7 +393,6 @@ exports.usersToUpgrade = (req, res) => {
               `SELECT * FROM Users WHERE id = "${editId}" `,
               (err, results) => {
                 if (err) {
-                  console.log(err.sqlMessage);
                   req.flash("error_msg", `${err.sqlMessage}`);
                   return res.redirect("/super");
                 }
@@ -427,13 +426,14 @@ exports.usersToUpgrade = (req, res) => {
 exports.postUsersToUpgrade = (req, res) => {
   const editId = req.params.id;
 
-  const { store_name, position, Salary } = req.body;
+  const { store_name, position } = req.body;
 
-  if (!(store_name && position && Salary)) {
+  if (!(store_name && position )) {
     req.flash("error_msg", `please enter all fields`);
     return res.redirect(`/super/upgrade-users/${editId}`);
   }
 
+  console.log("hi");
   db.query(`SELECT * FROM Positions WHERE Position_name = ?`, [position], (err, results) => {
     if (err) {
       req.flash('error_msg', `Error getting category: ${err.sqlMessage}`);
@@ -447,6 +447,7 @@ exports.postUsersToUpgrade = (req, res) => {
 
     let positionData = JSON.parse(JSON.stringify(results));
     let positionId = positionData[0].id;
+    let positionSalary = positionData[0].Salary;
   
     db.query(`SELECT * FROM Stores WHERE store_name = ?`, [store_name], (err, results) => {
       if (err) {
@@ -466,7 +467,7 @@ exports.postUsersToUpgrade = (req, res) => {
         {
           userRole: "admin",
           store_name: store_name,
-          salary: Salary,
+          salary: positionSalary,
           position: position,
           position_id:positionId,
           store_id:storeId,
@@ -474,9 +475,12 @@ exports.postUsersToUpgrade = (req, res) => {
         },
         (err, results) => {
           if (err) {
+            console.log('success');
             req.flash("error_msg", `error udating user ${err.sqlMessage}`);
             return res.redirect("/super/upgrade-users");
           }
+          req.flash("success_msg", `successful`);
+          return res.redirect("/super/upgrade-users");
         }
       );
     })
@@ -3285,7 +3289,6 @@ exports.getSingleOrder = (req, res) => {
 // confirm for shipping
 exports.confirmOrder = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
 
 
   db.query(`SELECT * FROM Orders WHERE id ="${editID}"`, (err, results) => {
@@ -3304,6 +3307,14 @@ exports.confirmOrder = (req, res) => {
     let data = JSON.stringify(results);
     let thatOrder = JSON.parse(data);
     const saleID = thatOrder[0].sale_id;
+    const customerId = thatOrder[0].customer_id;
+    const thatOrderTotalAmount = thatOrder[0].total_amount;
+    const thatOrderTotalShippingFee = thatOrder[0].shipping_fee;
+
+    let totalSpentOnThisOrder= thatOrderTotalShippingFee + thatOrderTotalAmount
+
+
+
 
     // ensure its not confirmed yet
 
@@ -3312,7 +3323,6 @@ exports.confirmOrder = (req, res) => {
         `SELECT * FROM Sales WHERE sale_id = "${saleID}"`,
         (err, results) => {
           if (err) {
-            console.log(err);
             req.flash("error_msg", `error from: ${err.sqlMessage}`);
             return res.redirect("/super");
           }
@@ -3378,11 +3388,35 @@ exports.confirmOrder = (req, res) => {
                           return res.redirect("/super");
                         }
 
-                        req.flash(
-                          "success_msg",
-                          `order has been confirmed! status is set to  waiting (to be resolved)`
-                        );
+                        db.query(`SELECT * FROM  Users WHERE id = ?`, [customerId], (error,results)=>{
+                          if (error) {
+                            console.log(error);
+                            req.flash('error_msg', `sql ${error.sqlMessage}`)
+                            return res.redirect('/super')
+                          }
+                          let buyingUser = JSON.parse(JSON.stringify(results[0]))
+                          let previousSpending = buyingUser.spending
+                          const newUserSpending = previousSpending + totalSpentOnThisOrder
+
+                          db.query(
+                            `UPDATE Users SET ? WHERE id = "${customerId}"`,
+                            {
+                              spending: newUserSpending,
+                            },(error, results)=>{
+                              if (error) {
+                                console.log(error);
+                                req.flash('error_msg',`sql ${error.sqlMessage}`)
+                               return res.redirect('/super')
+                              }
+                        // done with all queries
+                        req.flash("success_msg",`order has been confirmed! status is set to  waiting (to be resolved)`);
                         return res.redirect(`/super/view-order/${editID}`);
+                       
+                            }
+                          )
+                 
+                      })// getting user to update total spent 
+                       
                       }
                     ); // set  the order  status to waiting to be resolved
                   }
