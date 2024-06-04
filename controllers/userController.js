@@ -254,14 +254,18 @@ const totalSubtotal = cartItems.reduce((accumulator, item) => {
 return accumulator + item.subtotal;
 }, 0);
 
+let customerToPay = shippingFee + totalSubtotal
+let formatedCustomerToPay = customerToPay.toLocaleString("en-US");
+
   // Assuming you have a view named 'cart' to render the fetched cart items
   res.render('./user/cart', { 
     cartItems: results,
     pageTitle:"check out",
     totalSubtotal,
     shippingFee,
-    totalSum: shippingFee + totalSubtotal,
-    userData
+    totalSum: formatedCustomerToPay,
+    customerToPay,
+    userData,
    });
 });
   })
@@ -271,7 +275,8 @@ return accumulator + item.subtotal;
 // cart sending for order
 exports.submitCart = (req, res) => {
 
-  const orderRequestEmail = req.params.email
+
+  const transactionPaymentReference = req.params.reference
   const email = req.session.Users.email;
   const userId  = req.session.Users.id;
 
@@ -280,130 +285,146 @@ exports.submitCart = (req, res) => {
   // return
 
   // chhecking for empt cart
-  if (orderRequestEmail !== email) {
-  // to make sure we got something in the cart
-    req.flash("error_msg", "unknown order from unkonw user");
-    res.redirect("/user");
-    return;
-}
 
 // creatting new sale actions
 const uuidForEachSale = Date.now() + Math.floor(Math.random() * 1000);
 
-db.query(`SELECT * FROM Users WHERE id = ?`, [userId], (err, results)=>{
+db.query(`SELECT * FROM Transactions WHERE reference = ?`, [transactionPaymentReference], (err, results)=>{
   if (err) {
-    console.log(err);
-    req.flash('error_msg', `sql ${err.sqlMessage}`)
+    req.flash('error_msg', `sql getting transaction ${err.sqlMessage}`)
     res.redirect('/user')
     return
   }
-  let userData = JSON.parse(JSON.stringify(results[0]))
+  const  transactionData = JSON.parse(JSON.stringify(results[0]))
+  const  transactionEmail = transactionData.email
 
-  db.query(`SELECT * FROM Cart WHERE user_id = "${userId}"`, (err, results)=>{
+
+  if (email !== transactionEmail) {
+    req.flash('error_msg', `email conflict`)
+    res.redirect('/user')
+    return
+  }
+
+  db.query(`SELECT * FROM Users WHERE id = ?`, [userId], (err, results)=>{
     if (err) {
-      req.flash('error_msg', `error from db: ${err.sqlMessage}`)
-      return res.redirect('/')
+      console.log(err);
+      req.flash('error_msg', `sql ${err.sqlMessage}`)
+      res.redirect('/user')
+      return
     }
+    let userData = JSON.parse(JSON.stringify(results[0]))
   
-  
-    // Sample cart items data (replace this with your actual data)
-  const cartItems = results
-  // Calculate the total subtotal
-  const totalSubtotal = cartItems.reduce((accumulator, item) => {
-    return accumulator + item.subtotal;
-  }, 0);
-  
-  // Assuming insertData is the data for Orders table
-  const insertData = {
-    customer_email :email,
-    customer_id:userId,
-  // query user and get the details
-    customer_phone:userData.Phone,
-    customer_address: userData.Address,
-    customer_state:userData.state,
-    customer_lga:userData.lga,
-  
-    pick_up_store_id: storeId, 
-    pick_up_store_name :storeName, // to be updated later to any given store
-    sale_id: uuidForEachSale,
-    Delivery:"Delivery",
-    status:'incomplete',
-    Payment_type: "cash",
-    created_date: sqlDate,
-    total_amount: totalSubtotal ,
-    shipping_fee:shippingFee
-  };
-  
-  db.query("INSERT INTO Orders SET ?", insertData, (error, result) => {
-    if (error) {
-      console.log(error);
-      req.flash("error_msg", `error from db ${error.sqlMessage}`);
-      res.redirect("/user");
-      return;
-    }
-  
-    // Define an array to store promises
-    const promises = [];
-  
-  
-    const storeId = 1; // Replace with actual store ID logic
-  
-    cartItems.forEach((cartItem) => {
-      const { id, product_id, price_per_item, quantity, product_name, subtotal, uuid,image } = cartItem;
-  
-      let productItem = {
-        sale_id: uuidForEachSale,
-        product_id: product_id,
-        price_per_item: price_per_item,
-        subTotal: subtotal,
-        store_id: storeId,
-        cart_id: uuid,
-        status: "pending",
-        name: product_name,
-        quantity: quantity,
-        image:image,
-      };
-  
-      // Push the promise into the array
-      promises.push(
-        new Promise((resolve, reject) => {
-          db.query("INSERT INTO Order_Products SET ?", productItem, (error, result) => {
-            if (error) {
-              console.log(error);
-              req.flash('error_msg', `error occurred: ${error}`);
-              reject(error);
-            } else {
-              resolve(result);
-            }
-          });
-        })
-      );
-    });
-  
-    // Wait for all promises to resolve
-    Promise.all(promises)
-      .then(() => {
-        db.query(`DELETE FROM Cart WHERE user_id = "${userId}"`, (err, results)=>{
-          if (err) {
-            console.log(err);
-            req.flash('error_msg', `error from db: ${err.sqlMessage}`)
-            return res.redirect('/')
-          }
-  
-          req.flash("success_msg", `Cart has been submitted, Your order reference number is: ${uuidForEachSale}`);
-          return res.redirect(`/user/invoice/${uuidForEachSale}`);
-      })
-       
-      })
-      .catch((error) => {
-        req.flash('error_msg', `error occurred: ${error}`);
-        res.redirect('/user');
+    db.query(`SELECT * FROM Cart WHERE user_id = "${userId}"`, (err, results)=>{
+      if (err) {
+        req.flash('error_msg', `error from db: ${err.sqlMessage}`)
+        return res.redirect('/')
+      }
+    
+    
+      // Sample cart items data (replace this with your actual data)
+    const cartItems = results
+    // Calculate the total subtotal
+    const totalSubtotal = cartItems.reduce((accumulator, item) => {
+      return accumulator + item.subtotal;
+    }, 0);
+    
+    // Assuming insertData is the data for Orders table
+    const insertData = {
+      customer_email :email,
+      customer_id:userId,
+    // query user and get the details
+      customer_phone:userData.Phone,
+      customer_address: userData.Address,
+      customer_state:userData.state,
+      customer_lga:userData.lga,
+    
+      pick_up_store_id: storeId, 
+      pick_up_store_name :storeName, // to be updated later to any given store
+      sale_id: uuidForEachSale,
+      transaction_id:transactionData.id,
+      Delivery:"Delivery",
+      status:'incomplete',
+      Payment_type: "cash",
+      created_date: sqlDate,
+      total_amount: totalSubtotal ,
+      shipping_fee:shippingFee
+    };
+    
+    db.query("INSERT INTO Orders SET ?", insertData, (error, result) => {
+      if (error) {
+        console.log(error);
+        req.flash("error_msg", `error from db ${error.sqlMessage}`);
+        res.redirect("/user");
+        return;
+      }
+    
+      // Define an array to store promises
+      const promises = [];
+    
+    
+      const storeId = 1; // Replace with actual store ID logic
+    
+      cartItems.forEach((cartItem) => {
+        const { id, product_id, price_per_item, quantity, product_name, subtotal, uuid,image } = cartItem;
+    
+        let productItem = {
+          sale_id: uuidForEachSale,
+          product_id: product_id,
+          price_per_item: price_per_item,
+          subTotal: subtotal,
+          store_id: storeId,
+          cart_id: uuid,
+          status: "pending",
+          name: product_name,
+          quantity: quantity,
+          image:image,
+        };
+    
+        // Push the promise into the array
+        promises.push(
+          new Promise((resolve, reject) => {
+            db.query("INSERT INTO Order_Products SET ?", productItem, (error, result) => {
+              if (error) {
+                console.log(error);
+                req.flash('error_msg', `error occurred: ${error}`);
+                reject(error);
+              } else {
+                resolve(result);
+              }
+            });
+          })
+        );
       });
-  });
+    
+      // Wait for all promises to resolve
+      Promise.all(promises)
+        .then(() => {
+          db.query(`DELETE FROM Cart WHERE user_id = "${userId}"`, (err, results)=>{
+            if (err) {
+              console.log(err);
+              req.flash('error_msg', `error from db: ${err.sqlMessage}`)
+              return res.redirect('/')
+            }
+    
+            req.flash("success_msg", `Cart has been submitted, Your order reference number is: ${uuidForEachSale}`);
+            return res.redirect(`/user/invoice/${uuidForEachSale}`);
+        })
+         
+        })
+        .catch((error) => {
+          req.flash('error_msg', `error occurred: ${error}`);
+          res.redirect('/user');
+        });
+    });
+    
+    })
   
   })
 
 })
+
+
+
 
 
 }
@@ -412,16 +433,9 @@ db.query(`SELECT * FROM Users WHERE id = ?`, [userId], (err, results)=>{
 // invoice of an order
 exports.invoice = (req, res) => {
   const saleId  = req.params.id
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
     const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
-  if (!sessionEmail) {
-    req.flash("error_msg", "No session, you are required to log in");
-    res.redirect("/");
-    return;
-  }
 
 
 
@@ -514,4 +528,72 @@ exports.allUserOder = (req, res) => {
     }
   })
 
+};
+
+
+exports.cancelOrder = (req, res) => {
+  const saleId  = req.params.id
+
+const updateData = {
+  status: "canceled"
+}
+
+  db.query(`SELECT * FROM Orders WHERE sale_id = ?`, [saleId], (err, results)=> {
+    if (err) {
+      console.log(err);
+      req.flash('error_msg', `error ${err.sqlMessage}`)
+      return res.redirect('/user')
+    }
+
+    // check if order exist
+    if (results.length <= 0) {
+      req.flash('error_msg', `order no dey`)
+      return res.redirect('/user')
+    }
+
+    const orderStatus = JSON.parse(JSON.stringify(results[0]))
+    const transactionId = orderStatus.transaction_id
+
+
+
+    // check if order is canceled
+    if (orderStatus.status == "canceled") {
+      req.flash('error_msg', `error ${saleId} has already been canceled`)
+      return res.redirect('/user')
+    }
+
+    if (orderStatus.status !== "incomplete") {
+      req.flash('error_msg', `error ${saleId} has passed that stage to be canceled`)
+      return res.redirect('/user')
+    }
+    
+    // go ahead and update
+    db.query(`UPDATE Transactions SET ? WHERE id = ? `,[ {cancel: 'yes'}, transactionId], (err, results) => {
+      if (err) {
+        req.flash("error_msg", ` ${err.sqlMessage}`);
+        return res.redirect("/user");
+      } 
+      db.query(`UPDATE Orders SET ? WHERE sale_id = ? AND status = 'incomplete'`,[ updateData, saleId], (err, results) => {
+        if (err) {
+          req.flash("error_msg", ` ${err.sqlMessage}`);
+          return res.redirect("/user");
+        } else {
+          
+          db.query(`UPDATE Order_Products SET ? WHERE sale_id = ?`, [updateData,saleId], (err, results) => {
+            if (err) {
+              req.flash("error_msg", ` ${err.sqlMessage}`);
+              return res.redirect("/user");
+            } else {
+              req.flash('warning_msg', `order canceled succesfully`)
+              res.redirect('/user')
+              return
+            }
+          }) // products ordered
+        }
+      })// order details
+    })
+
+
+  })
+   
 };

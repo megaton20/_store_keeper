@@ -145,7 +145,7 @@
             </div>
           </div>
 
-          <div class="col-6">
+          <div class="col-6 mt-4">
             <% if( orderData[0].status == "incomplete" ){ %>
             <a href="/super/confirm-order/<%= orderData[0].id %>">
               <button
@@ -156,6 +156,18 @@
                 Confirm order
               </button>
             </a>
+
+            <a href="/super/super-cancel/<%= orderData[0].id %>">
+              <button
+                type="submit"
+                class="btn btn-danger mt-2"
+                style="width: 100%"
+              >
+                Cancel (No stock)
+              </button>
+            </a>
+
+
             <% } else{ %> <% if( orderData[0].status == "waiting" ){ %>
 
             <br />
@@ -196,6 +208,10 @@
       </div>
       <!-- End of Main Content -->
 
+<br>
+<br>
+<br>
+<br>
 <br>
 <br>
 <br>

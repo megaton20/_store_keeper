@@ -47,11 +47,12 @@ router.get("/", ensureAuthenticated,isUser, userController.counterForm);
 router.get('/fetchCart', ensureAuthenticated,isUser,userController.fetchCart);
 
 // submit-cart
-router.get("/order/:email", ensureAuthenticated,isUser, userController.submitCart);
+router.get("/order/:reference", ensureAuthenticated,isUser, userController.submitCart);
 
 
 router.get("/orders", ensureAuthenticated,isUser, userController.allUserOder);
 router.get("/invoice/:id", ensureAuthenticated,isUser, userController.invoice);
+router.put("/cancel-order/:id", ensureAuthenticated,isUser, userController.cancelOrder);
 
 
 

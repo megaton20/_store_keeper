@@ -40,29 +40,6 @@
             </div>
           </div>
 
-          <!-- Earnings (Monthly) Card Example -->
-          <div class="col-xl-2 col-md-6 mb-3">
-            <div class="card border-left-danger h-100 py-2">
-              <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                  <div class="col mr-2">
-                    <div
-                      class="text-xs font-weight-bold text-danger text-uppercase mb-1"
-                    >
-                      Total Returns
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">
-                        0
-                    </div>
-                  </div>
-                  <div class="col-auto">
-                    <i class="fas fa-user fa-2x text-gray-300"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="col-xl-2 col-md-6 mb-3">
             <div class="card border-left-secondary h-100 py-2">
               <div class="card-body">
@@ -153,6 +130,30 @@
               </div>
             </div>
           </div>
+
+          <div class="col-xl-2 col-md-6 mb-3">
+            <div class="card border-left-danger h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-danger text-uppercase mb-1"
+                    >
+                       Canceled order
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      <%= totalCanceledOrder.length %>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-times fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          
         </div>
 
         <div class="row">
@@ -260,23 +261,30 @@
 
               <div class="card-body">
                 <a
-                  class="btn btn-outline-primary mr-2"
+                  class="btn btn-outline-primary mb-1 mr-2"
                   href="/super/all-orders"
                 >
                   Orders</a
                 >
                 <a
-                  class="btn btn-outline-secondary mr-2"
+                  class="btn btn-outline-secondary mb-1 mr-2"
                   href="/super/all-sales"
                 >
                   Resolve Sales</a
                 >
                 <a
-                  class="btn btn-outline-success mr-2"
+                  class="btn btn-outline-success mb-1 mr-2"
                   href="/super/create-sales"
                 >
                   Shopping</a
                 >
+
+                <a
+                class="btn btn-outline-primary mb-1 mr-2"
+                href="/super/all-canceled-order"
+              >
+                canceled table</a
+              >
               </div>
             </div>
           </div>

@@ -20,6 +20,7 @@ let presentDay = getDay(systemCalander, "/");
 
 let sqlDate = presentYear + "-" + presentMonth + "-" + presentDay;
 
+
 const formatDate = (dateStr) => {
   const date = new Date(dateStr);
   const year = date.getFullYear();
@@ -36,25 +37,17 @@ exports.getAdminWelcomePage = (req, res) => {
   let nameB = req.session.Users.Last_name;
 
   db.query(
-    `SELECT shipping_fee FROM Sales WHERE status = "resolved" `,
+    `SELECT * FROM Orders WHERE status = "canceled" `,
     (err, results) => {
       if (err) {
         console.log(err);
         req.flash("error_msg", `${err.sqlMessage}`);
         return res.redirect("/super");
       }
-      let data = JSON.stringify(results);
-      let shippingFee = JSON.parse(data);
-
-      const shippingProfitMade = shippingFee.reduce(
-        (acc, sale) => acc + sale.shipping_fee,
-        0
-      );
-
-      console.log(shippingProfitMade);
+      let totalCanceledOrder = JSON.parse(JSON.stringify(results));
 
       db.query(
-        `SELECT subTotal FROM Order_Products WHERE status = "returned" `,
+        `SELECT shipping_fee FROM Sales WHERE status = "resolved" `,
         (err, results) => {
           if (err) {
             console.log(err);
@@ -62,16 +55,17 @@ exports.getAdminWelcomePage = (req, res) => {
             return res.redirect("/super");
           }
           let data = JSON.stringify(results);
-          let returnedAmount = JSON.parse(data);
-  
-          const returnedSum = returnedAmount.reduce(
-            (acc, item) => acc + item.price_per_item,
+          let shippingFee = JSON.parse(data);
+    
+          const shippingProfitMade = shippingFee.reduce(
+            (acc, sale) => acc + sale.shipping_fee,
             0
           );
-  
-          // to get total sales made
+    
+    
+    
           db.query(
-            `SELECT total_amount FROM Sales WHERE status = "resolved" `,
+            `SELECT subTotal FROM Order_Products WHERE status = "returned" `,
             (err, results) => {
               if (err) {
                 console.log(err);
@@ -79,225 +73,246 @@ exports.getAdminWelcomePage = (req, res) => {
                 return res.redirect("/super");
               }
               let data = JSON.stringify(results);
-              let allSalesAmount = JSON.parse(data);
-  
-              const salesMade = allSalesAmount.reduce(
-                (acc, item) => acc + item.total_amount,
+              let returnedAmount = JSON.parse(data);
+      
+              const returnedSum = returnedAmount.reduce(
+                (acc, item) => acc + item.price_per_item,
                 0
               );
-  
-              let totalAmount = salesMade - returnedSum;
-  
-              let formatedProfit = totalAmount.toLocaleString("en-US");
-              // const averageAmount = totalAmount / allSalesAmount.length;
-  
+      
+              // to get total sales made
               db.query(
-                `SELECT * FROM Orders WHERE status = 'complete'  `,
+                `SELECT total_amount FROM Sales WHERE status = "resolved" `,
                 (err, results) => {
                   if (err) {
+                    console.log(err);
                     req.flash("error_msg", `${err.sqlMessage}`);
                     return res.redirect("/super");
                   }
                   let data = JSON.stringify(results);
-                  let orderData = JSON.parse(data);
-  
-                  let completedOrders = orderData.length;
-  
+                  let allSalesAmount = JSON.parse(data);
+      
+                  const salesMade = allSalesAmount.reduce(
+                    (acc, item) => acc + item.total_amount,
+                    0
+                  );
+      
+                  let totalAmount = salesMade - returnedSum;
+      
+                  let formatedProfit = totalAmount.toLocaleString("en-US");
+                  // const averageAmount = totalAmount / allSalesAmount.length;
+      
                   db.query(
-                    `SELECT * FROM Orders WHERE status = 'incomplete' OR status = "waiting"`,
+                    `SELECT * FROM Orders WHERE status = 'complete'  `,
                     (err, results) => {
                       if (err) {
                         req.flash("error_msg", `${err.sqlMessage}`);
                         return res.redirect("/super");
                       }
                       let data = JSON.stringify(results);
-                      let pendingOrderData = JSON.parse(data);
-  
-                      let pendingOrders = pendingOrderData.length;
-  
+                      let orderData = JSON.parse(data);
+      
+                      let completedOrders = orderData.length;
+      
                       db.query(
-                        `SELECT * FROM Order_Products WHERE status = 'returned' `,
+                        `SELECT * FROM Orders WHERE status = 'incomplete' OR status = "waiting"`,
                         (err, results) => {
                           if (err) {
                             req.flash("error_msg", `${err.sqlMessage}`);
                             return res.redirect("/super");
                           }
                           let data = JSON.stringify(results);
-                          let allReturnsOrders = JSON.parse(data);
-  
+                          let pendingOrderData = JSON.parse(data);
+      
+                          let pendingOrders = pendingOrderData.length;
+      
                           db.query(
-                            `SELECT * FROM Sales WHERE status = 'resolved' `,
+                            `SELECT * FROM Order_Products WHERE status = 'returned' `,
                             (err, results) => {
                               if (err) {
                                 req.flash("error_msg", `${err.sqlMessage}`);
                                 return res.redirect("/super");
-                              } else {
-                                let data = JSON.stringify(results);
-                                let allSales = JSON.parse(data);
-                                let totalSale = allSales.length;
-  
-                                allSales.forEach((sales) => {
-                                  sales.created_date = formatDate(
-                                    sales.created_date
-                                  ); // Assuming 'date' is the date field in your supplier table
-                                });
-  
-                                db.query(
-                                  `SELECT * FROM Suppliers `,
-                                  (err, results) => {
-                                    if (err) {
-                                      console.log(err.sqlMessage);
-                                      req.flash("error_msg", `${err.sqlMessage}`);
-                                      return res.redirect("/super");
-                                    }
-  
-                                    // check if item exist
-  
+                              }
+                              let data = JSON.stringify(results);
+                              let allReturnsOrders = JSON.parse(data);
+      
+                              db.query(
+                                `SELECT * FROM Sales WHERE status = 'resolved' `,
+                                (err, results) => {
+                                  if (err) {
+                                    req.flash("error_msg", `${err.sqlMessage}`);
+                                    return res.redirect("/super");
+                                  } else {
                                     let data = JSON.stringify(results);
-                                    let supplierData = JSON.parse(data);
-  
-                                    // render form
-  
+                                    let allSales = JSON.parse(data);
+                                    let totalSale = allSales.length;
+      
+                                    allSales.forEach((sales) => {
+                                      sales.created_date = formatDate(
+                                        sales.created_date
+                                      ); // Assuming 'date' is the date field in your supplier table
+                                    });
+      
                                     db.query(
-                                      `SELECT * FROM Positions `,
+                                      `SELECT * FROM Suppliers `,
                                       (err, results) => {
                                         if (err) {
-                                          req.flash(
-                                            "error_msg",
-                                            `${err.sqlMessage}`
-                                          );
+                                          console.log(err.sqlMessage);
+                                          req.flash("error_msg", `${err.sqlMessage}`);
                                           return res.redirect("/super");
-                                        } else {
-                                          let data = JSON.stringify(results);
-                                          let positionData = JSON.parse(data);
-  
-                                          db.query(
-                                            `SELECT * FROM Stores `,
-                                            (err, results) => {
-                                              if (err) {
-                                                req.flash(
-                                                  "error_msg",
-                                                  `${err.sqlMessage}`
-                                                );
-                                                return res.redirect("/super");
-                                              } else {
-                                                let data =
-                                                  JSON.stringify(results);
-                                                let allStores = JSON.parse(data);
-  
-                                                // to get list of all employees
-                                                db.query(
-                                                  `SELECT * FROM Users WHERE userRole ="super" ORDER BY id DESC`,
-                                                  (err, results) => {
-                                                    if (err) {
-                                                      console.log(err.sqlMessage);
-                                                      req.flash(
-                                                        "error_msg",
-                                                        `${err.sqlMessage}`
-                                                      );
-                                                      return res.redirect(
-                                                        "/super"
-                                                      );
-                                                    }
-  
-                                                    let superAdmin =
-                                                      JSON.parse(JSON.stringify(results));
-  
-                                                    // get list of all categories
+                                        }
+      
+                                        // check if item exist
+      
+                                        let data = JSON.stringify(results);
+                                        let supplierData = JSON.parse(data);
+      
+                                        // render form
+      
+                                        db.query(
+                                          `SELECT * FROM Positions `,
+                                          (err, results) => {
+                                            if (err) {
+                                              req.flash(
+                                                "error_msg",
+                                                `${err.sqlMessage}`
+                                              );
+                                              return res.redirect("/super");
+                                            } else {
+                                              let data = JSON.stringify(results);
+                                              let positionData = JSON.parse(data);
+      
+                                              db.query(
+                                                `SELECT * FROM Stores `,
+                                                (err, results) => {
+                                                  if (err) {
+                                                    req.flash(
+                                                      "error_msg",
+                                                      `${err.sqlMessage}`
+                                                    );
+                                                    return res.redirect("/super");
+                                                  } else {
+                                                    let data =
+                                                      JSON.stringify(results);
+                                                    let allStores = JSON.parse(data);
+      
+                                                    // to get list of all employees
                                                     db.query(
-                                                      `SELECT * FROM Category `,
+                                                      `SELECT * FROM Users WHERE userRole ="super" ORDER BY id DESC`,
                                                       (err, results) => {
                                                         if (err) {
-                                                          console.log(err);
+                                                          console.log(err.sqlMessage);
                                                           req.flash(
                                                             "error_msg",
                                                             `${err.sqlMessage}`
                                                           );
-                                                          res.redirect("/super");
-                                                          return;
+                                                          return res.redirect(
+                                                            "/super"
+                                                          );
                                                         }
-                                                
-  
-                                                        // get the items to send to front end
-  
-                                                        let data =
-                                                          JSON.stringify(results);
-                                                        let categoryData =
-                                                          JSON.parse(data);
-  
-                                                        // hence add to form
-                                                        // total reg customers
+      
+                                                        let superAdmin =
+                                                          JSON.parse(JSON.stringify(results));
+      
+                                                        // get list of all categories
                                                         db.query(
-                                                          `SELECT * FROM Users WHERE status = 'verified'`,
+                                                          `SELECT * FROM Category `,
                                                           (err, results) => {
                                                             if (err) {
+                                                              console.log(err);
                                                               req.flash(
                                                                 "error_msg",
-                                                                ` ${err.sqlMessage}`
+                                                                `${err.sqlMessage}`
                                                               );
-                                                              return res.redirect(
-                                                                "/"
-                                                              );
-                                                            } else {
-                                                              let totalVerifiedUsers =
-                                                                results.length;
-                                                              res.render(
-                                                                "./super/superHome",
-                                                                {
-                                                                  pageTitle:
-                                                                    "Welcome",
-                                                                  name: `${nameA} ${nameB}`,
-                                                                  month:
-                                                                    monthName,
-                                                                  day: dayName,
-                                                                  date: presentDay,
-                                                                  year: presentYear,
-                                                                  totalVerifiedUsers,
-                                                                  stateData,
-                                                                  categoryData,
-                                                                  supplierData,
-                                                                  positionData,
-                                                                  superAdmin,
-                                                                  allStores,
-                                                                  // recorrds to display
-                                                                  allSales,
-                                                                  totalSale,
-                                                                  allReturnsOrders,
-                                                                  formatedProfit,
-                                                                  pendingOrders,
-                                                                  completedOrders,
-                                                                }
-                                                              );
+                                                              res.redirect("/super");
+                                                              return;
                                                             }
+                                                    
+      
+                                                            // get the items to send to front end
+      
+                                                            let data =
+                                                              JSON.stringify(results);
+                                                            let categoryData =
+                                                              JSON.parse(data);
+      
+                                                            // hence add to form
+                                                            // total reg customers
+                                                            db.query(
+                                                              `SELECT * FROM Users WHERE status = 'verified'`,
+                                                              (err, results) => {
+                                                                if (err) {
+                                                                  req.flash(
+                                                                    "error_msg",
+                                                                    ` ${err.sqlMessage}`
+                                                                  );
+                                                                  return res.redirect(
+                                                                    "/"
+                                                                  );
+                                                                } else {
+                                                                  let totalVerifiedUsers =
+                                                                    results.length;
+                                                                  res.render(
+                                                                    "./super/superHome",
+                                                                    {
+                                                                      pageTitle:
+                                                                        "Welcome",
+                                                                      name: `${nameA} ${nameB}`,
+                                                                      month:monthName,
+                                                                      day: dayName,
+                                                                      date: presentDay,
+                                                                      year: presentYear,
+                                                                      totalVerifiedUsers,
+                                                                      stateData,
+                                                                      categoryData,
+                                                                      supplierData,
+                                                                      positionData,
+                                                                      superAdmin,
+                                                                      allStores,
+                                                                      // recorrds to display
+                                                                      allSales,
+                                                                      totalSale,
+                                                                      allReturnsOrders,
+                                                                      formatedProfit,
+                                                                      pendingOrders,
+                                                                      completedOrders,
+                                                                      totalCanceledOrder,
+                                                                    }
+                                                                  );
+                                                                }
+                                                              }
+                                                            );
                                                           }
                                                         );
                                                       }
                                                     );
                                                   }
-                                                );
-                                              }
+                                                }
+                                              ); // stores
                                             }
-                                          ); // stores
-                                        }
+                                          }
+                                        ); // all positions
                                       }
-                                    ); // all positions
+                                    ); // all suppliers
                                   }
-                                ); // all suppliers
-                              }
+                                }
+                              ); // all sales
                             }
-                          ); // all sales
+                          ); // returned products
                         }
-                      ); // returned products
+                      ); // pending orders query
                     }
-                  ); // pending orders query
+                  ); // total completed orders
                 }
-              ); // total completed orders
+              );
             }
-          );
+          ); // to get total amount  of returned items
         }
-      ); // to get total amount  of returned items
-    }
-  ); // shippingProfitMade
+      ); // shippingProfitMade
+
+    }) // total number of canceled order
+
+
 
 };
 
@@ -943,7 +958,7 @@ exports.getAllPositions = (req, res) => {
     });
 };
 
-exports.getAllOrrders = (req, res) => {
+exports.getAllOrders = (req, res) => {
   const sessionEmail = req.session.Users.email;
 
   const userFirstName = req.session.Users.First_name;
@@ -977,6 +992,104 @@ exports.getAllOrrders = (req, res) => {
     }
   );
 };
+
+exports.getAllCanceledOrders = (req, res) => {
+  const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  db.query(
+    `SELECT * FROM Orders WHERE status = ? ORDER BY id DESC`,["canceled"],
+    (err, results) => {
+      if (err) {
+        req.flash(
+          "error_msg",
+          `error for db: ${err.sqlState}`
+        );
+        return res.redirect("/");
+      }
+      let canceledResults = JSON.parse(JSON.stringify(results));
+
+      // to get invent table
+
+      return res.render("./super/canceledTable", {
+        pageTitle: "All Canceled Orders",
+        name: `${userFirstName} ${userLastName}`,
+        month: monthName,
+        day: dayName,
+        date: presentDay,
+        year: presentYear,
+        canceledResults,
+
+      });
+    }
+  );
+};
+
+exports.getOneCanceledOrder = (req, res) => {
+
+
+  const viewId = req.params.id
+  const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  db.query(
+    `SELECT * FROM Orders WHERE id = ? ORDER BY id DESC`,[viewId],
+    (err, results) => {
+      if (err) {
+        req.flash(
+          "error_msg",
+          `error for db: ${err.sqlState}`
+        );
+        return res.redirect("/");
+      }
+      let canceledResults = JSON.parse(JSON.stringify(results));
+
+      // to get the user that made the order
+
+      db.query(` SELECT * FROM Users WHERE id = ?`, [canceledResults[0].customer_id], (error, results)=>{
+        if (error) {
+          console.log(error);
+          req.flash('error_msg', `error ${error.sqlMessage}`)
+          return res.redirect('/super')
+        }
+        let userMakingTheOrder = JSON.parse(JSON.stringify(results[0]));
+        let Fullname = userMakingTheOrder.First_name + ' ' + userMakingTheOrder.Last_name
+
+        // the  products ordered
+        db.query( `SELECT * FROM Order_products WHERE sale_id = ?`, [canceledResults[0].sale_id], (err, results)=>{
+          if (err) {
+            console.log(err);
+            req.flash('error_msg', `error ${err.sqlMessage}`)
+            return res.redirect('/super')
+          }
+          let orderedItemsResults = JSON.parse(JSON.stringify(results));
+  
+        return res.render("./super/canceledDetails", {
+          pageTitle: `${Fullname} Canceled Orders`,
+          name: `${userFirstName} ${userLastName}`,
+          month: monthName,
+          day: dayName,
+          date: presentDay,
+          year: presentYear,
+          canceledResults,
+          orderedItemsResults,
+          Fullname
+  
+        });
+        })
+      })
+
+      // to get the  products ordered
+     
+
+ 
+    }
+  );
+};
+
+
+
+
 
 // createReturn
 
@@ -2859,7 +2972,6 @@ exports.updatePrice = (req, res) => {
 
 exports.resolveSale = (req, res) => {
   const editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
 
 
   db.query(
@@ -2909,20 +3021,23 @@ exports.resolveSale = (req, res) => {
                     }
 
                     if (shelfResults.length === 0) {
-                      return reject(
-                        new Error(`Product with id ${product_id} not found`)
+                      req.flash(
+                        "error_msg",
+                        `Product with id ${product_id} not found`
                       );
+                      return res.redirect("/super");
                     }
 
                     const currentShelfQuantity = shelfResults[0].total_on_shelf;
                     const newQty = currentShelfQuantity - quantity;
 
                     if (newQty < 0) {
-                      return reject(
-                        new Error(
-                          `Not enough stock for product id ${product_id}`
-                        )
+                      req.flash(
+                        "error_msg",
+                        `Not enough stock for product id ${product_id}`
                       );
+                      return res.redirect("/super");
+
                     }
 
                     db.query(
@@ -3291,6 +3406,7 @@ exports.confirmOrder = (req, res) => {
   let editID = req.params.id;
 
 
+  // return console.log(editID);
   db.query(`SELECT * FROM Orders WHERE id ="${editID}"`, (err, results) => {
     if (err) {
       req.flash("error_msg", `error from db: ${err.sqlMessage}`);
@@ -3304,6 +3420,12 @@ exports.confirmOrder = (req, res) => {
       );
       return res.redirect("/super");
     }
+
+    if (results[0].status == "canceled") {
+      req.flash("error_msg",`order status is "canceled"`);
+      return res.redirect("/super/all-orders");
+    }
+
     let data = JSON.stringify(results);
     let thatOrder = JSON.parse(data);
     const saleID = thatOrder[0].sale_id;
@@ -3429,7 +3551,7 @@ exports.confirmOrder = (req, res) => {
     }
     //  ensure not confirmed ends
     else {
-      req.flash("warning_msg", `this order has already been confrimed`);
+      req.flash("warning_msg", `check order status to treat `);
       return res.redirect(`/super/view-order/${editID}`);
     }
   });

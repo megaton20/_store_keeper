@@ -1,10 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const axios = require('axios');
+const crypto = require('crypto');
+
 const stateData = require("../model/stateAndLGA");
 const db = require("../model/databaseTable");
 
 const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
 const { newCategory } = require('../controllers/superController');
+
+const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY || 'sk_test_eb3af79ac0f1fb7e6d39bb6aeef8602c75669494';
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'secret key';
 
 
 // Welcome Page
@@ -35,35 +41,42 @@ router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
   const { id } = req.params;
   const { search } = req.query;
 
+  // console.log(id);
+  // console.log(search);
+  // Base query
+  let query = `SELECT * FROM Products WHERE activate = ? AND total_on_shelf > ? AND status = ?`;
+  let queryParams = ['yes', 0, 'not-expired'];
 
-  let query = `SELECT * FROM Products WHERE activate = "yes" AND total_on_shelf > 0 AND status = "not-expired"`;
-
+  // Add category condition
   if (id !== 'all') {
-    query += ` AND category = '${id}'`;
+    query += ` AND category = ?`;
+    queryParams.push(id);
   }
 
+  // Add search condition
   if (search) {
-    query += ` AND ProductName LIKE '%${search}%'`;
+    query += ` AND ProductName LIKE ?`;
+    queryParams.push(`%${search}%`);
   }
 
-  db.query(query, (err, results) => {
+  // Order by ProductName
+  query += ` ORDER BY ProductName ASC`;
+
+  // Execute the query
+  db.query(query, queryParams, (err, results) => {
     if (err) {
       console.log(err.sqlMessage);
       req.flash("error_msg", `${err.sqlMessage}`);
-      return res.redirect('/admin');
+      return res.redirect('/user');
     } else {
       if (results.length <= 0) {
         return res.json([]);
       }
 
-      let data = JSON.stringify(results);
-      let allProducts = JSON.parse(data);
-
-      return res.json(allProducts);
+      return res.json(results);
     }
   });
 });
-
 
 
 router.post('/updateCart', ensureAuthenticated, async (req, res) => {
@@ -165,7 +178,102 @@ router.post('/updateCartItem', ensureAuthenticated, (req, res) => {
     });
 });
 
-module.exports = router;
+
+
+
+// paystack
+router.post('/pay', async (req, res) => {
+  const { email, amount } = req.body;
+
+  try {
+      const response = await axios.post('https://api.paystack.co/transaction/initialize', {
+          email,
+          amount: amount * 100, // Paystack expects the amount in kobo
+          callback_url: `http://localhost:2000/verify`
+      }, {
+          headers: {
+              Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
+          }
+      });
+
+      res.json(response.data);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+});
+
+
+router.get('/verify', async (req, res) => {
+  const reference = req.query.reference;
+
+  try {
+      const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
+          headers: {
+              Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
+          }
+      });
+
+      if (response.data.status && response.data.data.status === 'success') {
+          // Handle post-payment success actions here
+          // console.log(response.data.data.reference);
+          // console.log(response.data.data.paid_at);
+          // console.log(response.data.data.customer.email);
+          // console.log(response.data.data.customer.first_name);
+          // console.log(response.data.data.customer.last_name);
+          // console.log(response.data.data.authorization.authorization_code);
+          // console.log(response.data.data.authorization.card_type);
+          // console.log(response.data.data.authorization.bank);
+          // console.log(response.data.data.authorization.signature);
+
+           // Save transaction details to the database
+      const { id, reference, amount, currency, status, customer: { email },paid_at } = response.data.data;
+      const query = 'INSERT INTO transactions (transaction_id, reference, amount, currency, status, email,paid_at ) VALUES (?, ?, ?, ?, ?,?, ?)';
+
+      // save the trransaction to the database
+        db.query(query, [id, reference, amount / 100, currency, status, email, paid_at], (err, result) => {
+          if (err){
+            console.log(err);
+            req.flash('error_msg', `payment error :${err.sqlMessage}`)
+            return res.redirect('/user')
+          };
+          // no error
+          console.log('Transaction saved to database');
+          // req.flash('success_msg', `payment successful`)
+          // redirect to submit order
+          return res.redirect(`/user/order/${reference}`)
+        }); // saving to db ends here
+
+      } else {
+          // Handle failed verification here
+          console.log('Payment verification failed:', response.data.data);
+          req.flash('error_msg', `payment unsuccessful`)
+          return res.redirect('/user')
+      }
+
+      // res.json(response.data.reference);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+});
+
+// webhook
+router.post('/webhook', (req, res) => {
+  const hash = crypto.createHmac('sha512', WEBHOOK_SECRET).update(JSON.stringify(req.body)).digest('hex');
+  if (hash === req.headers['x-paystack-signature']) {
+      const event = req.body;
+
+      switch (event.event) {
+          case 'charge.success':
+              console.log('Payment successful:', event.data);
+              break;
+          // Add more event types as needed
+      }
+
+      res.sendStatus(200);
+  } else {
+      res.sendStatus(400);
+  }
+});
 
 
 

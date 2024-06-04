@@ -52,7 +52,12 @@ router.get("/all-products", ensureAuthenticated,isSuper, superController.getAllP
 router.get("/all-transactions", ensureAuthenticated,isSuper, superController.getAllTransactions);
 router.get("/all-inventory", ensureAuthenticated,isSuper, superController.getAllInventory);
 router.get("/all-positions", ensureAuthenticated,isSuper, superController.getAllPositions);
-router.get("/all-orders", ensureAuthenticated,isSuper, superController.getAllOrrders);
+router.get("/all-orders", ensureAuthenticated,isSuper, superController.getAllOrders);
+router.get("/all-canceled-order", ensureAuthenticated,isSuper, superController.getAllCanceledOrders);
+
+
+
+router.get("/view-canceled/:id", ensureAuthenticated,isSuper, superController.getOneCanceledOrder);
 
 
 router.get("/upgrade-users/:id", ensureAuthenticated,isSuper, superController.usersToUpgrade);

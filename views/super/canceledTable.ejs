@@ -26,7 +26,7 @@
 
                     <!-- DataTales Example -->
                     <div class=" mb-4">
-                        <% if(allTransactions.length <= 0){ %>
+                        <% if(canceledResults.length <= 0){ %>
                             <div class="card-body">
                                 <h1>No Transaction Record Found !</h1>  
                             </div> 
@@ -38,28 +38,28 @@
                                             <thead>
                                                 <tr>
                                                   <th>Id</th>
-                                                  <th>Paystack Transaction id</th>
-                                                  <th>Reference Id</th>
-                                                  <th>amount</th>
-                                                  <th>Currency</th>
-                                                  <th>Status</th>
-                                                  <th>Email</th>
-                                                  <th>Paid on</th>
+                                                  <th>Cart Value</th>
+                                                  <th>email</th>
+                                                  <th>phone</th>
+                                                  <th>Sale id</th>
+                                                  <th>State</th>
+                                                  <th>Lga</th>
+                                                  <th>Action</th>
                                                 </tr>
                                             </thead>
                                         
                                             <tbody>
                                           
-                                                <% allTransactions.forEach(function(data) {%>
+                                                <% canceledResults.forEach(function(data) {%>
                                                     <tr>
                                                         <td><%= data['id'] %></td>
-                                                        <td><%= data['transaction_id'] %> </td>
-                                                        <td><%= data['reference'] %> </td>
-                                                        <td><%= data['amount'] %> </td>
-                                                        <td><%= data['currency'] %> </td>
-                                                        <td><%= data['status'] %> </td>
-                                                        <td><%= data['email'] %> </td>
-                                                        <td><%= data['paid_at'] %> </td>
+                                                        <td>₦<%=  data['total_amount'] %> </td>
+                                                        <td><%= data['customer_email'] %> </td>
+                                                        <td><%= data['customer_phone'] %> </td>
+                                                        <td><%= data['sale_id'] %> </td>
+                                                        <td><%= data['customer_state'] %> </td>
+                                                        <td><%= data['customer_lga'] %> </td>
+                                                        <td><a href="/super/view-canceled/<%= data['id']%>" class="btn btn-outline-primary">view</a></td>
         
                                                   
                                                    </tr> 
