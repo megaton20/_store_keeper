@@ -31,7 +31,7 @@ const formatDate = (dateStr) => {
 };
 
 exports.getAdminWelcomePage = (req, res) => {
-  const sessionEmail = req.session.Users.email;
+
 
   let nameA = req.session.Users.First_name;
   let nameB = req.session.Users.Last_name;
@@ -145,7 +145,7 @@ exports.getAdminWelcomePage = (req, res) => {
                                   } else {
                                     let data = JSON.stringify(results);
                                     let allSales = JSON.parse(data);
-                                    let totalSale = allSales.length;
+                                    let totalNumberOfSales = allSales.length;
       
                                     allSales.forEach((sales) => {
                                       sales.created_date = formatDate(
@@ -168,20 +168,7 @@ exports.getAdminWelcomePage = (req, res) => {
                                         let supplierData = JSON.parse(data);
       
                                         // render form
-      
-                                        db.query(
-                                          `SELECT * FROM Positions `,
-                                          (err, results) => {
-                                            if (err) {
-                                              req.flash(
-                                                "error_msg",
-                                                `${err.sqlMessage}`
-                                              );
-                                              return res.redirect("/super");
-                                            } else {
-                                              let data = JSON.stringify(results);
-                                              let positionData = JSON.parse(data);
-      
+
                                               db.query(
                                                 `SELECT * FROM Stores `,
                                                 (err, results) => {
@@ -196,50 +183,11 @@ exports.getAdminWelcomePage = (req, res) => {
                                                       JSON.stringify(results);
                                                     let allStores = JSON.parse(data);
       
-                                                    // to get list of all employees
-                                                    db.query(
-                                                      `SELECT * FROM Users WHERE userRole ="super" ORDER BY id DESC`,
-                                                      (err, results) => {
-                                                        if (err) {
-                                                          console.log(err.sqlMessage);
-                                                          req.flash(
-                                                            "error_msg",
-                                                            `${err.sqlMessage}`
-                                                          );
-                                                          return res.redirect(
-                                                            "/super"
-                                                          );
-                                                        }
-      
-                                                        let superAdmin =
-                                                          JSON.parse(JSON.stringify(results));
-      
-                                                        // get list of all categories
-                                                        db.query(
-                                                          `SELECT * FROM Category `,
-                                                          (err, results) => {
-                                                            if (err) {
-                                                              console.log(err);
-                                                              req.flash(
-                                                                "error_msg",
-                                                                `${err.sqlMessage}`
-                                                              );
-                                                              res.redirect("/super");
-                                                              return;
-                                                            }
-                                                    
-      
-                                                            // get the items to send to front end
-      
-                                                            let data =
-                                                              JSON.stringify(results);
-                                                            let categoryData =
-                                                              JSON.parse(data);
-      
-                                                            // hence add to form
+                                                 
+
                                                             // total reg customers
                                                             db.query(
-                                                              `SELECT * FROM Users WHERE status = 'verified'`,
+                                                              `SELECT * FROM Users WHERE userRole = ?`, ["user"],
                                                               (err, results) => {
                                                                 if (err) {
                                                                   req.flash(
@@ -252,6 +200,9 @@ exports.getAdminWelcomePage = (req, res) => {
                                                                 } else {
                                                                   let totalVerifiedUsers =
                                                                     results.length;
+
+
+
                                                                   res.render(
                                                                     "./super/superHome",
                                                                     {
@@ -262,16 +213,14 @@ exports.getAdminWelcomePage = (req, res) => {
                                                                       day: dayName,
                                                                       date: presentDay,
                                                                       year: presentYear,
+                                                                      userActive:true,
                                                                       totalVerifiedUsers,
                                                                       stateData,
-                                                                      categoryData,
                                                                       supplierData,
-                                                                      positionData,
-                                                                      superAdmin,
                                                                       allStores,
                                                                       // recorrds to display
                                                                       allSales,
-                                                                      totalSale,
+                                                                      totalNumberOfSales,
                                                                       allReturnsOrders,
                                                                       formatedProfit,
                                                                       pendingOrders,
@@ -282,16 +231,12 @@ exports.getAdminWelcomePage = (req, res) => {
                                                                 }
                                                               }
                                                             );
-                                                          }
-                                                        );
-                                                      }
-                                                    );
+
+
                                                   }
                                                 }
                                               ); // stores
-                                            }
-                                          }
-                                        ); // all positions
+
                                       }
                                     ); // all suppliers
                                   }
@@ -586,7 +531,6 @@ exports.getAllDamaged = (req, res) => {
 
 // all customers tabble
 exports.getAllCustomers = (req, res) => {
-  const sessionEmail = req.session.Users.email;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
       // hence add to form
@@ -624,7 +568,6 @@ exports.getAllCustomers = (req, res) => {
 
 // all customers tabble
 exports.getAllSuppliers = (req, res) => {
-  const sessionEmail = req.session.Users.email;
 
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
@@ -657,7 +600,6 @@ exports.getAllSuppliers = (req, res) => {
 
 // all stores tabble
 exports.getAllStores = (req, res) => {
-  const sessionEmail = req.session.Users.email;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -686,7 +628,7 @@ exports.getAllStores = (req, res) => {
 
 // all stores tabble
 exports.getAllDiscounts = (req, res) => {
-  const sessionEmail = req.session.Users.email;
+
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
   db.query(`SELECT * FROM Discount `, (err, results) => {
@@ -717,7 +659,6 @@ exports.getAllDiscounts = (req, res) => {
 };
 // all cats
 exports.getAllCategory = (req, res) => {
-  const sessionEmail = req.session.Users.email;
 
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
@@ -746,8 +687,7 @@ exports.getAllCategory = (req, res) => {
 
 // all Products
 exports.getAllProducts = (req, res) => {
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
+
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -815,7 +755,6 @@ exports.getAllProducts = (req, res) => {
 };
 // all transac
 exports.getAllTransactions = (req, res) => {
-  const sessionEmail = req.session.Users.email;
 
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
@@ -851,7 +790,6 @@ exports.getAllTransactions = (req, res) => {
 
 // all Inventory
 exports.getAllInventory = (req, res) => {
-  const sessionEmail = req.session.Users.email;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -931,7 +869,7 @@ exports.getAllInventory = (req, res) => {
 
 // all Positions
 exports.getAllPositions = (req, res) => {
-  const sessionEmail = req.session.Users.email;
+
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
     // to get invent table
@@ -1087,6 +1025,360 @@ exports.getOneCanceledOrder = (req, res) => {
   );
 };
 
+exports.getAllLogisticCompany = (req, res) => {
+  const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  db.query(
+    `SELECT * FROM Logistics`,
+    (err, results) => {
+      if (err) {
+        req.flash(
+          "error_msg",
+          `error for db: ${err.sqlState}`
+        );
+        return res.redirect("/");
+      }
+      let logisticsResults = JSON.parse(JSON.stringify(results));
+
+      // to get invent table
+
+      return res.render("./super/logisticsCompanyTable", {
+        pageTitle: "All Canceled Orders",
+        name: `${userFirstName} ${userLastName}`,
+        month: monthName,
+        day: dayName,
+        date: presentDay,
+        year: presentYear,
+        logisticsResults,
+
+      });
+    }
+  );
+};
+exports.getOneLogisticCompany = (req, res) => {
+
+
+  const viewId = req.params.id
+  const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  db.query(
+    `SELECT * FROM Logistics WHERE id = ? `,[viewId],
+    (err, results) => {
+      if (err) {
+        req.flash(
+          "error_msg",
+          `error for db: ${err.sqlState}`
+        );
+        return res.redirect("/");
+      }
+      let logisticsResults = JSON.parse(JSON.stringify(results[0]));
+
+      // to get the user that made the order
+      return res.render("./super/logisticCompanyEditForm", {
+        pageTitle: ` edit logistics`,
+        name: `${userFirstName} ${userLastName}`,
+        month: monthName,
+        day: dayName,
+        date: presentDay,
+        year: presentYear,
+        logisticsResults,
+      });
+    }
+  );
+};
+
+
+exports.allLogisticDrivers = (req, res) => {
+
+
+  const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  // modifiy to user posiotn id
+  db.query(
+    `SELECT * FROM Users WHERE Position = 'Logistics' `,
+    (err, results) => {
+      if (err) {
+        req.flash(
+          "error_msg",
+          `error for db: ${err.sqlState}`
+        );
+        return res.redirect("/");
+      }
+      let logisticsResults = JSON.parse(JSON.stringify(results));
+
+      // to get the user that made the order
+      return res.render("./super/logisticUsersTable", {
+        pageTitle: ` edit logistics`,
+        name: `${userFirstName} ${userLastName}`,
+        month: monthName,
+        day: dayName,
+        date: presentDay,
+        year: presentYear,
+        logisticsResults,
+      });
+    }
+  );
+};
+
+exports.asigneToCompany = (req, res) => {
+
+  
+  const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  db.query(
+    `SELECT * FROM Users WHERE id = ? `, [req.params.id],
+    (err, results) => {
+      if (err) {
+        req.flash( "error_msg",`error for db: ${err.sqlState}`);
+        return res.redirect("/");
+      }
+      let allUsers = JSON.parse(JSON.stringify(results));
+      db.query(
+        `SELECT * FROM Logistics `,
+        (err, results) => {
+          if (err) {
+            req.flash( "error_msg",`error for db: ${err.sqlState}`);
+            return res.redirect("/");
+          }
+          let allLogistics = JSON.parse(JSON.stringify(results));
+    
+          // to get the user that made the order
+          return res.render("./super/logisticsAsigneToCompanyForm", {
+            pageTitle: ` add to company logistics`,
+            name: `${userFirstName} ${userLastName}`,
+            month: monthName,
+            day: dayName,
+            date: presentDay,
+            year: presentYear,
+            allLogistics,
+            allUsers
+          });
+        }
+      );
+    })
+  // modifiy to user posiotn id
+ 
+};
+
+exports.addDriverToCompany = (req, res) => {
+  const editId = req.params.id;
+
+  const { company } = req.body;
+
+  if (!(company )) {
+    req.flash("error_msg", `please Select before submitting`);
+    return res.redirect(`/super/add-driver-to-company/${editId}`);
+  }
+
+      db.query(
+        `UPDATE Users SET ? WHERE id = ${editId}`,
+        {
+          logistic_id: company,
+        },
+        (err, results) => {
+          if (err) {
+            req.flash("error_msg", `error udating user ${err.sqlMessage}`);
+            return res.redirect("/super/");
+          }
+          req.flash("success_msg", `successful`);
+          return res.redirect("/super/");
+        }
+      );
+
+
+
+};
+
+
+// get the for 
+
+exports.createStorePage = (req, res) => {
+
+  let nameA = req.session.Users.First_name;
+  let nameB = req.session.Users.Last_name;
+
+  res.render(
+    "./super/storesCreateForm",
+    {
+      pageTitle:
+        "Welcome",
+      name: `${nameA} ${nameB}`,
+      month:monthName,
+      day: dayName,
+      date: presentDay,
+      year: presentYear,
+      stateData,
+    }
+  );
+
+};
+
+
+exports.createDiscountPage = (req, res) => {
+
+  let nameA = req.session.Users.First_name;
+  let nameB = req.session.Users.Last_name;
+
+  res.render(
+    "./super/discountCreateForm",
+    {
+      pageTitle:
+        "Welcome",
+      name: `${nameA} ${nameB}`,
+      month:monthName,
+      day: dayName,
+      date: presentDay,
+      year: presentYear,
+      stateData,
+    }
+  );
+
+};
+
+exports.createCategoryPage = (req, res) => {
+
+
+  let nameA = req.session.Users.First_name;
+  let nameB = req.session.Users.Last_name;
+
+  res.render(
+    "./super/categoryCreateForm",
+    {
+      pageTitle:
+        "Welcome",
+      name: `${nameA} ${nameB}`,
+      month:monthName,
+      day: dayName,
+      date: presentDay,
+      year: presentYear,
+      stateData,
+    }
+  );
+
+};
+exports.createSupplierPage = (req, res) => {
+
+
+  let nameA = req.session.Users.First_name;
+  let nameB = req.session.Users.Last_name;
+
+  res.render(
+    "./super/supplierCreateForm",
+    {
+      pageTitle:
+        "Welcome",
+      name: `${nameA} ${nameB}`,
+      month:monthName,
+      day: dayName,
+      date: presentDay,
+      year: presentYear,
+      stateData,
+    }
+  );
+
+};
+exports.createPositionPage = (req, res) => {
+
+
+  let nameA = req.session.Users.First_name;
+  let nameB = req.session.Users.Last_name;
+
+  res.render(
+    "./super/positionCreateForm",
+    {
+      pageTitle:
+        "Welcome",
+      name: `${nameA} ${nameB}`,
+      month:monthName,
+      day: dayName,
+      date: presentDay,
+      year: presentYear,
+      stateData,
+    }
+  );
+
+};
+exports.createLogisticCompanyPage = (req, res) => {
+
+
+  let nameA = req.session.Users.First_name;
+  let nameB = req.session.Users.Last_name;
+
+  res.render(
+    "./super/logisticsCreateForm",
+    {
+      pageTitle:
+        "Welcome",
+      name: `${nameA} ${nameB}`,
+      month:monthName,
+      day: dayName,
+      date: presentDay,
+      year: presentYear,
+      stateData,
+    }
+  );
+
+};
+
+exports.createInventoryPage = (req, res) => {
+  const sessionEmail = req.session.Users.email;
+
+  let nameA = req.session.Users.First_name;
+  let nameB = req.session.Users.Last_name;
+
+  db.query(`SELECT * FROM Suppliers `,(err, results) => {
+      if (err) {
+        req.flash("error_msg", `${err.sqlMessage}`);
+        return res.redirect("/super");
+      }
+      // check if item exist
+      let supplierData = JSON.parse(JSON.stringify(results));
+      // render form
+
+            db.query(`SELECT * FROM Stores `,(err, results) => {
+                if (err) {
+                  req.flash("error_msg",`${err.sqlMessage}`);
+                  return res.redirect("/super");
+                } else {
+                  let allStores = JSON.parse(JSON.stringify(results));
+                  // to get list of all employees
+                  db.query(`SELECT * FROM Users WHERE userRole ="super" ORDER BY id DESC`,(err, results) => {
+                      if (err) {
+                        req.flash("error_msg",`${err.sqlMessage}`);
+                        return res.redirect("/super");
+                      }
+                      let superAdmin = JSON.parse(JSON.stringify(results));
+                      // get list of all categories
+                      db.query(`SELECT * FROM Category `, (err, results) => {
+                          if (err) {
+                            req.flash("error_msg",`${err.sqlMessage}`);
+                            res.redirect("/super");
+                            return;
+                          }
+                          let categoryData =  JSON.parse(JSON.stringify(results));
+                          res.render("./super/inventoryCreateForm",{
+                            pageTitle:"Welcome",
+                            name: `${nameA} ${nameB}`,
+                            month:monthName,
+                            day: dayName,
+                            date: presentDay,
+                            year: presentYear,
+                            stateData,
+                            categoryData,
+                            supplierData,
+                            superAdmin,
+                            allStores,
+                  });
+              });
+          })
+        }
+    })
+  })
+};
 
 
 
@@ -1094,7 +1386,6 @@ exports.getOneCanceledOrder = (req, res) => {
 // createReturn
 
 exports.createReturn = (req, res) => {
-  const sessionEmail = req.session.Users.email;
 
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
@@ -1112,8 +1403,6 @@ exports.createReturn = (req, res) => {
 // single item
 exports.getInventoryById = (req, res) => {
   let singleId = req.params.id;
-
-  const sessionEmail = req.session.Users.email;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -1156,7 +1445,6 @@ exports.getInventoryById = (req, res) => {
 
 //  at the counter page
 exports.adminCounter = (req, res) => {
-  const sessionEmail = req.session.Users.email;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -1184,8 +1472,6 @@ exports.adminCounter = (req, res) => {
 // invoice of an order
 exports.invoice = (req, res) => {
   const saleId  = req.params.id
-  const sessionEmail = req.session.Users.email;
-
     const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -1226,6 +1512,13 @@ exports.invoice = (req, res) => {
 
    
 };
+
+
+
+
+
+
+
 // post req
 
 exports.createNewCategory = (req, res) => {
@@ -1350,12 +1643,6 @@ exports.createNewDiscount = (req, res) => {
     Start_Date,
     End_Date,
   } = req.body;
-
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
-  const userFirstName = req.session.Users.First_name;
-  const userLastName = req.session.Users.Last_name;
-
 
   if (
     !(
@@ -1536,8 +1823,6 @@ exports.createNewInventory = (req, res) => {
 
 
 exports.createNewCustomer = (req, res) => {
-  const sessionEmail = req.session.Users.email;
-
 
   const { First_name, Last_name, email, Phone, Address } = req.body;
 
@@ -1581,10 +1866,7 @@ exports.createNewCustomer = (req, res) => {
 };
 
 exports.createNewPosition = (req, res) => {
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
-  const userFirstName = req.session.Users.First_name;
-  const userLastName = req.session.Users.Last_name;
+
   const { Position_name, Salary, Job_description } = req.body;
 
   if (!(Position_name && Salary && Job_description)) {
@@ -1620,14 +1902,52 @@ exports.createNewPosition = (req, res) => {
     }
   );
 };
+exports.createNewLogistics = (req, res) => {
+
+  const { name, phone, email, address } = req.body;
+
+  if (!(name && phone && email && address)) {
+    req.flash("error_msg", `Enter all field before submiting`);
+    return res.redirect("/super");
+  }
+
+  db.query(
+    "SELECT * FROM Logistics WHERE name = ?",
+    [name],
+    (error, results) => {
+      if (error) {
+        req.flash(
+          "error_msg",
+          `Error from server Database: ${error.sqlMessage}`
+        );
+        return res.redirect("/super");
+      }
+
+      if (results.length <= 0) {
+        // do this
+        db.query("INSERT INTO Logistics SET ?", {
+          name: name,
+          email: email,
+          address: address,
+          phone:phone,
+        });
+
+        req.flash("success_msg", `"${name}" added successfully!`);
+        return res.redirect("/super");
+      }
+      req.flash("error_msg", `"${name}" alrready exist!`);
+      return res.redirect("/super");
+    }
+  );
+};
+
 
 
 
 
 
 exports.returnProcessor = (req, res) => {
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
+
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
   let errors = [];
@@ -1773,8 +2093,7 @@ exports.returnProcessor = (req, res) => {
 
 
 // price form
-exports.createNewSalesItem = (req, res) => {
-  const sessionEmail = req.session.Users.email;
+exports.addToShelfForSale = (req, res) => {
 
   const updateID = req.params.id;
   const { price } = req.body;
@@ -1926,8 +2245,6 @@ exports.createNewSalesItem = (req, res) => {
 
 // activate on inventory
 exports.remove = (req, res) => {
-  const sessionEmail = req.session.Users.email;
-
 
   let pageId = req.params.id;
 
@@ -1963,7 +2280,6 @@ exports.remove = (req, res) => {
 // form
 exports.storeEdit = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -2010,7 +2326,6 @@ exports.storeEdit = (req, res) => {
 
 exports.editDiscount = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
 
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
@@ -2110,7 +2425,7 @@ exports.editEmployee = (req, res) => {
 
 exports.editSupplier = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
+
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -2142,12 +2457,8 @@ exports.editSupplier = (req, res) => {
 
 exports.editCategory = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
-
-
- 
   db.query(
     `SELECT * FROM Category WHERE CategoryID = "${editID}"`,
     (err, results) => {
@@ -2174,8 +2485,6 @@ exports.editCategory = (req, res) => {
 
 exports.editInventory = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -2246,8 +2555,6 @@ exports.editInventory = (req, res) => {
 
 exports.editPosition = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -2386,7 +2693,6 @@ exports.editPosition = (req, res) => {
 
 exports.editEmployee = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -2453,8 +2759,6 @@ exports.editEmployee = (req, res) => {
 exports.updateEmployee = (req, res) => {
   const updateID = req.params.id;
   const { store_name, position, Salary } = req.body;
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
-  const sessionRole = req.session.Users.userRole;
 
 // i need to get the id for store name and position
 
@@ -2513,8 +2817,6 @@ exports.updateEmployee = (req, res) => {
 
 exports.editNewStore = (req, res) => {
   let updateID = req.params.id;
-  const sessionEmail = req.session.Users.email;
-
   const { Branch_Name, Branch_state, Branch_lga, Branch_address } = req.body;
 
   if (!(Branch_Name && Branch_state && Branch_lga && Branch_address)) {
@@ -2558,7 +2860,6 @@ exports.editNewStore = (req, res) => {
 exports.editNewDiscount = (req, res) => {
   let updateID = req.params.id;
 
-  const sessionEmail = req.session.Users.email;
   const {
     Discount_name,
     Discount_Provider,
@@ -2624,9 +2925,6 @@ exports.editNewDiscount = (req, res) => {
 
 exports.editNewSupplier = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
-
-
   const { First_name, Last_name, email, Phone, Address } = req.body;
 
   if (!(First_name && Last_name && email && Phone && Address)) {
@@ -2906,8 +3204,6 @@ let updateData =       {
 
 exports.editNewPosition = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
-
 
 
   const { Position_name, Salary, Job_description } = req.body;
@@ -2941,7 +3237,6 @@ exports.editNewPosition = (req, res) => {
 
 exports.updatePrice = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email;
 
   const { price } = req.body;
 
@@ -2972,8 +3267,6 @@ exports.updatePrice = (req, res) => {
 
 exports.resolveSale = (req, res) => {
   const editID = req.params.id;
-
-
   db.query(
     `SELECT * FROM Sales WHERE id = ?`,
     [editID],
@@ -3092,8 +3385,6 @@ exports.resolveSale = (req, res) => {
 
 exports.flagProduct = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
-
   let deactivate = {
     activate: "no",
   };
@@ -3131,8 +3422,6 @@ exports.flagProduct = (req, res) => {
 
 exports.unflagProduct = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
-
   // create the inventory
   let deactivate = {
     activate: "yes",
@@ -3173,8 +3462,6 @@ exports.unflagProduct = (req, res) => {
 
 exports.deleteStore = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
-
 
   db.query(`DELETE FROM Stores WHERE id = "${editID}"`, (err, results) => {
     if (err) {
@@ -3191,10 +3478,6 @@ exports.deleteStore = (req, res) => {
 
 exports.deleteDiscount = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
-  const sessionRole = req.session.Users.userRole;
-
- 
 
   db.query(`DELETE FROM Discount WHERE id = "${editID}"`, (err, results) => {
     if (err) {
@@ -3210,13 +3493,7 @@ exports.deleteDiscount = (req, res) => {
 
 exports.deleteEmployee = (req, res) => {
   let editID = req.params.id;
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
-  const sessionRole = req.session.Users.userRole;
 
-  if (sessionRole !== "super") {
-    req.flash("error_msg", `could not delete`);
-    return res.redirect("/");
-  }
   db.query(`DELETE FROM Users WHERE id = "${editID}"`, (err, results) => {
     if (err) {
       console.log(err);
@@ -3231,10 +3508,6 @@ exports.deleteEmployee = (req, res) => {
 exports.deleteSupplier = (req, res) => {
   let editID = req.params.id;
 
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
-  const sessionRole = req.session.Users.userRole;
-
- 
 
   db.query(`DELETE FROM Suppliers WHERE id = "${editID}"`, (err, results) => {
     if (err) {
@@ -3249,11 +3522,6 @@ exports.deleteSupplier = (req, res) => {
 
 exports.deleteCategory = (req, res) => {
   let editID = req.params.id;
-
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
-  const sessionRole = req.session.Users.userRole;
-
- 
 
   // req body
   db.query(
@@ -3307,8 +3575,6 @@ exports.deleteInventory = (req, res) => {
 exports.deletePosition = (req, res) => {
   let editID = req.params.id;
 
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
-
   // req body
   db.query(`DELETE FROM Positions WHERE id = "${editID}"`, (err, results) => {
     if (err) {
@@ -3320,11 +3586,24 @@ exports.deletePosition = (req, res) => {
     return res.redirect("/super/all-positions");
   });
 };
+exports.deleteLogisticCompany = (req, res) => {
+  let editID = req.params.id;
+
+  // req body
+  db.query(`DELETE FROM Logistics WHERE id = ? `[editID], (err, results) => {
+    if (err) {
+      console.log(err);
+      req.flash("error_msg", `could not delete: ${err.sqlMessage}`);
+      return res.redirect("/");
+    }
+    req.flash("success_msg", `${editID} has been removed`);
+    return res.redirect("/super/all-logistic-company");
+  });
+};
 
 // orders
 // view order
 exports.getSingleOrder = (req, res) => {
-  const sessionEmail = req.session.Users.email; //  to get more info if needed
   let editID = req.params.id;
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
@@ -3360,7 +3639,7 @@ exports.getSingleOrder = (req, res) => {
 
           // to get list of all employees
           db.query(
-            `SELECT * FROM Users WHERE position = "Logistics"`,
+            `SELECT * FROM Logistics`,
             (err, results) => {
               if (err) {
                 console.log(err.sqlMessage);
@@ -3379,8 +3658,7 @@ exports.getSingleOrder = (req, res) => {
                 return;
               }
 
-              let data = JSON.stringify(results);
-              let logisticsDrivers = JSON.parse(data);
+              let logisticsDrivers = JSON.parse(JSON.stringify(results));
 
               return res.render("./super/orderSingle", {
                 pageTitle: "Edit Roles",
@@ -3560,9 +3838,7 @@ exports.confirmOrder = (req, res) => {
 exports.completeOrder = (req, res) => {
   let editID = req.params.id;
 
-  const driver = req.body.position;
-
-  const sessionEmail = req.session.Users.email;
+  const driver = req.body.logistics;
 
   if (!driver) {
     req.flash("warning_msg", `please select a driver`);
@@ -3571,18 +3847,19 @@ exports.completeOrder = (req, res) => {
   }
 
   db.query(
-    `SELECT * FROM Users WHERE email = "${driver}" AND position = 'Logistics'`,
+    `SELECT * FROM Logistics WHERE name = "${driver}"`,
     (err, results) => {
       if (err) {
         req.flash("error_msg", `error from db ${err.sqlMessage}`);
         return res.redirect("/super/all-orders");
       }
 
-      let data = JSON.stringify(results);
-      let thatDriver = JSON.parse(data);
-      const driverEmail = thatDriver[0].email;
-      const driverFirstName = thatDriver[0].First_name;
-      const driverLasttName = thatDriver[0].Last_name;
+      let dispatch = JSON.parse(JSON.stringify(results[0]));
+
+      const dispatchEmail = dispatch.email;
+      const dispatchCompanyName = dispatch.name;
+      const dispatchPhone = dispatch.phone;
+      const dispatchId = dispatch.id;
       db.query(
         `SELECT * FROM Orders WHERE id ="${editID}"`,
         (err, results) => {
@@ -3632,8 +3909,10 @@ exports.completeOrder = (req, res) => {
                       `UPDATE Orders  SET ? WHERE sale_id = "${saleID}"`,
                       {
                         status: "shipped",
-                        driver: `${driverFirstName} ${driverLasttName}`,
-                        driver_email: driverEmail,
+                        driver: dispatchCompanyName,
+                        driver_email: dispatchEmail,
+                        driver_phone:dispatchPhone,
+                        driver_id:dispatchId,
                       },
                       (err, results) => {
                         if (err) {
@@ -3746,12 +4025,7 @@ exports.updateImage = (req, res) => {
 
 
 exports.superSale = (req, res) => {
-  const email = req.session.Users.email;
-  const userRole  = req.session.Users.userRole;
   const userId  = req.session.Users.id;
-
- const storeId =   req.session.Users.store_id;
-  const storeName = req.session.Users.store_name
     
   var metaItems = JSON.parse(req.body.meta);
   var cartItems = JSON.parse(req.body.cart);

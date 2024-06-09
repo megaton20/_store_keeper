@@ -1,0 +1,290 @@
+
+
+<% if(userActive == false){ %>
+  <%- include('./partials/openNav') %>
+  <% } else{ %> 
+    <%- include('./partials/closedNav') %>
+    <% } %>
+<!-- and closed if session is found -->
+    <main class="main">
+  
+      <!-- Hero Section -->
+      <section id="hero" class="hero section">
+        <!-- <div class="hero-bg" >
+          <img src="design/img/bg-2.jpg" alt="">
+        </div> -->
+        <div class="container text-center">
+          <div class="d-flex flex-column justify-content-center align-items-center">
+            <h1 data-aos="fade-up">Welcome to <span>Strober</span></h1>
+            <p data-aos="fade-up" data-aos-delay="100">we are here to give you a delightful shoping expirience<br></p>
+            <div class="d-flex" data-aos="fade-up" data-aos-delay="200">
+              <% if(userActive == false){ %>
+                <a href="/register" class=" btn btn-outline-secondary d-flex align-items-center mr-2"><span>Register Here </span></a>
+                <a href="/login" class=" btn btn-outline-success d-flex align-items-center"><span>Log in Here </span></a>
+
+                <% } else{ %> 
+                  <a class="my-btn ml-4" href="/handler">Continue Session</a>
+                  <% } %>
+            </div>
+            <!-- <img src="design/img/hero-services-img.webp" class="img-fluid hero-img" alt="" data-aos="zoom-out" data-aos-delay="300"> -->
+          </div>
+        </div>
+  
+      </section><!-- /Hero Section -->
+
+      <!-- Featured Services Section -->
+      <section id="featured-services" class="featured-services section">
+        <div class="container">
+          <div class="row gy-4">
+  
+            <div class="col-xl-4 col-lg-6" data-aos="fade-up" data-aos-delay="100">
+              <div class="service-item d-flex">
+                <div class="icon flex-shrink-0"><i class="bi bi-cart"></i></div>
+                <div>
+                  <h4 class="title">Seamless Shopping Experience</h4>
+                  <p class="description">
+                    Browse a wide range of products from various categories.
+                    Easy-to-use search and filter options to quickly find what you need.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!-- End Service Item -->
+  
+            <div class="col-xl-4 col-lg-6" data-aos="fade-up" data-aos-delay="200">
+              <div class="service-item d-flex">
+                <div class="icon flex-shrink-0"><i class="bi bi-truck"></i></div>
+                <div>
+                  <h4 class="title">Efficient Delivery Services</h4>
+                  <p class="description">
+                    Fast and reliable delivery of items bought through the app.
+                    Real-time tracking of your orders from dispatch to delivery.
+                    Multiple delivery options, including same-day and scheduled deliveries.
+                  </p>
+                </div>
+              </div>
+            </div><!-- End Service Item -->
+  
+            <div class="col-xl-4 col-lg-6" data-aos="fade-up" data-aos-delay="300">
+              <div class="service-item d-flex">
+                <!-- <div class="icon flex-shrink-0"><i class="bi bi-card-checklist"></i></div> -->
+                <div class="icon flex-shrink-0"><i class="bi bi-tag"></i></div>
+                
+                <div>
+                  <h4 class="title">Promotions and Discounts</h4>
+                  <p class="description">
+                    Regular promotions, discounts, and exclusive deals for app users.
+                    Loyalty programs and reward points for frequent shoppers.
+                  </p>
+                </div>
+              </div>
+            </div><!-- End Service Item -->
+
+
+            <div class="col-xl-4 col-lg-6" data-aos="fade-up" data-aos-delay="100">
+              <div class="service-item d-flex">
+                <div class="icon flex-shrink-0"><i class="bi bi-shield-lock"></i></div>
+                
+                <div>
+                  <h4 class="title">Secure Payment Options</h4>
+                  <p class="description">
+                    Multiple payment methods including credit/debit cards, digital wallets, and cash on delivery.
+                    Secure transactions with encryption and fraud detection.
+                  </p>
+                </div>
+              </div>
+            </div><!-- End Service Item -->
+
+            <div class="col-xl-4 col-lg-6" data-aos="fade-up" data-aos-delay="200">
+              <div class="service-item d-flex">
+                <!-- <div class="icon flex-shrink-0"><i class="bi bi-card-checklist"></i></div> -->
+                <div class="icon flex-shrink-0"><i class="bi bi-box-seam"></i></div>
+                
+                <div>
+                  <h4 class="title">Logistics Services</h4>
+                  <p class="description">
+                    Regular promotions, discounts, and exclusive deals for app users.
+                    Loyalty programs and reward points for frequent shoppers.
+                  </p>
+                </div>
+              </div>
+            </div><!-- End Service Item -->
+
+            <div class="col-xl-4 col-lg-6" data-aos="fade-up" data-aos-delay="300">
+              <div class="service-item d-flex">
+                <!-- <div class="icon flex-shrink-0"><i class="bi bi-card-checklist"></i></div> -->
+                <div class="icon flex-shrink-0"><i class="bi bi-check-circle"></i></div>
+                
+                <div>
+                  <h4 class="title">User-Friendly Interface</h4>
+                  <p class="description">Intuitive and clean design for a smooth user experience.
+                    - Easy account management with order history and preferences.</p>
+                </div>
+              </div>
+            </div><!-- End Service Item -->
+          </div>
+        </div>
+      </section><!-- /Featured Services Section -->
+  
+         <!-- Features Details Section -->
+         <section id="about" class="features-details section">
+  
+          <div class="container">
+            <h3>About Us</h3>
+  
+            <div class="row gy-4 justify-content-between features-item">
+              <div class="col-lg-6 order-1 order-lg-2" data-aos="fade-up" data-aos-delay="200">
+                <img src="design/img//hero-img.svg" class="img-fluid" alt="">
+              </div>
+              <div class="col-lg-5 d-flex align-items-center order-2 order-lg-1" data-aos="fade-up" data-aos-delay="100">
+                <div class="content">
+                  <p>
+                    Welcome to Strober, your go-to platform for seamless shopping, efficient delivery, and reliable logistics services. 
+                    We are committed to providing a user-friendly experience with secure payments...
+                  </p>
+
+                  <a href="#" class="btn btn-outline-primary">Read more</a>
+                </div>
+              </div>
+    
+            </div><!-- Features Item -->
+    
+          </div>
+    
+        </section><!-- /Features Details Section -->
+    
+              <!-- Call to action -->
+              <section  class="featured-services section">
+                <div class="container">
+                  <div class="row gy-4">
+      
+          
+                    <div class="col-xl-8 col-md-8 col-lg-12" data-aos="fade-up" data-aos-delay="200">
+                      <div class="service-item d-flex">
+                        <div>
+                          <p class="description">
+                            Click the link to use our logistic services, send and recieve packages using our logistics 
+                          </p>
+                        </div>
+                      </div>
+                    </div><!-- End Service Item -->
+          
+                    <div class="col-xl-4 col-md-4 col-lg-4 mt-4" data-aos="fade-up" data-aos-delay="300">
+                      <!-- <div class="service-item d-flex"> -->
+                      <div class="mt-4">
+                        <a class="my-btn " href="/login">Logistics services</a>
+                      </div>
+                    </div><!-- End Service Item -->
+        
+        
+      
+                  </div>
+                </div>
+              </section><!--  call to action -->
+    
+              
+      <!-- Clients Section -->
+      <section id="clients" class="clients section">
+        <div class="container" data-aos="fade-up">
+          <div class="row gy-4">
+  
+            <div class="col-xl-2 col-md-3 col-6 client-logo">
+              <img src="design/img//clients/client-1.png" class="img-fluid" alt="">
+            </div><!-- End Client Item -->
+  
+            <div class="col-xl-2 col-md-3 col-6 client-logo">
+              <img src="design/img//clients/client-3.png" class="img-fluid" alt="">
+            </div><!-- End Client Item -->
+  
+            <div class="col-xl-2 col-md-3 col-6 client-logo">
+              <img src="design/img//clients/client-4.png" class="img-fluid" alt="">
+            </div><!-- End Client Item -->
+  
+            <div class="col-xl-2 col-md-3 col-6 client-logo">
+              <img src="design/img//clients/client-5.png" class="img-fluid" alt="">
+            </div><!-- End Client Item -->
+  
+            <div class="col-xl-2 col-md-3 col-6 client-logo">
+              <img src="design/img//clients/client-6.png" class="img-fluid" alt="">
+            </div><!-- End Client Item -->
+
+            <div class="col-xl-2 col-md-3 col-6 client-logo">
+              <img src="design/img//clients/OrangeGroup.logo.svg" class="img-fluid" alt="">
+            </div><!-- End Client Item -->
+
+          </div>
+  
+        </div>
+  
+      </section><!-- /Clients Section -->
+  
+      <br>
+      <br>
+  
+    </main>
+  
+    <footer id="footer" class="footer position-relative">
+  
+      <div class="container footer-top">
+        <div class="row gy-4">
+          <div class="col-lg-4 col-md-6 footer-about">
+            <a href="/" class="logo d-flex align-items-center">
+              <span class="sitename">Strober</span>
+            </a>
+            <div class="footer-contact pt-3">
+              <p>Cross River, Calabar </p>
+              <p class="mt-3"><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
+              <p><strong>Email:</strong> <span>strobetech@gmail.com</span></p>
+            </div>
+            <div class="social-links d-flex mt-4">
+              <a href=""><i class="bi bi-twitter-x"></i></a>
+              <a href=""><i class="bi bi-facebook"></i></a>
+              <a href=""><i class="bi bi-instagram"></i></a>
+              <a href=""><i class="bi bi-linkedin"></i></a>
+            </div>
+          </div>
+  
+          <div class="col-lg-4 col-md-3 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><a href="#">Home</a></li>
+              <li><a href="#">About us</a></li>
+              <li><a href="#">Services</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+            </ul>
+          </div>
+  
+  
+  
+          <div class="col-lg-4 col-md-12 footer-newsletter">
+            <h4>Our Newsletter</h4>
+            <p>Subscribe to our newsletter and receive the latest news about our products and services!</p>
+            <form action="#" method="post" class="php-email-form">
+              <div class="newsletter-form"><input type="email" name="email"><input type="submit" value="Subscribe"></div>
+              <div class="loading">Loading</div>
+              <div class="error-message"></div>
+              <div class="sent-message">Your subscription request has been sent. Thank you!</div>
+            </form>
+          </div>
+  
+        </div>
+      </div>
+  
+      <div class="container copyright text-center mt-4">
+        <p>© <span>Copyright</span> <strong class="px-1 sitename">Strober</strong><span>All Rights Reserved</span></p>
+        <div class="credits">
+       
+        </div>
+      </div>
+  
+    </footer>
+  
+    <div id="preloader"></div>
+    <!-- Scroll Top -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  
+    
+  
+  
+  

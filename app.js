@@ -116,20 +116,6 @@ app.use('/logistics', logisticsRouter);
 app.use('/user', userRouter);
 
 
-
-// Start localtunnel and listen on specified port
-// (async () => {
-//     const tunnel = await localtunnel({ port: process.env.PORT || 3000 });
-//     console.log('Localtunnel URL:', tunnel.url);
-
-//     // Set your webhook URL to the localtunnel URL
-//     process.env.WEBHOOK_URL = `${tunnel.url}/webhook`;
-
-//     app.listen(process.env.PORT || 3000, () => {
-//         console.log(`Server is running on port ${process.env.PORT || 3000}`);
-//     });
-// })();
-
 const PORT = process.env.PORT || 2000;
 
 app.listen(PORT, () => {

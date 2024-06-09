@@ -12,9 +12,22 @@
       <div class="container-fluid">
         <%- include ('../partials/messages') %>
 
-        <div class="container mt-4 mb-4" style="border-left: 2px solid #ffdd00">
-          <p class="text-warning">Order will arive in 40 minutes</p>
+     <div class="container">
+      <div class=" mt-4 mb-4 row" style="border: 2px solid #ffdd00; height: 100px; border-radius: 4px; padding: 10px;" >
+        <!-- <p class="text-warning">Order will arive in 40 minutes</p> -->
+        <!-- <p class="">Your order is </p> -->
+        <div class="col-lg-4">
+          <p><%= newOrder[0].status %></p>
         </div>
+
+        <div class="col-lg-4">
+          <ul>
+            <li>Ensure your phone lines are active</li>
+            <li>Do not pay fee to the delivery agent</li>
+          </ul>
+        </div>
+      </div>
+     </div>
 
         <div class="container">
           <div class="row mt-4">
@@ -79,14 +92,11 @@
 
                 <div class="row mb-4">
                
-                  <div class="col-6">Payment Type:</div>
-                  <div class="col-6"><%= newOrder[0].payment_type %></div>
+
                   <div class="col-6">My cell:</div>
                   <div class="col-6"><%= newOrder[0].customer_phone %></div>
                   <div class="col-6">Delivery Type:</div>
                   <div class="col-6"><%= newOrder[0].Delivery %></div>
-                  <div class="col-6">Order Status:</div>
-                  <div class="col-6"><%= newOrder[0].status %></div>
                   <div class="col-6">Address:</div>
                   <div class="col-6"><%= newOrder[0].customer_address %></div>
                   <div class="col-6">Be Dlivered By:</div>

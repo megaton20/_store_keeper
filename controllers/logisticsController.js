@@ -30,14 +30,11 @@ const formatDate = (dateStr) => {
 
 exports.getAdminWelcomePage = (req, res) => {
 
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
 
   let userFirstName = req.session.Users.First_name;
   let userLastName = req.session.Users.Last_name;
 
 
-  if (sessionRole == "admin") {
          return res.render("./logistics/logisticsDash", {
             pageTitle: "At the counter",
             name: `${userFirstName} ${userLastName}`,
@@ -47,79 +44,62 @@ exports.getAdminWelcomePage = (req, res) => {
             year: presentYear,
           }); // for admin only
 
-  } else if(sessionRole == "super"){
-        // not amin
-        req.flash('warning_msg', `the entry  pattern was for admins only`)
-       return res.redirect("/super")
-  }else if (sessionRole == 'user') {
-       // not amin
-       req.flash('warning_msg', `the entry  pattern was for admins only`)
-       return res.redirect("/user")
-  }
-
-
 };
 
 
 // delivery
 exports.allPendingDelivery = (req, res)=>{
 
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
     const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
+  const userId = req.session.Users.id;
 
-  if (sessionRole == "admin") {
-  db.query(`SELECT * FROM Orders WHERE driver_email = "${sessionEmail}" AND status = "shipped" `, (err, results) => {
+  db.query(`SELECT * FROM Users WHERE id = ? `,[userId], (err, results) => {
     if (err) {
       req.flash("error_msg", ` ${err.sqlMessage}`);
       return res.redirect("/");
-    } else {
-      let data = JSON.stringify(results);
-      let pendingDelivery = JSON.parse(data);
+    } 
 
-       return res.render("./logistics/logistcsDeliveryTable", {
-          pageTitle: "delivery to maked",
-          name: `${userFirstName} ${userLastName}`,
-          month: monthName,
-          day: dayName,
-          date: presentDay,
-          year: presentYear,
-          pendingDelivery,
-        }); // for logistics alone only
-        
-      }
-    });
-  } else if (sessionRole == "super") {
+      const logisticId = JSON.parse(JSON.stringify(results[0].logistic_id));
+
+      db.query(`SELECT * FROM Orders WHERE driver_id = "${logisticId}" AND status = "shipped" `, (err, results) => {
+        if (err) {
+          req.flash("error_msg", ` ${err.sqlMessage}`);
+          return res.redirect("/");
+        } else {
+          let pendingDelivery = JSON.parse(JSON.stringify(results));
     
-    req.flash('error_msg', `you are not ready to use this feature yet`)
-    res.redirect('/super')
-    return
-  }else if (sessionRole == "user") {
-    req.flash('error_msg', `you can't handle your own delivery ogaaaa`)
-    res.redirect('/user')
-    return
-  }
+           return res.render("./logistics/logistcsDeliveryTable", {
+              pageTitle: "delivery to maked",
+              name: `${userFirstName} ${userLastName}`,
+              month: monthName,
+              day: dayName,
+              date: presentDay,
+              year: presentYear,
+              pendingDelivery,
+            }); // for logistics alone only
+            
+          }
+        });
+    
+    })
+
+
+
 }
 
 exports.oneDelivery = (req, res)=>{
   let editId = req.params.id
-
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
     const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
   
 
-
-  if (sessionRole == "admin") {
   db.query(`SELECT * FROM Orders WHERE  id = "${editId}" `, (err, results) => {
     if (err) {
       req.flash("error_msg", ` ${err.sqlMessage}`);
       return res.redirect("/logistics");
     } else {
-      let data = JSON.stringify(results);
-      let orderToComplete = JSON.parse(data);
+      let orderToComplete = JSON.parse(JSON.stringify(results));
 
       let itemId = orderToComplete[0].sale_id
       let itemShippingFee = orderToComplete[0].shipping_fee
@@ -153,22 +133,13 @@ exports.oneDelivery = (req, res)=>{
     
       }
     }); // to get the pending item
-  } else if (sessionRole == "super") {
-    
-    req.flash('error_msg', `you are not ready to use this feature yet`)
-    res.redirect('/super')
-    return
-  }else if (sessionRole == "user") {
-    req.flash('error_msg', `you can't handle your own delivery ogaaaa`)
-    res.redirect('/user')
-    return
-  }
+
 }
 exports.finishDelivery = (req, res)=>{
   let editId = req.params.id
   const sessionRole = req.session.Users.userRole;
 
-  if (sessionRole == "admin") {
+
 
       db.query(`SELECT * FROM Order_Products WHERE  id = "${editId}" `, (err, results) => {
         if (err) {
@@ -208,15 +179,4 @@ exports.finishDelivery = (req, res)=>{
           }
         }); // to get the pending item
 
-
-    } else if (sessionRole == "super") {
-      
-      req.flash('error_msg', `you are not ready to use this feature yet`)
-      res.redirect('/super')
-      return
-    }else if (sessionRole == "user") {
-      req.flash('error_msg', `you can't handle your own delivery ogaaaa`)
-      res.redirect('/user')
-      return
-    }
 }

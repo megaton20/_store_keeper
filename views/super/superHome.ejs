@@ -29,7 +29,7 @@
                       Total Sales
                     </div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">
-                      <%= totalSale%>
+                      <%= totalNumberOfSales%>
                     </div>
                   </div>
                   <div class="col-auto">
@@ -190,101 +190,20 @@
             <div class="mb-4">
               <!-- Card Body -->
               <div class="card-body">
-                <a
-                  class="btn btn-outline-primary mr-2 mb-1"
-                  href="#"
-                  aria-expanded="true"
-                  aria-controls="collapseTwo"
-                  class="dropdown-item"
-                  href="#"
-                  data-toggle="modal"
-                  data-target="#createStore"
-                >
-                  Add Store</a
-                >
-                <a
-                  class="btn btn-outline-primary mr-2 mb-1"
-                  href="#"
-                  aria-expanded="true"
-                  aria-controls="collapseTwo"
-                  class="dropdown-item"
-                  href="#"
-                  data-toggle="modal"
-                  data-target="#createCategory"
-                  >Add Category</a
-                >
-                <a
-                  class="btn btn-outline-primary mr-2 mb-1"
-                  href="#"
-                  aria-expanded="true"
-                  aria-controls="collapseTwo"
-                  class="dropdown-item"
-                  href="#"
-                  data-toggle="modal"
-                  data-target="#createDiscount"
-                  >Add Discount</a
-                >
-                <a
-                  class="btn btn-outline-primary mr-2 mb-1"
-                  href="#"
-                  aria-expanded="true"
-                  aria-controls="collapseTwo"
-                  class="dropdown-item"
-                  href="#"
-                  data-toggle="modal"
-                  data-target="#createInventory"
-                  >Add Inventory</a
-                >
-                <a
-                  class="btn btn-outline-primary mr-2 mb-1"
-                  href="#"
-                  aria-expanded="true"
-                  aria-controls="collapseTwo"
-                  class="dropdown-item"
-                  href="#"
-                  data-toggle="modal"
-                  data-target="#createPosition"
-                  >Add Position</a
-                >
-                <a
-                  class="btn btn-outline-primary mr-2 mb-1"
-                  href="#"
-                  aria-expanded="true"
-                  aria-controls="collapseTwo"
-                  class="dropdown-item"
-                  href="#"
-                  data-toggle="modal"
-                  data-target="#createWholesaler"
-                  >Add Supplier</a
-                >
+                <a href="/super/create-logistics" class="btn btn-outline-primary mr-2 mb-1"aria-controls="collapseTwo">Add Logistics Company</a>
+                <a class="btn btn-outline-primary mr-2 mb-1" href="/super/create-store">Add Store</a>
+                <a class="btn btn-outline-primary mr-2 mb-1" href="/super/create-category">Add Category</a>
+                <a class="btn btn-outline-primary mr-2 mb-1" href="/super/create-discount">Add Discount</a>
+                <a class="btn btn-outline-primary mr-2 mb-1" href="/super/create-inventory">Add Inventory</a>
+                <a class="btn btn-outline-primary mr-2 mb-1" href="/super/create-position">Add Position</a>
+                <a class="btn btn-outline-primary mr-2 mb-1" href="/super/create-supplier">Add Supplier</a>
               </div>
 
               <div class="card-body">
-                <a
-                  class="btn btn-outline-primary mb-1 mr-2"
-                  href="/super/all-orders"
-                >
-                  Orders</a
-                >
-                <a
-                  class="btn btn-outline-secondary mb-1 mr-2"
-                  href="/super/all-sales"
-                >
-                  Resolve Sales</a
-                >
-                <a
-                  class="btn btn-outline-success mb-1 mr-2"
-                  href="/super/create-sales"
-                >
-                  Shopping</a
-                >
-
-                <a
-                class="btn btn-outline-primary mb-1 mr-2"
-                href="/super/all-canceled-order"
-              >
-                canceled table</a
-              >
+                <a class="btn btn-outline-primary mb-1 mr-2" href="/super/all-orders">Orders</a>
+                <a class="btn btn-outline-secondary mb-1 mr-2"href="/super/all-sales">Resolve Sales</a>
+                <a class="btn btn-outline-success mb-1 mr-2"href="/super/create-sales">Shopping</a>
+                <a class="btn btn-outline-primary mb-1 mr-2"href="/super/all-canceled-order">canceled table</a>
               </div>
             </div>
           </div>
@@ -308,10 +227,7 @@
 </a>
 
 <!-- Logout Modal-->
-<%- include ('../modals/logout') %> <%- include ('../modals/createStore') %> <%-
-include ('../modals/createWholsaler') %> <%- include
-('../modals/createInventory') %> <%- include ('../modals/createCategory') %> <%-
-include ('../modals/createDiscount') %> <%- include ('../modals/createPosition')
-%> <%- include ('../modals/createReturn') %>
+<%- include ('../modals/logout') %>
+
 
 <!-- create new store -->

@@ -54,10 +54,15 @@ router.get("/all-inventory", ensureAuthenticated,isSuper, superController.getAll
 router.get("/all-positions", ensureAuthenticated,isSuper, superController.getAllPositions);
 router.get("/all-orders", ensureAuthenticated,isSuper, superController.getAllOrders);
 router.get("/all-canceled-order", ensureAuthenticated,isSuper, superController.getAllCanceledOrders);
-
-
-
 router.get("/view-canceled/:id", ensureAuthenticated,isSuper, superController.getOneCanceledOrder);
+
+
+router.get("/all-logistic-company", ensureAuthenticated,isSuper, superController.getAllLogisticCompany);
+router.get("/edit-logistic-company/:id", ensureAuthenticated,isSuper, superController.getOneLogisticCompany);
+router.get("/all-logistics-drivers/", ensureAuthenticated,isSuper, superController.allLogisticDrivers);
+router.get("/asign-driver-to-company/:id", ensureAuthenticated,isSuper, superController.asigneToCompany);
+router.put("/add-driver-to-company/:id", ensureAuthenticated,isSuper, superController.addDriverToCompany);
+
 
 
 router.get("/upgrade-users/:id", ensureAuthenticated,isSuper, superController.usersToUpgrade);
@@ -80,6 +85,18 @@ router.get("/view-order/:id", ensureAuthenticated,isSuper, superController.getSi
 router.get("/confirm-order/:id", ensureAuthenticated,isSuper, superController.confirmOrder);
 router.post("/ship-order/:id", ensureAuthenticated,isSuper, superController.completeOrder);
 
+// form area
+
+router.get("/create-store", ensureAuthenticated,isSuper, superController.createStorePage);
+router.get("/create-discount", ensureAuthenticated,isSuper, superController.createDiscountPage);
+router.get("/create-category", ensureAuthenticated,isSuper, superController.createCategoryPage);
+router.get("/create-supplier", ensureAuthenticated,isSuper, superController.createSupplierPage);
+router.get("/create-position", ensureAuthenticated,isSuper, superController.createPositionPage);
+router.get("/create-logistics", ensureAuthenticated,isSuper, superController.createLogisticCompanyPage);
+router.get("/create-inventory", ensureAuthenticated,isSuper, superController.createInventoryPage);
+// router.get("/create-return", ensureAuthenticated,isSuper, superController.getAdminWelcomePage);
+
+
 
 // post request
 router.post("/create-store", ensureAuthenticated,isSuper, superController.createNewStore);
@@ -89,13 +106,14 @@ router.post("/create-category", ensureAuthenticated,isSuper, superController.cre
 router.post("/create-supplier", ensureAuthenticated,isSuper, superController.createNewSupplier);
 router.post("/create-customer", ensureAuthenticated,isSuper, superController.createNewCustomer);
 router.post("/create-position", ensureAuthenticated,isSuper, superController.createNewPosition);
+router.post("/create-logistics", ensureAuthenticated,isSuper, superController.createNewLogistics);
 
 
 
 // // add to store
 router.put('/product-status/unverified/:id',ensureAuthenticated,isSuper,superController.remove)
 // add price for new store item to add to market
-router.post("/create-sales/:id", ensureAuthenticated,isSuper, superController.createNewSalesItem);
+router.post("/create-sales/:id", ensureAuthenticated,isSuper, superController.addToShelfForSale);
 router.put("/resolve/:id", ensureAuthenticated,isSuper, superController.resolveSale);
 router.put("/flag-product/:id", ensureAuthenticated,isSuper, superController.flagProduct);
 router.put("/unflag-product/:id", ensureAuthenticated,isSuper, superController.unflagProduct);
@@ -137,6 +155,7 @@ router.delete("/delete-discount/:id", ensureAuthenticated,isSuper, superControll
 router.delete("/delete-supplier/:id", ensureAuthenticated,isSuper, superController.deleteSupplier);
 router.delete("/delete-category/:id", ensureAuthenticated,isSuper, superController.deleteCategory);
 router.delete("/delete-inventory/:id", ensureAuthenticated,isSuper, superController.deleteInventory);
+router.delete("/delete-position/:id", ensureAuthenticated,isSuper, superController.deletePosition);
 router.delete("/delete-position/:id", ensureAuthenticated,isSuper, superController.deletePosition);
 // router.put("/edit-customer/:id", ensureAuthenticated,isSuper, superController.editNewCustomer);
 

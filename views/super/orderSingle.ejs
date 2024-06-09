@@ -171,19 +171,18 @@
             <% } else{ %> <% if( orderData[0].status == "waiting" ){ %>
 
             <br />
-            <form
-              action="/super/ship-order/<%= orderData[0].id %>"
-              method="post"
-            >
+
+              
+
+            <form action="/super/ship-order/<%= orderData[0].id %>"method="post">
               <div class="form-group">
-                <select name="position" id="" class="form-control">
-                  <option value="">Select Driver</option>
+                <select name="logistics" id="" class="form-control">
+                  <option value="">Select Company</option>
 
                   <% logisticsDrivers.forEach(function(data) {%>
-                  <option value="<%= data['email'] %> ">
-                    <%= data['First_name'] %> <%=data['Last_name'] %>
-                  </option>
+                  <option value="<%= data['name'] %> "><%=data['name'] %></option>
                   <% }) %>
+
                 </select>
               </div>
 

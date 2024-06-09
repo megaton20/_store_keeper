@@ -7,18 +7,16 @@ const systemCalander = new Date().toLocaleDateString();
 const yearModel = require("../model/getYear");
 let presentYear = yearModel(systemCalander, "/");
 
-const monthNameModel = require("../model/findCurrentMonth");
-let monthName = monthNameModel(systemCalander, "/");
-
-const dayModel = require("../model/dayOfWeek");
-let dayName = dayModel(systemCalander, "/");
-
 const monthModel = require("../model/getMonth");
 let presentMonth = monthModel(systemCalander, "/");
 
 const getDay = require("../model/getDay");
 let presentDay = getDay(systemCalander, "/");
 let sqlDate = presentYear + "-" + presentMonth + "-" + presentDay;
+
+
+
+
 
 exports.loginHandler = (req, res) => {
   let session = req.session;
@@ -55,25 +53,13 @@ exports.loginHandler = (req, res) => {
           pageTitle: "Login To continue Using Store Keeper",
         });
       } else {
-        let role = Users[0].userRole;
+        
         session.Users = Users[0];
 
-        if ((role == "super")) {
           req.flash("success_msg", `welcome ${session.Users.First_name}`);
-         return res.redirect("/super");
+         return res.redirect("/handler");
 
-        } else if (role == "admin") {
-          
-          if (Users[0].position == 'Logistics') {
-            req.flash("success_msg", `welcome ${session.Users.First_name}`);
-            return res.redirect("/logistics");
-          }
-          req.flash("success_msg", `welcome ${session.Users.First_name}`);
-         return res.redirect("/employee");
-        } else if(role == "user"){
-          req.flash("success_msg", `welcome ${session.Users.First_name}`);
-         return res.redirect("/user");
-        }
+
       }
 
 

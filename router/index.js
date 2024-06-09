@@ -8,19 +8,70 @@ const db = require("../model/databaseTable");
 
 const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
 const { newCategory } = require('../controllers/superController');
+const { log } = require('console');
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY || 'sk_test_eb3af79ac0f1fb7e6d39bb6aeef8602c75669494';
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'secret key';
 
+let appName = `Strobe`
 
 // Welcome Page
-router.get('/', forwardAuthenticated, (req, res) => res.render('login',{
+router.get('/', (req, res) => {
+  let userActive= false
+  if (req.session.Users) {
+    userActive = true
+  }
+  console.log(userActive);
+  res.render('landing',{
+    pageTitle:`Welcome to ${appName}`,
+    userActive
+  });
+}
+)
+
+
+router.get('/handler', (req, res)=>{
+
+  if (req.session.Users) {
+    const role = req.session.Users.userRole
+    const session = req.session.Users
+  
+        if ((role == "super")) {
+          req.flash("success_msg", `welcome ${session.First_name}`);
+         return res.redirect("/super");
+
+        } else if (role == "admin") {
+          
+          if (Users[0].position == 'Logistics') {
+            req.flash("success_msg", `welcome ${session.First_name}`);
+            return res.redirect("/logistics");
+          }
+          req.flash("success_msg", `welcome ${session.First_name}`);
+         return res.redirect("/employee");
+        } else if(role == "user"){
+          req.flash("success_msg", `welcome ${session.First_name}`);
+         return res.redirect("/user");
+        }
+  }else {
+    req.flash("warning_msg", `please log in to use our resources`);
+    res.redirect('/')
+  }
+ 
+})
+
+
+
+
+router.get('/login', forwardAuthenticated, (req, res) => res.render('login',{
   pageTitle:"Login To continue Using Store Keeper"
   }));
+
   router.get('/register', forwardAuthenticated, (req, res) => res.render('register',{
-    pageTitle:"Login To continue Using Store Keeper",
+    pageTitle:`Create account with ${appName}`,
     stateData
     }));
+
+
 
   // Route to fetch LGAs for a selected state
 router.get("/getlgas/:state", (req, res) => {
