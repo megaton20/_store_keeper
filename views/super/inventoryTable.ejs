@@ -128,20 +128,56 @@
                         <input type="hidden" name="_method" value="PUT" />
                         <button class="btn btn-primary">Switch Status</button>
                       </form>
+
+                      <form
+                      action="/super/delete-inventory/<%= data['id'] %>"
+                      method="POST"
+                      style="display: inline"
+                    >
+                      <input type="hidden" name="_method" value="DELETE" />
+                      <button class="btn btn-danger">Delete</button>
+                    </form>
+
+                    <a
+                    class="btn btn-success"
+                    href="/super/inventory/<%= data['id'] %>"
+                  >
+                    View</a
+                  >
+                  <a
+                    class="btn btn-secondary"
+                    href="/super/edit-Inventory/<%= data['id'] %>"
+                  >
+                    edit</a
+                  >
                     </td>
                     <% } else{ %>
 
                     <td>
                 
-                      <button
-                        aria-expanded="true"
-                        aria-controls="collapseTwo"
-                        class="btn btn-primary click-to-add-price"
-                        data-toggle="modal"
-                        data-value="<%= data['id'] %>"
-                        data-target="#addPrice"
-                        >Add to Shelf</button
-                      >
+                      <a href="/super/add-price/<%= data['id']%>" class="btn btn-primary">Add to Shelf</a>
+
+                      <form
+                      action="/super/delete-inventory/<%= data['id'] %>"
+                      method="POST"
+                      style="display: inline"
+                    >
+                      <input type="hidden" name="_method" value="DELETE" />
+                      <button class="btn btn-danger">Delete</button>
+                    </form>
+
+                    <a
+                    class="btn btn-success"
+                    href="/super/inventory/<%= data['id'] %>"
+                  >
+                    View</a
+                  >
+                  <a
+                    class="btn btn-secondary"
+                    href="/super/edit-Inventory/<%= data['id'] %>"
+                  >
+                    edit</a
+                  >
                     </td>
                     <% } %> %>
 

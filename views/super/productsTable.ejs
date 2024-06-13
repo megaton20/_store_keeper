@@ -46,6 +46,8 @@
                                                   <th>Shelf Item</th>
                                                   <th>Activated ?</th>
                                                   <th>Actions</th>
+                                                  <th>on showcase</th>
+                                                  <th>showcase</th>
                                                 </tr>
                                             </thead>
                                           
@@ -82,7 +84,7 @@
                                                         <td><%= data['activate'] %> </td>
         
                                                         <td>
-                                                            <div class="row">
+                                                            <div class="" style="display: flex;">
                                                                 <div class="col-3">
                                                                     <form
                                                                     action="/super/unflag-product/<%= data['inventory_id'] %>"
@@ -105,20 +107,40 @@
 
                                                                  
                                                                   <div class="col-3">
-                                                            <button
-                                                            aria-expanded="true"
-                                                            aria-controls="collapseTwo"
-                                                            class="btn btn-primary click-to-add-price"
-                                                            data-toggle="modal"
-                                                            data-value="<%= data['id'] %>"
-                                                            data-target="#updatePrice"
-                                                            >price</button
-                                                          >
+                                                                    <a href="/super/update-price/<%= data['inventory_id'] %>" class="btn btn-primary" >new price </a>
                                                                   </div>
+
+                                                                
                                                             </div>
                                                         </td>
                                                   
+                                                        <td><%= data['showcase'] %> </td>
+                                                        <td>
 
+                                                          <% if (  data.showcase == "yes") { %>
+
+                                                            <form
+                                                            action="/super/showcase-off/<%= data['id'] %>"
+                                                            method="POST"
+                                                          >
+                                                            <input type="hidden" name="_method" value="PUT" />
+                                                            <button  class="btn btn-success">off</button>
+                                                          </form>
+
+                                                            <% } else { %>
+                                
+                                                              <form
+                                                              action="/super/showcase-on/<%= data['id'] %>"
+                                                              method="POST"
+                                                            >
+                                                              <input type="hidden" name="_method" value="PUT" />
+                                                              <button  class="btn btn-success">on</button>
+                                                            </form>
+                                
+                                                          <% } %>
+                                                          
+
+                                                        </td>
 
 
                                                    </tr> 

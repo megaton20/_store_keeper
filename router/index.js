@@ -34,6 +34,7 @@ router.get('/handler', (req, res)=>{
 
   if (req.session.Users) {
     const role = req.session.Users.userRole
+    const position = req.session.Users.position
     const session = req.session.Users
   
         if ((role == "super")) {
@@ -42,12 +43,17 @@ router.get('/handler', (req, res)=>{
 
         } else if (role == "admin") {
           
-          if (Users[0].position == 'Logistics') {
+          if (position == 'Logistics') {
             req.flash("success_msg", `welcome ${session.First_name}`);
             return res.redirect("/logistics");
           }
-          req.flash("success_msg", `welcome ${session.First_name}`);
-         return res.redirect("/employee");
+
+          if(position == "Attendant") {
+            console.log("hi");
+            req.flash("success_msg", `welcome ${session.First_name}`);
+            return res.redirect("/employee");
+          }
+
         } else if(role == "user"){
           req.flash("success_msg", `welcome ${session.First_name}`);
          return res.redirect("/user");
@@ -87,7 +93,7 @@ router.get("/getlgas/:state", (req, res) => {
   }
 });
 
-
+// search and  category filter
 router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
   const { id } = req.params;
   const { search } = req.query;
@@ -129,7 +135,7 @@ router.get("/getItems/:id", ensureAuthenticated, async (req, res) => {
   });
 });
 
-
+// cart update actions
 router.post('/updateCart', ensureAuthenticated, async (req, res) => {
   const userId = req.session.Users.id; // Assuming req.session.Users contains the authenticated user's info
   const userEmail = req.session.Users.email; // Assuming the user's email is stored in session
@@ -146,7 +152,7 @@ router.post('/updateCart', ensureAuthenticated, async (req, res) => {
     }
 
     // Insert new cart items
-    const insertCartQuery = `INSERT INTO Cart (user_id, user_email, product_id, quantity, product_name, price_per_item, subtotal, uuid, image) VALUES ?`;
+    const insertCartQuery = `INSERT INTO Cart (user_id, user_email, product_id, quantity, product_name,max, price_per_item, subtotal, uuid, image) VALUES ?`;
     const cartValues = req.body.cart.map(item => [
 
       userId,
@@ -154,6 +160,7 @@ router.post('/updateCart', ensureAuthenticated, async (req, res) => {
       item.id,
       item.quantity,
       item.name,
+      item.max,
       item.price,
       (item.price * item.quantity),
       item.uuid,
@@ -178,58 +185,54 @@ router.post('/updateCart', ensureAuthenticated, async (req, res) => {
   });
 });
 
-
-
-// Example of a protected POST route
+// check out cart item update
 router.post('/updateCartItem', ensureAuthenticated, (req, res) => {
-    const userId = req.session.Users.id;
-    const userEmail = req.session.Users.email;
-    const { productId, change } = req.body;
+  const userId = req.session.Users.id;
+  const userEmail = req.session.Users.email;
+  const { productId, change } = req.body;
 
-    const getItemQuery = `
-        SELECT * FROM Cart WHERE user_id = ? AND user_email = ? AND product_id = ?
-    `;
+  const getItemQuery = `
+      SELECT * FROM Cart WHERE user_id = ? AND user_email = ? AND product_id = ?
+  `;
 
-    db.query(getItemQuery, [userId, userEmail, productId], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ success: false, message: 'Failed to fetch cart item' });
-        }
+  db.query(getItemQuery, [userId, userEmail, productId], (err, results) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ success: false, message: 'Failed to fetch cart item' });
+      }
 
-        if (results.length === 0) {
-            return res.status(404).json({ success: false, message: 'Cart item not found' });
-        }
+      if (results.length === 0) {
+          return res.status(404).json({ success: false, message: 'Cart item not found' });
+      }
 
-        const item = results[0];
-        const newQuantity = item.quantity + change;
+      const item = results[0];
+      const newQuantity = item.quantity + change;
 
-        if (newQuantity <= 0) {
-            const deleteItemQuery = `DELETE FROM Cart WHERE id = ?`;
-            db.query(deleteItemQuery, [item.id], (err) => {
-                if (err) {
-                    console.error(err);
-                    return res.status(500).json({ success: false, message: 'Failed to delete cart item' });
-                }
-                return res.json({ success: true });
-            });
-        } else {
-            const updateItemQuery = `
-                UPDATE Cart 
-                SET quantity = ?, subtotal = price_per_item * ? 
-                WHERE id = ?
-            `;
-            db.query(updateItemQuery, [newQuantity, newQuantity, item.id], (err) => {
-                if (err) {
-                    console.error(err);
-                    return res.status(500).json({ success: false, message: 'Failed to update cart item' });
-                }
-                return res.json({ success: true });
-            });
-        }
-    });
+      if (newQuantity <= 0) {
+          const deleteItemQuery = `DELETE FROM Cart WHERE id = ?`;
+          db.query(deleteItemQuery, [item.id], (err) => {
+              if (err) {
+                  console.error(err);
+                  return res.status(500).json({ success: false, message: 'Failed to delete cart item' });
+              }
+              return res.json({ success: true });
+          });
+      } else {
+          const updateItemQuery = `
+              UPDATE Cart 
+              SET quantity = ?, subtotal = price_per_item * ? 
+              WHERE id = ?
+          `;
+          db.query(updateItemQuery, [newQuantity, newQuantity, item.id], (err) => {
+              if (err) {
+                  console.error(err);
+                  return res.status(500).json({ success: false, message: 'Failed to update cart item' });
+              }
+              return res.json({ success: true });
+          });
+      }
+  });
 });
-
-
 
 
 // paystack
@@ -334,6 +337,47 @@ router.post('/webhook', (req, res) => {
 router.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
+});
+
+
+
+
+
+
+router.post('/calculate-profit', (req, res) => {
+  const amount = parseFloat(req.body.amount);
+  const inventoryId = req.body.inventoryId;
+
+  const query = 'SELECT Purchase_price, Total_damaged, Cost_of_delivery, QTY_recieved, total_in_pack FROM inventory WHERE id = ?';
+  
+  db.query(query, [inventoryId], (err, result) => {
+    if (err) throw err;
+    
+    console.log(result);
+    if (result.length > 0) {
+      const { Purchase_price, Total_damaged, Cost_of_delivery, QTY_recieved, total_in_pack } = result[0];
+      
+      const total_cost_per_pack = Purchase_price + Cost_of_delivery + Total_damaged;
+      const total_revenue_per_pack = amount * total_in_pack;
+      const profit_per_pack = total_revenue_per_pack - total_cost_per_pack;
+      const profit_margin_per_pack = (profit_per_pack / total_revenue_per_pack) * 100;
+      
+      const total_revenue_all_packs = total_revenue_per_pack * QTY_recieved;
+      const total_cost_all_packs = total_cost_per_pack * QTY_recieved;
+      const total_profit_all_packs = profit_per_pack * QTY_recieved;
+      const total_profit_margin = (total_profit_all_packs / total_revenue_all_packs) * 100;
+      
+      res.json({
+        success: true,
+        profit_per_pack: profit_per_pack,
+        profit_margin_per_pack: profit_margin_per_pack,
+        total_profit_all_packs: total_profit_all_packs,
+        total_profit_margin: total_profit_margin
+      });
+    } else {
+      res.json({ success: false, error: 'No data found for the given ID.' });
+    }
+  });
 });
 
 

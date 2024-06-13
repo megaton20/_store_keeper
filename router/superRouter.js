@@ -72,6 +72,10 @@ router.put("/upgrade-users/:id", ensureAuthenticated,isSuper, superController.po
 router.get("/inventory/:id", ensureAuthenticated,isSuper, superController.getInventoryById);
 
 // shelf manipulation
+// add price for new store item to add to market
+router.get("/add-price/:id", ensureAuthenticated,isSuper, superController.getAddpricePage);
+router.get("/update-price/:id", ensureAuthenticated,isSuper, superController.getAddpriceUpdatePage);
+router.post("/create-sales/:id", ensureAuthenticated,isSuper, superController.addToShelfForSale);
 router.put("/update-price/:id", ensureAuthenticated,isSuper, superController.updatePrice);
 
 // counter for super
@@ -112,12 +116,12 @@ router.post("/create-logistics", ensureAuthenticated,isSuper, superController.cr
 
 // // add to store
 router.put('/product-status/unverified/:id',ensureAuthenticated,isSuper,superController.remove)
-// add price for new store item to add to market
-router.post("/create-sales/:id", ensureAuthenticated,isSuper, superController.addToShelfForSale);
 router.put("/resolve/:id", ensureAuthenticated,isSuper, superController.resolveSale);
 router.put("/flag-product/:id", ensureAuthenticated,isSuper, superController.flagProduct);
 router.put("/unflag-product/:id", ensureAuthenticated,isSuper, superController.unflagProduct);
-
+// showcase
+router.put("/showcase-on/:id", ensureAuthenticated,isSuper, superController.addToShowcse);
+router.put("/showcase-off/:id", ensureAuthenticated,isSuper, superController.removeFromShowcse);
 
 
 

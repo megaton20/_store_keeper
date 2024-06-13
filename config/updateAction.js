@@ -11,7 +11,7 @@ const formatDate = (dateStr) => {
 };
 
 const expiryChecker = () => {
-  db.query(`SELECT * FROM inventory WHERE expired = null`, (err, results) => {
+  db.query(`SELECT * FROM inventory `, (err, results) => {
     if (err) {
       console.error("Error fetching inventory data:", err.sqlMessage);
       return;
@@ -43,9 +43,10 @@ const expiryChecker = () => {
       if (data.watchData.days_left <= 0) {
         const itemId = data.id;
 
-        const productQuery = `UPDATE Products SET status = 'expired' WHERE inventory_id = ?`;
         const inventoryQuery = `UPDATE inventory SET expired = 'expired' WHERE id = ?`;
+        const productQuery = `UPDATE Products SET ? WHERE inventory_id = "${itemId}"`;
         
+      
             // update inventory
             db.query(inventoryQuery, [itemId], (err, result) => {
               if (err) {
@@ -56,7 +57,7 @@ const expiryChecker = () => {
             });
 
         // first check if it's in the product shelf
-        db.query(`SELECT * FROM Products WHERE inventory_id = ?`,(err,results)=>{
+        db.query(`SELECT * FROM Products WHERE inventory_id = "${itemId}"`,(err,results)=>{
           if (err) {
             console.error(`Error updating product with ID ${itemId}:`, err.sqlMessage);
           } else {
@@ -65,11 +66,16 @@ const expiryChecker = () => {
               return console.log(`the community is safe! inventory with id ${itemId} was not added to the shelf...`);
             }
 
-            db.query(productQuery, [itemId], (err, result) => {
+                 
+        let data = {
+          status : 'expired' 
+        }
+
+            db.query(productQuery, data, (err, result) => {
               if (err) {
                 console.error(`Error updating product with ID ${itemId}:`, err.sqlMessage);
               } else {
-                console.log(`Product with ID ${itemId} has been updated to expired.`);
+                console.log(`Product with invntory_ID ${itemId} has been updated to expired.`);
               }
             });
           }

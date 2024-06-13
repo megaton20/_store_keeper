@@ -1443,6 +1443,94 @@ exports.getInventoryById = (req, res) => {
   );
 };
 
+// add price page
+
+exports.getAddpricePage = (req, res) => {
+
+  let singleId = req.params.id;
+  const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  db.query(
+    `SELECT * FROM inventory WHERE id = "${singleId}" `,
+    (err, results) => {
+      if (err) {
+        req.flash("error_msg", ` ${err.sqlMessage}`);
+        return res.redirect("/super");
+      } else {
+
+        let allInventory = JSON.parse(JSON.stringify(results));
+
+        // to reformat the date
+        allInventory.forEach((inventory) => {
+          inventory.created_date = formatDate(
+            inventory.created_date
+          ); // Assuming 'date' is the date field in your supplier table
+          inventory.Manufacture_date = formatDate(
+            inventory.Manufacture_date
+          ); // Assuming 'date' is the date field in your supplier table
+          inventory.Expire_date = formatDate(
+            inventory.Expire_date
+          ); // Assuming 'date' is the date field in your supplier table
+        });
+
+        return res.render("./super/addPricePage", {
+          pageTitle: `${allInventory[0].Product_name} | ${allInventory[0].Brand_name}`,
+          name: `${userFirstName} ${userLastName}`,
+          month: monthName,
+          day: dayName,
+          date: presentDay,
+          year: presentYear,
+          allInventory,
+        });
+      }
+    }
+  );
+};
+
+exports.getAddpriceUpdatePage = (req, res) => {
+
+  let singleId = req.params.id;
+  const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+  db.query(
+    `SELECT * FROM inventory WHERE id = "${singleId}" `,
+    (err, results) => {
+      if (err) {
+        req.flash("error_msg", ` ${err.sqlMessage}`);
+        return res.redirect("/super");
+      } else {
+
+        let allInventory = JSON.parse(JSON.stringify(results));
+
+        // to reformat the date
+        allInventory.forEach((inventory) => {
+          inventory.created_date = formatDate(
+            inventory.created_date
+          ); // Assuming 'date' is the date field in your supplier table
+          inventory.Manufacture_date = formatDate(
+            inventory.Manufacture_date
+          ); // Assuming 'date' is the date field in your supplier table
+          inventory.Expire_date = formatDate(
+            inventory.Expire_date
+          ); // Assuming 'date' is the date field in your supplier table
+        });
+
+        return res.render("./super/addPriceUpdatePage", {
+          pageTitle: `${allInventory[0].Product_name} | ${allInventory[0].Brand_name}`,
+          name: `${userFirstName} ${userLastName}`,
+          month: monthName,
+          day: dayName,
+          date: presentDay,
+          year: presentYear,
+          allInventory,
+        });
+      }
+    }
+  );
+};
+
 //  at the counter page
 exports.adminCounter = (req, res) => {
   const userFirstName = req.session.Users.First_name;
@@ -1691,7 +1779,7 @@ exports.createNewDiscount = (req, res) => {
 exports.createNewInventory = (req, res) => {
   // req body
 
-
+  let supplierId 
   let filename;
 
   // Setting the image name from the uploaded file
@@ -1753,13 +1841,14 @@ exports.createNewInventory = (req, res) => {
       return res.redirect('/super');
     }
 
-    if (results.length === 0) {
-      req.flash('error_msg', `Supplier not found`);
-      return res.redirect('/super');
+    if (results.length != 0) {
+      supplierData = JSON.parse(JSON.stringify(results));
+      supplierId = supplierData[0].id;
+    }else {
+      supplierId = 0
+
     }
 
-    let supplierData = JSON.parse(JSON.stringify(results));
-    let supplierId = supplierData[0].id;
 
 
     db.query(`SELECT * FROM Category WHERE Category_name = ?`, [Category_name], (err, results) => {
@@ -1776,8 +1865,6 @@ exports.createNewInventory = (req, res) => {
       let categoryData = JSON.parse(JSON.stringify(results));
       let categoryId = categoryData[0].CategoryID;
   
-      // Create the inventory
-      // const sqlDate = new Date().toISOString().slice(0, 19).replace('T', ' '); // Get the current date in SQL format
       db.query(
         "INSERT INTO inventory SET ?",
         {
@@ -2092,7 +2179,7 @@ exports.returnProcessor = (req, res) => {
 
 
 
-// price form
+// price form to add to shelf
 exports.addToShelfForSale = (req, res) => {
 
   const updateID = req.params.id;
@@ -3383,6 +3470,10 @@ exports.resolveSale = (req, res) => {
 
 };
 
+
+
+
+
 exports.flagProduct = (req, res) => {
   let editID = req.params.id;
   let deactivate = {
@@ -3458,8 +3549,59 @@ exports.unflagProduct = (req, res) => {
   );
 };
 
-// delete req
 
+// showcase functions
+exports.addToShowcse = (req, res) => {
+  let editID = req.params.id;
+
+  let data = {
+    showcase: "yes",
+  };
+  db.query(
+    `UPDATE Products SET ? WHERE id = "${editID}" `,
+    data,
+    (err, results) => {
+      if (err) {
+        req.flash(
+          "error_msg",
+          `Error from server Database: ${err.sqlMessage}`
+        );
+        return res.redirect(`/super`);
+      } else {
+        req.flash("success_msg", ` added to showcase successfully!`);
+        return res.redirect("/super/all-products");
+      }
+    }
+  );
+};
+exports.removeFromShowcse = (req, res) => {
+  let editID = req.params.id;
+
+  let data = {
+    showcase: "no",
+  };
+
+      db.query(
+        `UPDATE Products SET ? WHERE id = "${editID}" `,
+        data,
+        (err, results) => {
+          if (err) {
+            req.flash(
+              "error_msg",
+              `Error from server Database: ${err.sqlMessage}`
+            );
+            return res.redirect(`/`);
+          } else {
+            req.flash("success_msg", ` removed from showcase successfully!`);
+            return res.redirect("/super/all-products");
+          }
+        }
+      );
+};
+
+
+
+// delete req
 exports.deleteStore = (req, res) => {
   let editID = req.params.id;
 
@@ -3541,6 +3683,7 @@ exports.deleteCategory = (req, res) => {
 exports.deleteInventory = (req, res) => {
   let editID = req.params.id;
   
+console.log(editID);
 
   db.query(`DELETE FROM inventory WHERE id = "${editID}"`, (err, results) => {
     if (err) {
@@ -3550,22 +3693,25 @@ exports.deleteInventory = (req, res) => {
   });
 
 
-  db.query( `SELECT * FROM Products WHERE category_id = ?`, [editID], (error, results)=>{
-    if (err) {
-      req.flash("error_msg", `could not delete: ${err.sqlMessage}`);
+  db.query( `SELECT * FROM Products WHERE inventory_id = ?`, [editID], (error, results)=>{
+    if (error) {
+      console.log(error);
+      req.flash("error_msg", `could not delete: ${error.sqlMessage}`);
       return res.redirect("/");
     }
+    console.log(results);
     if (results.length <= 0) {
-      req.flash("success_msg", `${editID} has been removed`);
+      req.flash("success_msg", `${editID} has been removed only from inventory`);
       return res.redirect("/super/all-inventory");
     }
+console.log("i got here");
 
     db.query(`DELETE FROM Products WHERE category_id = "${editID}"`, (err, results) => {
       if (err) {
         req.flash("error_msg", `could not delete: ${err.sqlMessage}`);
         return res.redirect("/");
       }
-      req.flash("success_msg", `${editID} has been removed`);
+      req.flash("success_msg", `${editID} has been removed from inventory and store`);
       return res.redirect("/super/all-inventory");
     });
   })

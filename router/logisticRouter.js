@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const logisticsController = require('../controllers/logisticsController')
 
-const { ensureAuthenticated, forwardAuthenticated } = require("../config/auth");
+const { ensureAuthenticated } = require("../config/auth");
 const { isLogistics  } = require("../config/isLogistics");
 
 // Welcome Page

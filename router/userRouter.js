@@ -41,7 +41,9 @@ router.post("/add-profile-image/:id", ensureAuthenticated,isUser,uploadSingle, u
 router.put("/updata-user-info/:id", ensureAuthenticated,isUser, userController.updateUserInfo);
 
 // users cart
-router.get("/", ensureAuthenticated,isUser, userController.counterForm);
+router.get("/", ensureAuthenticated,isUser, userController.userShop);
+router.get("/search", ensureAuthenticated,isUser, userController.searchPage);
+router.post("/search", ensureAuthenticated,isUser, userController.searchPost);
 
 
 router.get('/fetchCart', ensureAuthenticated,isUser,userController.fetchCart);

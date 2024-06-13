@@ -12,7 +12,7 @@
       <div class="row gy-5">
 
       
-      <div class="col-lg-8 ps-lg-5 card " data-aos="" data-aos-delay="0" id="">
+      <div class="col-lg-8 ps-lg-5 card "  id="">
           
         <% cartItems.forEach(item => { %>
           <div class="cart-item row">
@@ -50,38 +50,43 @@
 
             <input type="number" class="form-control" id="amount"  value="<%=customerToPay %>" hidden>
 
-          <button type="submit"  class=" mt-4 btn btn-warning" style="width: 100%;">Place Order ₦<span id="sumTotal"><%=totalSum%></span></button>
+          <button type="submit"  class=" mt-2 my-btn-outline " style="width: 100%;">Place Order ₦<span id="sumTotal"><%=totalSum%></span></button>
         </form>
       </div>
 
           <div class="service-box p-2">
-            <h4>Shiping information </h4>
-            <div class="row">
-              <div class="col-6 m-0">Phone</div>
-              <div class="col-6 m-0"><%= userData.Phone%></div>
-              <div class="col-6 m-0">Address</div>
-              <div class="col-6 m-0"><%= userData.Address%></div>
-              
-              
-              <div class="col-6 m-0">State:</div>
-              <div class="col-6 m-0"><%= userData.state%></div>
-              <div class="col-6 m-0">LGA:</div>
-              <div class="col-6 m-0"><%= userData.lga%></div>
-              <div class="col-6 m-0">Land Mark:</div>
-              <div class="col-6 m-0"><%= userData.land_mark%></div>
-  
+            <div class="container">
+
+              <h4>Shiping information </h4>
+              <div class="row">
+                <div class="col-6 m-0">Phone</div>
+                <div class="col-6 m-0"><%= userData.Phone%></div>
+                <div class="col-6 m-0">Address</div>
+                <div class="col-6 m-0"><%= userData.Address%></div>
+                
+                
+                <div class="col-6 m-0">State:</div>
+                <div class="col-6 m-0"><%= userData.state%></div>
+                <div class="col-6 m-0">LGA:</div>
+                <div class="col-6 m-0"><%= userData.lga%></div>
+                <div class="col-6 m-0">Land Mark:</div>
+                <div class="col-6 m-0"><%= userData.land_mark%></div>
+                
+                <a href="/user/profile" class=" mt-2 my-btn-outline ">Modify</a>
+              </div>
             </div>
-            <a href="/user/profile" class=" mt-2 btn btn-outline my-btn m-2 " style="width: 100%;">Modify</a>
             
        
         </div><!-- End Services List -->
 
 
-        <div class="help-box d-flex flex-column justify-content-center align-items-center">
-          <i class="bi bi-headset help-icon"></i>
-          <h4>Have a Question?</h4>
-          <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
-          <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
+        <div class="container">
+          <div class="help-box d-flex flex-column justify-content-center align-items-center">
+            <i class="bi bi-headset help-icon"></i>
+            <h4>Have a Question?</h4>
+            <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
+            <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
+          </div>
         </div>
 
 

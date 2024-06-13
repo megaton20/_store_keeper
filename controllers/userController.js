@@ -172,46 +172,105 @@ exports.updateUserInfo = (req, res) => {
 };
 
 // shopping window
-exports.counterForm = (req, res) => {
-  const sessionEmail = req.session.Users.email;
-  const sessionRole = req.session.Users.userRole;
+exports.userShop = (req, res) => {
+
     const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
+  let query = `SELECT * FROM Products WHERE showcase = ? AND total_on_shelf > ? AND status = ?`;
+  let queryParams = ['yes', 0, 'not-expired'];
+  query += ` ORDER BY RAND() LIMIT 20`;
 
-  db.query(`SELECT * FROM Cart `, (err, results) => {
+  // shocase item
+  db.query(query, queryParams, (err, results) => {
     if (err) {
-      req.flash("error_msg", ` ${err.sqlMessage}`);
-      return res.redirect("/user");
+      console.log(err.sqlMessage);
+      req.flash("error_msg", `${err.sqlMessage}`);
+      return res.redirect('/user');
     } else {
-      let data = JSON.stringify(results);
-      let presentCart = JSON.parse(data);
-    // other quwries
-    db.query(`SELECT * FROM Category `, (err, results) => {
-      if (err) {
-        req.flash("error_msg", ` ${err.sqlMessage}`);
-        return res.redirect("/user");
-      } else {
-        let data = JSON.stringify(results);
-        let allCategory = JSON.parse(data);
+      let showcaseItem = JSON.parse( JSON.stringify(results));
+      db.query(`UPDATE Users SET ? WHERE id = ?`, [{Previous_visit: sqlDate},req.session.Users.id], (err, results) => {
+        if (err) {
+          console.log(err);
+          req.flash("error_msg", ` ${err.sqlMessage}`);
+          return res.redirect("/user");
+        }
+        db.query(`SELECT * FROM Cart WHERE user_id = ?`, [req.session.Users.id], (err, results) => {
+          if (err) {
+            req.flash("error_msg", ` ${err.sqlMessage}`);
+            return res.redirect("/user");
+          } else {
+            let presentCart = JSON.parse( JSON.stringify(results));
+      
+          // other quwries
+          db.query(`SELECT * FROM Category `, (err, results) => {
+            if (err) {
+              req.flash("error_msg", ` ${err.sqlMessage}`);
+              return res.redirect("/user");
+            } else {
+              let data = JSON.stringify(results);
+              let allCategory = JSON.parse(data);
+      
+              return res.render("./user/userCounter", {
+                pageTitle: "At the counter",
+                name: `${userFirstName} ${userLastName}`,
+                month: monthName,
+                day: dayName,
+                date: presentDay,
+                year: presentYear,
+                allCategory,
+                shippingFee,
+                presentCart,
+                showcaseItem
+              }); // for admin only
+              // not user
+            }
+          });
+          }
+        })
+      })
+    }
+  });
 
-        return res.render("./user/userCounter", {
-          pageTitle: "At the counter",
+
+
+
+
+
+};
+
+exports.searchPage = (req, res) => {
+
+    const userFirstName = req.session.Users.First_name;
+  const userLastName = req.session.Users.Last_name;
+
+        return res.render("./user/userSearchPage", {
+          pageTitle: "Search your item",
           name: `${userFirstName} ${userLastName}`,
           month: monthName,
           day: dayName,
           date: presentDay,
           year: presentYear,
-          allCategory,
-          shippingFee,
-          presentCart
         }); // for admin only
         // not user
-      }
-    });
-    }
-  })
 };
+
+exports.searchPost = (req, res) => {
+
+  const userFirstName = req.session.Users.First_name;
+const userLastName = req.session.Users.Last_name;
+
+req.flash('warning_msg', `we are still working on the general search`)
+      return res.render("./user/userSearchPage", {
+        pageTitle: "Search your item",
+        name: `${userFirstName} ${userLastName}`,
+        month: monthName,
+        day: dayName,
+        date: presentDay,
+        year: presentYear,
+      }); 
+};
+
 
 exports.fetchCart = async (req, res) => {
   const userId = req.session.Users.id; // Assuming req.session.Users.id contains the user's ID from the session

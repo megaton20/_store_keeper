@@ -30,13 +30,11 @@ const formatDate = (dateStr) => {
 
 exports.getAdminWelcomePage = (req, res) => {
 
-
   let userFirstName = req.session.Users.First_name;
   let userLastName = req.session.Users.Last_name;
 
-
          return res.render("./logistics/logisticsDash", {
-            pageTitle: "At the counter",
+            pageTitle: "logistics driver",
             name: `${userFirstName} ${userLastName}`,
             month: monthName,
             day: dayName,

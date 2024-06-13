@@ -1,0 +1,50 @@
+
+<%- include('./partials/navbar') %>
+
+<main class="main">
+  
+
+  <br>
+  <br>
+  <br>
+  <br>
+  <div class="container">
+
+    <div class="container text-center">
+      <div class="container"><%- include('../partials/messages') %></div>
+      <div class="d-flex flex-column justify-content-center align-items-center">
+        <p data-aos="fade-up" data-aos-delay="100">Quickily find items by Searching our store<br></p>
+        <form action="/user/search" method="post" data-aos="fade-up"  >
+          <div class="newsletter-form"><input type="email" name="email"><input type="submit" value="Search"></div>
+          <div class="error-message"></div>
+        </form>
+      </div>
+    </div>
+
+
+  </div>
+
+</main>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<%- include('./partials/footer') %>
+
+<!-- Scroll Top -->
+<a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+
+
+
+
