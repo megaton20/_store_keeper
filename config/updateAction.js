@@ -89,10 +89,48 @@ const expiryChecker = () => {
   });
 };
 
+const userRankingChecker = () => {
+  let ranks = ['Newbie', 'Bossman', 'Chairman'];
+
+  db.query(`SELECT * FROM Users`, (err, results) => {
+    if (err) {
+      console.error("Error fetching user data:", err.sqlMessage);
+      return;
+    }
+
+    let userData = JSON.parse(JSON.stringify(results));
+
+    userData.forEach(user => {
+      let newRank;
+
+      if (user.spending <= 10000) {
+        newRank = ranks[0]; // rank a
+      } else if (user.spending > 10000 && user.spending <= 20000) {
+        newRank = ranks[1]; // rank b
+      } else if (user.spending > 20000) {
+        newRank = ranks[2]; // rank c
+      }
+
+      // Update user rank if a new rank is determined
+      if (newRank) {
+        db.query(`UPDATE Users SET rank = ? WHERE id = ?`, [newRank, user.id], (err, result) => {
+          if (err) {
+            console.error(`Error updating user ID ${user.id}:`, err.sqlMessage);
+          } else {
+            console.log(`User ID ${user.id} rank updated to ${newRank}`);
+          }
+        });
+      }
+    });
+    
+  });
+};
+
 // Schedule the job to run every minute
 cron.schedule('* * * * *', () => {
     console.log('Running minute update job...');
     expiryChecker();
+    userRankingChecker();
 });
 
 module.exports = expiryChecker;

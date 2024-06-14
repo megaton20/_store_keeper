@@ -16,6 +16,7 @@ const monthModel = require("../model/getMonth");
 let presentMonth = monthModel(systemCalander, "/");
 
 const getDay = require("../model/getDay");
+const { log } = require("console");
 let presentDay = getDay(systemCalander, "/");
 
 let sqlDate = presentYear + "-" + presentMonth + "-" + presentDay;
@@ -696,50 +697,7 @@ exports.getAllProducts = (req, res) => {
       req.flash("error_msg", ` ${err.sqlMessage}`);
       return res.redirect("/");
     } else {
-      let data = JSON.stringify(results);
-      let allProducts = JSON.parse(data);
-
-      // allProducts.forEach((products) => {
-      //   products.created_date = formatDate(
-      //     products.created_date
-      //   ); // Assuming 'date' is the date field in your supplier table
-      //   products.Manufacture_date = formatDate(
-      //     products.Manufacture_date
-      //   ); // Assuming 'date' is the date field in your supplier table
-      //   products.Expire_date = formatDate(
-      //     products.Expire_date
-      //   ); // Assuming 'date' is the date field in your supplier table
-      // });
-      // const itemsWithDaysLeft = results.map(item => {
-      //   const today = new Date();
-      //   let correctedExpireDate = formatDate(item.Expire_date)
-      //   let correctedManufactureDate = formatDate(item.Manufacture_date)
-      //   const expiryDate = new Date(correctedExpireDate);
-
-      //   // Calculate the difference in milliseconds between expiry date and today's date
-      //   const timeDifference = expiryDate.getTime() - today.getTime();
-
-      //   // Convert the difference from milliseconds to days
-      //   const daysLeft = Math.ceil(timeDifference / (1000 * 3600 * 24));
-
-      //   return {
-      //     id: item.id,
-      //     manufacture_date: correctedManufactureDate,
-      //     expiry_date: correctedExpireDate,
-      //     days_left: daysLeft
-      //   };
-      // });
-
-      // const prodcutDataToAdd = allProducts.map(item => {
-      //   const correspondingWatchData = itemsWithDaysLeft.find(watchItem => watchItem.id === item.id);
-      //   return {
-      //     ...item,
-      //     watchData: correspondingWatchData
-      //   };
-      // });
-
-      // console.log(prodcutDataToAdd);
-
+      let allProducts = JSON.parse(JSON.stringify(results));
       res.render("./super/productsTable", {
         pageTitle: "All products",
         name: `${userFirstName} ${userLastName}`,
@@ -1491,6 +1449,7 @@ exports.getAddpricePage = (req, res) => {
 exports.getAddpriceUpdatePage = (req, res) => {
 
   let singleId = req.params.id;
+
   const userFirstName = req.session.Users.First_name;
   const userLastName = req.session.Users.Last_name;
 
@@ -2183,7 +2142,8 @@ exports.returnProcessor = (req, res) => {
 exports.addToShelfForSale = (req, res) => {
 
   const updateID = req.params.id;
-  const { price } = req.body;
+  const { price , profit_per_pack, total_profit_all_packs, total_profit_margin} = req.body;
+
   // if user is admin
   if (!price) {
     req.flash("error_msg", `Enter Price before submiting to add to shelf`);
@@ -2197,8 +2157,8 @@ exports.addToShelfForSale = (req, res) => {
         req.flash("error_msg", `${err.sqlMessage}`);
         res.redirect("/super");
       } else {
-        let data = JSON.stringify(results);
-        let inventoryDataFromDb = JSON.parse(data);
+
+        let inventoryDataFromDb = JSON.parse(JSON.stringify(results));
 
         // check if its in pro db
         db.query(
@@ -2233,6 +2193,11 @@ exports.addToShelfForSale = (req, res) => {
                 activate: inventoryDataFromDb[0].activate,
                 image: inventoryDataFromDb[0].image,
                 category_id: inventoryDataFromDb[0].category_id,
+                profit_per_pack:profit_per_pack,
+                total_profit_all_packs:total_profit_all_packs,
+                total_profit_margin:total_profit_margin,
+
+
               };
 
               // adding to products table
@@ -2329,6 +2294,39 @@ exports.addToShelfForSale = (req, res) => {
     }
   );
 };
+
+exports.updatePrice = (req, res) => {
+  let editID = req.params.id;
+
+  const { price , profit_per_pack, total_profit_all_packs, total_profit_margin} = req.body;
+
+  if (!(price)) {
+    req.flash("error_msg", `Enter new price`);
+    return res.redirect(`/super/all-products/`);
+  }
+
+  // update
+  let updateData = {
+    UnitPrice: price,
+    profit_per_pack:profit_per_pack,
+    total_profit_all_packs:total_profit_all_packs,
+    total_profit_margin:total_profit_margin,
+  };
+
+  db.query(
+    `UPDATE Products SET ? WHERE inventory_id ="${editID}"`,
+    updateData,
+    (err, results) => {
+      if (err) {
+        req.flash("error_msg", `"${err.sqlMessage}" `);
+        return res.redirect("/super/all-products");
+      }
+      req.flash("success_msg", ` updated successfully!`);
+      return res.redirect("/super/all-products");
+    }
+  );
+};
+
 
 // activate on inventory
 exports.remove = (req, res) => {
@@ -3322,35 +3320,7 @@ exports.editNewPosition = (req, res) => {
   );
 };
 
-exports.updatePrice = (req, res) => {
-  let editID = req.params.id;
 
-  const { price } = req.body;
-
-  if (!(price)) {
-    req.flash("error_msg", `Enter new price`);
-    return res.redirect(`/super/all-products/`);
-  }
-
-  // update
-
-  let updateData = {
-    UnitPrice: price,
-  };
-
-  db.query(
-    `UPDATE Products SET ? WHERE id ="${editID}"`,
-    updateData,
-    (err, results) => {
-      if (err) {
-        req.flash("error_msg", `"${err.sqlMessage}" `);
-        return res.redirect("/super/all-products");
-      }
-      req.flash("success_msg", ` updated successfully!`);
-      return res.redirect("/super/all-products");
-    }
-  );
-};
 
 exports.resolveSale = (req, res) => {
   const editID = req.params.id;
@@ -3636,15 +3606,29 @@ exports.deleteDiscount = (req, res) => {
 exports.deleteEmployee = (req, res) => {
   let editID = req.params.id;
 
-  db.query(`DELETE FROM Users WHERE id = "${editID}"`, (err, results) => {
+  db.query(`SELECT * FROM Users WHERE id = ?`, [editID], (err, results)=>{
     if (err) {
       console.log(err);
       req.flash("error_msg", `could not delete: ${err.sqlMessage}`);
       return res.redirect("/");
     }
-    req.flash("success_msg", `employee has been removed`);
-    return res.redirect("/super/all-employees");
-  });
+
+    if (results[0].userRole == "super") {
+
+      req.flash("warning_msg",'can not delete this account!')
+      return res.redirect('/handler')
+    }
+    // not super
+    db.query(`DELETE FROM Users WHERE id = "${editID}"`, (err, results) => {
+      if (err) {
+        req.flash("error_msg", `could not delete: ${err.sqlMessage}`);
+        return res.redirect("/handler");
+      }
+      req.flash("success_msg", `employee has been removed`);
+      return res.redirect("/super/all-employees");
+    });
+  })
+
 };
 
 exports.deleteSupplier = (req, res) => {

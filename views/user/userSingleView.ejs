@@ -21,7 +21,7 @@
                 <!-- Card Header - Dropdown -->
                 <% if ( userData.image == null ) { %>
                   <div class="my-profile-image">
-                    <img class="img-thumbnail rounded-4" src="/images/no data.jpeg" alt="image">
+                    <img class="img-thumbnail rounded-4" src="/images/profile.jpg" alt="image" style="height: 170px 141px;">
                     <form class="user" action="/user/add-profile-image/<%= userData.id %>" method="post" enctype="multipart/form-data">
                       <div class="form-group">
                         <input type="file" name="image" class="" value="">
@@ -32,7 +32,7 @@
                   <% } else { %>
                     <div class="my-profile-image">
 
-                      <img class="img-thumbnail rounded-4 " src="/uploads/<%= userData.image %>" alt="image">
+                      <img class="img-thumbnail rounded-4 " src="/uploads/<%= userData.image %>" alt="image" >
                       
                     </div>
                     
@@ -52,6 +52,7 @@
                 <p class="text-uppercase text-warning"> Details</p>
 
                 <div class="row mb-4">
+                  <div class=" mb-3 btn btn-outline" ><%= userData.rank %></div>
                
                   <div class="col-6">First name:</div>
                   <div class="col-6"><%= userData.First_name %></div>
@@ -89,7 +90,7 @@
               <div class="mb-4">
                 <div class="row">
                   <a 
-                  class="col-lg-4 col-md-12 col-sm-12 mb-3 btn btn-outline-warning"
+                  class="col-lg-4 mr-2 col-md-12 col-sm-12 mb-3 btn btn-outline-warning"
                   href="/user/edit-user/<%= userData.id %>"><div class=" ">Edit</div></a>
                   
                   
@@ -100,6 +101,8 @@
                 </div>
               </div>
             </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -113,5 +116,3 @@
 <br>
 
 <%- include('./partials/footer') %>
-<!-- Logout Modal-->
-<%- include ('../modals/logout') %>

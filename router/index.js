@@ -353,7 +353,6 @@ router.post('/calculate-profit', (req, res) => {
   db.query(query, [inventoryId], (err, result) => {
     if (err) throw err;
     
-    console.log(result);
     if (result.length > 0) {
       const { Purchase_price, Total_damaged, Cost_of_delivery, QTY_recieved, total_in_pack } = result[0];
       

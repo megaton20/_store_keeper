@@ -160,7 +160,6 @@ router.delete("/delete-supplier/:id", ensureAuthenticated,isSuper, superControll
 router.delete("/delete-category/:id", ensureAuthenticated,isSuper, superController.deleteCategory);
 router.delete("/delete-inventory/:id", ensureAuthenticated,isSuper, superController.deleteInventory);
 router.delete("/delete-position/:id", ensureAuthenticated,isSuper, superController.deletePosition);
-router.delete("/delete-position/:id", ensureAuthenticated,isSuper, superController.deletePosition);
 // router.put("/edit-customer/:id", ensureAuthenticated,isSuper, superController.editNewCustomer);
 
 

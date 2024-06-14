@@ -74,14 +74,15 @@
 
 
                                               <div class="card-body">
-                                                <!-- <input type="number" class="form-control" id="amount" oninput="calculateProfit()"> -->
-
 
                                             <form id="profitForm" action="/super/update-price/<%= allInventory[0].id %>" method="post" >
                                                 <input type="number" id="inventoryId" name="inventoryId" hidden value="<%= allInventory[0].id %>">
                                                 <br>
                                                 <label for="amount">Enter Amount:</label>
                                                 <input type="number" id="amount" name="price" required>
+                                                <input type="hidden" id="profit_per_pack" name="profit_per_pack" >
+                                                <input type="hidden" id="total_profit_all_packs" name="total_profit_all_packs" >
+                                                <input type="hidden" id="profit_margin" name="total_profit_margin" >
                                                 <div class="mt-4">
                                                     <input type="hidden" name="_method" value="PUT">
                                                     <input name="_method" type="submit" value="Update" class="btn btn-primary "/>
@@ -122,49 +123,56 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Logout Modal-->
-    <%- include ('../modals/logout') %>
 
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-    $(document).ready(function() {
-        var amountInput = $('#amount');
-        var inventoryIdInput = $('#inventoryId');
-        var resultDiv = $('#result');
-    
-        function calculateProfit() {
-            var amount = amountInput.val();
-            var inventoryId = inventoryIdInput.val();
-    
-            if (amount && inventoryId) {
-                $.ajax({
-                    url: '/calculate-profit',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ amount: amount, inventoryId: inventoryId }),
-                    success: function(response) {
-                        if (response.success) {
-                            resultDiv.html(`
-                                Profit per Pack: ${response.profit_per_pack.toFixed(2)}<br>
-                                Profit Margin per Pack: ${response.profit_margin_per_pack.toFixed(2)}%<br>
-                                Total Profit for All Packs: ${response.total_profit_all_packs.toFixed(2)}<br>
-                                Total Profit Margin: ${response.total_profit_margin.toFixed(2)}%
-                            `);
-                        } else {
-                            resultDiv.html('Error: ' + response.error);
+        $(document).ready(function() {
+            var amountInput = $('#amount');
+            var inventoryIdInput = $('#inventoryId');
+            var resultDiv = $('#result');
+            var profitPerPackInput = $('#profit_per_pack');
+            var profitAllPacksInput = $('#total_profit_all_packs');
+            var profitMarginInput = $('#profit_margin');
+        
+            function calculateProfit() {
+                var amount = amountInput.val();
+                var inventoryId = inventoryIdInput.val();
+        
+                if (amount && inventoryId) {
+                    $.ajax({
+                        url: '/calculate-profit',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ amount: amount, inventoryId: inventoryId }),
+                        success: function(response) {
+                            if (response.success) {
+                                // Update the result div with the calculated values
+                                resultDiv.html(`
+                                    Profit per Pack: ${response.profit_per_pack.toFixed(2)}<br>
+                                    Profit Margin per Pack: ${response.profit_margin_per_pack.toFixed(2)}%<br>
+                                    Total Profit for All Packs: ${response.total_profit_all_packs.toFixed(2)}<br>
+                                    Total Profit Margin: ${response.total_profit_margin.toFixed(2)}%
+                                `);
+        
+                                // Set the values of the hidden input fields
+                                profitPerPackInput.val(response.profit_per_pack.toFixed(2));
+                                profitAllPacksInput.val(response.total_profit_all_packs.toFixed(2));
+                                profitMarginInput.val(response.profit_margin_per_pack.toFixed(2));
+                            } else {
+                                resultDiv.html('Error: ' + response.error);
+                            }
+                        },
+                        error: function() {
+                            resultDiv.html('An error occurred. Please try again.');
                         }
-                    },
-                    error: function() {
-                        resultDiv.html('An error occurred. Please try again.');
-                    }
-                });
-            } else {
-                resultDiv.html('');
+                    });
+                } else {
+                    resultDiv.html('');
+                }
             }
-        }
-    
-        amountInput.on('input', calculateProfit);
-        // inventoryIdInput.on('input', calculateProfit);
-    });    
-</script>
+        
+            amountInput.on('input', calculateProfit);
+            // inventoryIdInput.on('input', calculateProfit);
+        });
+        </script>
